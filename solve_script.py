@@ -271,6 +271,10 @@ try:
     ws.Cells(5, 2).Value = gpa_mean
 
     ws.Cells(6, 1).Value = 'GPA Variance'
+    # Calculate GPA variance
+    gpa_variance_total = (sum(pow(gpa[s] - gpa_mean, 2)
+                              for s in STUDENTS)) \
+        / len(students_in_group[g])
     # ws.Cells(6, 1).Value = gpa_variance_difference
 
     ws.Cells(7, 1).Value = 'Specialisations'
