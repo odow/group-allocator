@@ -274,7 +274,7 @@ try:
     # Calculate GPA variance
     gpa_variance_total = (sum(pow(gpa[s] - gpa_mean, 2)
                               for s in STUDENTS)) \
-        / len(students_in_group[g])
+        / number_students
     # ws.Cells(6, 1).Value = gpa_variance_difference
 
     ws.Cells(7, 1).Value = 'Specialisations'
