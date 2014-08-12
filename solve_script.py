@@ -6,6 +6,7 @@
 #
 # ============================================================================
 from pulp import *
+import datetime
 problem = LpProblem('ENGGEN403', LpMinimize)
 print('Creating model...')
 
@@ -212,20 +213,18 @@ except:
 
 print('Finished Solving')
 
-# Make lists to hold groups
-group_allocations = {}
-students_in_group = {}
 
-for g in GROUPS:
-    group_allocations[g] = list()
-    students_in_group[g] = list()
-
-# Print group number for each student and add to group list
+# Write group number for each student and add to group list
 for s, g in STUDENT_GROUP:
     if x[(s, g)].value() == 1:
         groups[s] = g
-        group_allocations[g].append({'name': NAMES[s], 'id': s,
-                                    'specialisation': specialisation[s]})
+
+# Make list to hold groups
+students_in_group = {}
+
+for g in GROUPS:
+    students_in_group[g] = list()
+
 for s in STUDENTS:
     for g in GROUPS:
         if groups[s] == g:
@@ -519,23 +518,235 @@ for e in ETHNICITIES:
     a.deselect()
 
 Application.Worksheets('Summary_Results').Move(after=Application.Worksheets('Student_Data'))
-# ws = Application.Worksheets('GroupList')
-# ws.Cells.ClearContents()
-# ws.Cells(1, 1).Value = 'Group'
-# ws.Cells(1, 2).Value = 'Name'
-# ws.Cells(1, 3).Value = 'Specialisation'
 
-# row = 2
-# for g in GROUPS:
-#     for d in group_allocations[g]:
-#         ws.Cells(row, 1).Value = g
-#         ws.Cells(row, 2).Value = d['name']
-#         ws.Cells(row, 3).Value = d['specialisation']
-#         row += 1
-#     # Blank space between each group
-#     row += 1
+# Group Lists in Separate Workbook
+# Setup paths
+now = datetime.datetime.now()
+path = Application.ActiveWorkbook.path
+append_string = now.strftime('%Y-%m-%d_%H.%M.%S')
+instructor_workbook_name = 'Groups_InstructorView_%s' % (append_string)
+student_workbook_name = 'Groups_StudentView_%s' % (append_string)
 
-Application.ScreenUpdating = True
-# except:
-#     Application.ScreenUpdating = True
-#     print('An error was encountered. Please contact support.')
+save_path_instructor = '%s\\%s.xlsx' % (path, instructor_workbook_name)
+save_path_student = '%s\\%s.xlsx' % (path, student_workbook_name)
+
+# Instructor View
+# Create new workbook
+Application.Workbooks.Add()
+Application.ActiveWorkbook.SaveAs(Filename=save_path_instructor)
+wb = Application.Workbooks(instructor_workbook_name)
+
+# All groups
+wb.Sheets.Add()
+wb.ActiveSheet.Name = 'All_Groups'
+ws = wb.Worksheets('All_Groups')
+
+# Headers
+ws.Cells(1, 1).Value = 'Group'
+ws.Cells(1, 1).Font.Bold = True
+
+ws.Cells(1, 2).Value = 'Name'
+ws.Cells(1, 2).Font.Bold = True
+
+ws.Cells(1, 3).Value = 'UPI'
+ws.Cells(1, 3).Font.Bold = True
+
+ws.Cells(1, 4).Value = 'Discipline'
+ws.Cells(1, 4).Font.Bold = True
+
+ws.Cells(1, 5).Value = 'UoA Email'
+ws.Cells(1, 5).Font.Bold = True
+
+ws.Cells(1, 6).Value = 'GPA'
+ws.Range(ws.Cells(1, 6), ws.Cells(1, 6)).Style = 'Bad'
+ws.Cells(1, 6).Font.Bold = True
+
+ws.Cells(1, 7).Value = 'Ethnic Group'
+ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
+ws.Cells(1, 7).Font.Bold = True
+
+# Data
+row_index = 1
+for g in GROUPS:
+    for s in students_in_group[g]:
+        row_index += 1
+        ws.Cells(row_index, 1).Value = g
+        ws.Cells(row_index, 2).Value = NAMES[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
+        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+        ws.Cells(row_index, 7).Value = ethnicity[s]
+        # Space between each group
+    row_index += 1
+
+ws.Activate()
+ws.Cells.Select()
+Application.Selection.Columns.AutoFit()
+ws.Cells(1, 1).Select()
+
+for sheet in wb.Worksheets:
+    if sheet.Name != 'All_Groups':
+        print(sheet.Name)
+        Application.DisplayAlerts = False
+        sheet.Delete()
+        Application.DisplayAlerts = True
+
+
+# Make a sheet for each group
+for g in GROUPS:
+    count = Application.Worksheets.Count
+    wb.Sheets.Add(After=wb.Sheets(count))
+    wb_name = 'Group_%s' % g
+    wb.ActiveSheet.Name = wb_name
+    ws = wb.Worksheets(wb_name)
+
+    # Headers
+    ws.Cells(1, 1).Value = 'Group'
+    ws.Cells(1, 1).Font.Bold = True
+
+    ws.Cells(1, 2).Value = 'Name'
+    ws.Cells(1, 2).Font.Bold = True
+
+    ws.Cells(1, 3).Value = 'UPI'
+    ws.Cells(1, 3).Font.Bold = True
+
+    ws.Cells(1, 4).Value = 'Discipline'
+    ws.Cells(1, 4).Font.Bold = True
+
+    ws.Cells(1, 5).Value = 'UoA Email'
+    ws.Cells(1, 5).Font.Bold = True
+
+    ws.Cells(1, 6).Value = 'GPA'
+    ws.Range(ws.Cells(1, 6), ws.Cells(1, 6)).Style = 'Bad'
+    ws.Cells(1, 6).Font.Bold = True
+
+    ws.Cells(1, 7).Value = 'Ethnic Group'
+    ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
+    ws.Cells(1, 7).Font.Bold = True
+
+    # Data
+    row_index = 1
+    for s in students_in_group[g]:
+        row_index += 1
+        ws.Cells(row_index, 1).Value = g
+        ws.Cells(row_index, 2).Value = NAMES[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
+        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+        ws.Cells(row_index, 7).Value = ethnicity[s]
+
+    # Mean GPA
+    row_index += 2
+    ws.Cells(row_index, 5).Value = 'Mean GPA'
+    ws.Cells(row_index, 5).Font.Bold = True
+    ws.Cells(row_index, 6).Value = '%.2f' % gpa_mean_group[g]
+    ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+
+    # Activate and autofit
+    ws.Activate()
+    ws.Cells.Select()
+    Application.Selection.Columns.AutoFit()
+    ws.Cells(1, 1).Select()
+
+wb.Worksheets('All_Groups').Activate()
+wb.Save()
+
+# Student View
+# Create new workbook
+Application.Workbooks.Add()
+Application.ActiveWorkbook.SaveAs(Filename=save_path_student)
+wb = Application.Workbooks(student_workbook_name)
+
+# All groups
+wb.Sheets.Add()
+wb.ActiveSheet.Name = 'All_Groups'
+ws = wb.Worksheets('All_Groups')
+
+# Headers
+ws.Cells(1, 1).Value = 'Group'
+ws.Cells(1, 1).Font.Bold = True
+
+ws.Cells(1, 2).Value = 'Name'
+ws.Cells(1, 2).Font.Bold = True
+
+ws.Cells(1, 3).Value = 'UPI'
+ws.Cells(1, 3).Font.Bold = True
+
+ws.Cells(1, 4).Value = 'Discipline'
+ws.Cells(1, 4).Font.Bold = True
+
+ws.Cells(1, 5).Value = 'UoA Email'
+ws.Cells(1, 5).Font.Bold = True
+
+# Data
+row_index = 1
+for g in GROUPS:
+    for s in students_in_group[g]:
+        row_index += 1
+        ws.Cells(row_index, 1).Value = g
+        ws.Cells(row_index, 2).Value = NAMES[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        # Space between each group
+    row_index += 1
+
+ws.Activate()
+ws.Cells.Select()
+Application.Selection.Columns.AutoFit()
+ws.Cells(1, 1).Select()
+
+for sheet in wb.Worksheets:
+    if sheet.Name != 'All_Groups':
+        print(sheet.Name)
+        Application.DisplayAlerts = False
+        sheet.Delete()
+        Application.DisplayAlerts = True
+
+
+# Make a sheet for each group
+for g in GROUPS:
+    count = Application.Worksheets.Count
+    wb.Sheets.Add(After=wb.Sheets(count))
+    wb_name = 'Group_%s' % g
+    wb.ActiveSheet.Name = wb_name
+    ws = wb.Worksheets(wb_name)
+
+    # Headers
+    ws.Cells(1, 1).Value = 'Group'
+    ws.Cells(1, 1).Font.Bold = True
+
+    ws.Cells(1, 2).Value = 'Name'
+    ws.Cells(1, 2).Font.Bold = True
+
+    ws.Cells(1, 3).Value = 'UPI'
+    ws.Cells(1, 3).Font.Bold = True
+
+    ws.Cells(1, 4).Value = 'Discipline'
+    ws.Cells(1, 4).Font.Bold = True
+
+    ws.Cells(1, 5).Value = 'UoA Email'
+    ws.Cells(1, 5).Font.Bold = True
+
+    # Data
+    row_index = 1
+    for s in students_in_group[g]:
+        row_index += 1
+        ws.Cells(row_index, 1).Value = g
+        ws.Cells(row_index, 2).Value = NAMES[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+
+    # Activate
+    ws.Activate()
+    ws.Cells.Select()
+    Application.Selection.Columns.AutoFit()
+    ws.Cells(1, 1).Select()
+
+wb.Worksheets('All_Groups').Activate()
+wb.Save()
