@@ -15,5 +15,5 @@ Group-Allocator uses a mixed integer program to minimize the difference between 
 
 ## Files
 + **Group_Allocator.xlsx** - the main spreadsheet that contains everything necessary to run Group-Allocator with SolverStudio installed
-+ **solve_script.py** - a copy of the source code contained within Group_Allocator.xlsx for easy editing in a text editor and commit history with Git.
++ **solve_script.py** - a copy of the source code contained within Group_Allocator.xlsx for easy editing in a text editor and commit history in Git
 + **data_gen.xlsx** - a spreadsheet with formulae to demonstrate how test data can be generated
