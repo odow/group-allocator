@@ -5,7 +5,7 @@ Group-Allocator is a solution developed by Oscar Dowson and Michael Fairley for 
 
 The solution is implemented in a Microsoft Excel interface so it makes it easy for administrators to download and use. It requires SolverStudio, an add-in for Excel that provides "an integrated environment for optimization using modeling languages within Excel". SolverStudio can be downloaded from http://solverstudio.org. For further details, please read the "Instructions" sheet in the "Group_Allocator.xlsx" spreadsheet.
 
-## Compatible Versions of Microsoft Excel and SolverStudio (14 August 2014)
+## Compatible Versions of Microsoft Excel and SolverStudio
 
 Group-Allocator has been tested on Microsoft Excel 2010 and 2013, and SolverStudio 0.6.0 and 0.5.4.
 
