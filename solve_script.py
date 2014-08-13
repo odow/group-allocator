@@ -30,6 +30,7 @@
 #
 # ============================================================================
 from pulp import *
+from System import Array
 import datetime
 problem = LpProblem('ENGGEN403', LpMinimize)
 print('Creating model...')
@@ -398,12 +399,55 @@ for g in GROUPS:
         col_index += 1
         ws.Cells(cell_index, col_index).Value = ethnicities_group[e][g]
 
+# Insert data for box plots
+col_index += 1
+ws.Cells(1, col_index + 1).Value = 'gpa_min'
+ws.Cells(1, col_index + 2).Value = 'gpa_q1'
+ws.Cells(1, col_index + 3).Value = 'gpa_median'
+ws.Cells(1, col_index + 4).Value = 'gpa_q3'
+ws.Cells(1, col_index + 5).Value = 'gpa_max'
+ws.Cells(1, col_index + 6).Value = 'gpa_d_min'
+ws.Cells(1, col_index + 7).Value = 'gpa_d_q1'
+ws.Cells(1, col_index + 8).Value = 'gpa_d_median'
+ws.Cells(1, col_index + 9).Value = 'gpa_d_q3'
+ws.Cells(1, col_index + 10).Value = 'gpa_d_max'
+
+# Create array for each group containing gpas
+data_summary = {}
+for g in GROUPS:
+    array = Array.CreateInstance(object, len(students_in_group[g]))
+    for i in range(len(students_in_group[g])):
+        student = students_in_group[g][i]
+        array[i] = gpa[student]
+    min_gpa = Application.WorksheetFunction.Min(array)
+    q1_gpa = Application.WorksheetFunction.Quartile(array, 1)
+    med_gpa = Application.WorksheetFunction.Median(array)
+    q3_gpa = Application.WorksheetFunction.Quartile(array, 3)
+    max_gpa = Application.WorksheetFunction.Max(array)
+    data_summary[g] = [min_gpa, q1_gpa, med_gpa, q3_gpa, max_gpa]
+
+row_index = 2
+for g in GROUPS:
+    row_index += 1
+    ws.Cells(row_index, col_index + 1).Value = '%.2f' % data_summary[g][0]
+    ws.Cells(row_index, col_index + 2).Value = '%.2f' % data_summary[g][1]
+    ws.Cells(row_index, col_index + 3).Value = '%.2f' % data_summary[g][2]
+    ws.Cells(row_index, col_index + 4).Value = '%.2f' % data_summary[g][3]
+    ws.Cells(row_index, col_index + 5).Value = '%.2f' % data_summary[g][4]
+
+    # Differences needed for charting
+    ws.Cells(row_index, col_index + 6).Value = '%.2f' % data_summary[g][0]
+    ws.Cells(row_index, col_index + 7).Value = '%.2f' % (data_summary[g][1] -  data_summary[g][0])
+    ws.Cells(row_index, col_index + 8).Value = '%.2f' % (data_summary[g][2] -  data_summary[g][1])
+    ws.Cells(row_index, col_index + 9).Value = '%.2f' % (data_summary[g][3] -  data_summary[g][2])
+    ws.Cells(row_index, col_index + 10).Value = '%.2f' % (data_summary[g][4] -  data_summary[g][3])
+
 # Autofit columns in Summary_Results
 ws.Activate()
 ws.Cells.Select()
 Application.Selection.Columns.AutoFit()
-ws.Range(ws.Cells(2, 5), ws.Cells(number_groups+2, 6)).NumberFormat = "0.00"
-ws.Range(ws.Cells(2, 1), ws.Cells(2, 6 + len(SPECIALISATIONS) + len(ETHNICITIES))).Style = "Good"
+ws.Range(ws.Cells(2, 5), ws.Cells(number_groups+2, 6)).NumberFormat = '0.00'
+ws.Range(ws.Cells(2, 1), ws.Cells(2, 6 + len(SPECIALISATIONS) + len(ETHNICITIES))).Style = 'Good'
 ws.Range(ws.cells(1, 1), ws.Cells(number_groups+2, 1)).Borders(10).LineStyle = 1
 ws.Range(ws.cells(1, 1), ws.Cells(number_groups+2, 1)).HorizontalAlignment = -4131
 ws.Cells(number_groups+5, 1).Select()
@@ -418,35 +462,87 @@ for sheet in Application.Charts:
         sheet.Delete()
         Application.DisplayAlerts = True
 
-x_axis_range = ws.Range(ws.Cells(3, 1), ws.Cells(2 + number_groups, 1))
 
-# GPA mean and variance graph
+# GPA Box Plot Chart
+# Select data range
 print('Charting GPA . . .')
-Application.Worksheets('Summary_Results').Activate()
-ws.Cells(number_groups+5, 1).Select()
-Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
+ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
+Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
 a = Application.ActiveChart
-a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(1).Name = "GPA"
-a.FullSeriesCollection(1).Values = ws.Range(ws.Cells(3, 5), ws.Cells(2 + number_groups, 5))
-a.FullSeriesCollection(1).XValues = x_axis_range
-a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(2).Name = "GPA Variance"
-a.FullSeriesCollection(2).Values = ws.Range(ws.Cells(3, 6), ws.Cells(2 + number_groups, 6))
-a.FullSeriesCollection(2).XValues = x_axis_range
+a.FullSeriesCollection(1).Select()
+Application.Selection.Format.Fill.Visible = 0
+Application.Selection.Format.Line.Visible = 0
+a.FullSeriesCollection(2).Select()
+Application.Selection.Format.Fill.Visible = 0
+Application.Selection.Format.Line.Visible = 0
+a.FullSeriesCollection(2).HasErrorBars = True
+#a.FullSeriesCollection(2).ErrorBars.Select()
+a.FullSeriesCollection(2).ErrorBar(Direction=1, Include=3, Type=2, Amount=100)
+
+
+a.FullSeriesCollection(5).Select()
+Application.Selection.Format.Fill.Visible = 0
+Application.Selection.Format.Line.Visible = 0
+
+
+a.FullSeriesCollection(4).HasErrorBars = True
+a.FullSeriesCollection(4).ErrorBar(Direction=1, Include=2, Type=2, Amount=100)
+
+a.FullSeriesCollection(4).Select()
+Application.Selection.Format.Fill.Visible = 0
+Application.Selection.Format.Line.Visible = 1
+Application.Selection.Format.Line.ForeColor.ObjectThemeColor = 13
+
+a.FullSeriesCollection(3).Select()
+Application.Selection.Format.Fill.Visible = 0
+Application.Selection.Format.Line.Visible = 1
+Application.Selection.Format.Line.ForeColor.ObjectThemeColor = 13
+
 a.SetElement(2)
 a.SetElement(306)
 a.SetElement(301)
 a.SetElement(102)
-a.ChartTitle.Text = "Mean GPA and Variance of GPA"
+a.Legend.Select()
+Application.Selection.Delete()
+a.ChartTitle.Text = 'GPA spread per group (lines bottom to top = Min, Q1, Median, Q3, Max)'
 a.Axes(1, 1).HasTitle = True
-a.Axes(1, 1).AxisTitle.Text = "Group"
+a.Axes(1, 1).AxisTitle.Text = 'Group'
 a.Axes(2, 1).HasTitle = True
-a.Axes(2, 1).AxisTitle.Text = "GPA"
+a.Axes(2, 1).AxisTitle.Text = 'GPA'
 a.Axes(2).MaximumScale = 9
 a.Axes(2).MinimumScale = 0
-a.Location(Where=1, Name="GPA_Chart")
+a.Location(Where=1, Name='GPA_Chart')
 a.deselect()
+
+# GPA mean and variance graph
+# print('Charting GPA . . .')
+# Application.Worksheets('Summary_Results').Activate()
+# ws.Cells(number_groups+5, 1).Select()
+# Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
+# a = Application.ActiveChart
+# a.SeriesCollection().NewSeries()
+# a.FullSeriesCollection(1).Name = 'GPA'
+# a.FullSeriesCollection(1).Values = ws.Range(ws.Cells(3, 5), ws.Cells(2 + number_groups, 5))
+# a.FullSeriesCollection(1).XValues = x_axis_range
+# a.SeriesCollection().NewSeries()
+# a.FullSeriesCollection(2).Name = 'GPA Variance'
+# a.FullSeriesCollection(2).Values = ws.Range(ws.Cells(3, 6), ws.Cells(2 + number_groups, 6))
+# a.FullSeriesCollection(2).XValues = x_axis_range
+# a.SetElement(2)
+# a.SetElement(306)
+# a.SetElement(301)
+# a.SetElement(102)
+# a.ChartTitle.Text = 'Mean GPA and Variance of GPA'
+# a.Axes(1, 1).HasTitle = True
+# a.Axes(1, 1).AxisTitle.Text = 'Group'
+# a.Axes(2, 1).HasTitle = True
+# a.Axes(2, 1).AxisTitle.Text = 'GPA'
+# a.Axes(2).MaximumScale = 9
+# a.Axes(2).MinimumScale = 0
+# a.Location(Where=1, Name='GPA_Chart')
+# a.deselect()
+
+x_axis_range = ws.Range(ws.Cells(3, 1), ws.Cells(2 + number_groups, 1))
 
 # Gender
 print('Charting Gender . . .')
@@ -455,25 +551,25 @@ ws.Cells(number_groups+5, 1).Select()
 Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
 a = Application.ActiveChart
 a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(1).Name = "Male"
+a.FullSeriesCollection(1).Name = 'Male'
 a.FullSeriesCollection(1).Values = ws.Range(ws.Cells(3, 3), ws.Cells(2 + number_groups, 3))
 a.FullSeriesCollection(1).XValues = x_axis_range
 a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(2).Name = "Female"
+a.FullSeriesCollection(2).Name = 'Female'
 a.FullSeriesCollection(2).Values = ws.Range(ws.Cells(3, 4), ws.Cells(2 + number_groups, 4))
 a.FullSeriesCollection(2).XValues = x_axis_range
 a.SetElement(2)
 a.SetElement(306)
 a.SetElement(301)
 a.SetElement(102)
-a.ChartTitle.Text = "Number of Males and Females in each group"
+a.ChartTitle.Text = 'Number of Males and Females in each group'
 a.Axes(1, 1).HasTitle = True
-a.Axes(1, 1).AxisTitle.Text = "Group"
+a.Axes(1, 1).AxisTitle.Text = 'Group'
 a.Axes(2, 1).HasTitle = True
-a.Axes(2, 1).AxisTitle.Text = "Number of Students"
+a.Axes(2, 1).AxisTitle.Text = 'Number of Students'
 a.Axes(2).MaximumScale = m2 + 1
 a.Axes(2).MinimumScale = 0
-a.Location(Where=1, Name="Gender_Chart")
+a.Location(Where=1, Name='Gender_Chart')
 a.deselect()
 
 # Specialisations
@@ -496,14 +592,14 @@ for s in SPECIALISATIONS:
     a.SetElement(306)
     a.SetElement(301)
     a.SetElement(102)
-    a.ChartTitle.Text = "Number from %s in each group" % s
+    a.ChartTitle.Text = '%s students in each group' % s.title()
     a.Axes(1, 1).HasTitle = True
-    a.Axes(1, 1).AxisTitle.Text = "Group"
+    a.Axes(1, 1).AxisTitle.Text = 'Group'
     a.Axes(2, 1).HasTitle = True
-    a.Axes(2, 1).AxisTitle.Text = "Number of Students"
+    a.Axes(2, 1).AxisTitle.Text = 'Number of Students'
     a.Axes(2).MaximumScale = m2 + 1
     a.Axes(2).MinimumScale = 0
-    title = "%s_Chart" % s
+    title = '%s_Chart' % s
     a.Location(Where=1, Name=title)
     wb.Sheets(title).Tab.ThemeColor = 9
     wb.Sheets(title).Tab.TintAndShade = 0
@@ -528,14 +624,14 @@ for e in ETHNICITIES:
     a.SetElement(306)
     a.SetElement(301)
     a.SetElement(102)
-    a.ChartTitle.Text = "Number of %s in each group" % e
+    a.ChartTitle.Text = '%s students in each group' % e.title()
     a.Axes(1, 1).HasTitle = True
-    a.Axes(1, 1).AxisTitle.Text = "Group"
+    a.Axes(1, 1).AxisTitle.Text = 'Group'
     a.Axes(2, 1).HasTitle = True
-    a.Axes(2, 1).AxisTitle.Text = "Number of Students"
+    a.Axes(2, 1).AxisTitle.Text = 'Number of Students'
     a.Axes(2).MaximumScale = m2 + 1
     a.Axes(2).MinimumScale = 0
-    title = "%s(E)_Chart" % e
+    title = '%s(E)_Chart' % e
     a.Location(Where=1, Name=title)
     wb.Sheets(title).Tab.ThemeColor = 6
     wb.Sheets(title).Tab.TintAndShade = 0
@@ -600,7 +696,7 @@ for g in GROUPS:
         ws.Cells(row_index, 4).Value = specialisation[s]
         ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
         ws.Cells(row_index, 7).Value = ethnicity[s]
         # Space between each group
     row_index += 1
@@ -660,7 +756,7 @@ for g in GROUPS:
         ws.Cells(row_index, 4).Value = specialisation[s]
         ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
         ws.Cells(row_index, 7).Value = ethnicity[s]
 
     # Mean GPA
@@ -668,7 +764,7 @@ for g in GROUPS:
     ws.Cells(row_index, 5).Value = 'Mean GPA'
     ws.Cells(row_index, 5).Font.Bold = True
     ws.Cells(row_index, 6).Value = '%.2f' % gpa_mean_group[g]
-    ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = "0.00"
+    ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
 
     # Activate and autofit
     ws.Activate()
