@@ -464,36 +464,39 @@ for sheet in Application.Charts:
 
 
 # GPA Box Plot Chart
-# Select data range
 print('Charting GPA . . .')
-ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
-Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
+# Select data range
+#ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
+#Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
+Application.Worksheets('Summary_Results').Shapes.AddChart().Select()
 a = Application.ActiveChart
-a.FullSeriesCollection(1).Select()
+a.ChartType = 52
+a.SetSourceData(Source=ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)))
+a.SeriesCollection(1).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 0
-a.FullSeriesCollection(2).Select()
+a.SeriesCollection(2).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 0
-a.FullSeriesCollection(2).HasErrorBars = True
-#a.FullSeriesCollection(2).ErrorBars.Select()
-a.FullSeriesCollection(2).ErrorBar(Direction=1, Include=3, Type=2, Amount=100)
+a.SeriesCollection(2).HasErrorBars = True
+#a.SeriesCollection(2).ErrorBars.Select()
+a.SeriesCollection(2).ErrorBar(Direction=1, Include=3, Type=2, Amount=100)
 
 
-a.FullSeriesCollection(5).Select()
+a.SeriesCollection(5).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 0
 
 
-a.FullSeriesCollection(4).HasErrorBars = True
-a.FullSeriesCollection(4).ErrorBar(Direction=1, Include=2, Type=2, Amount=100)
+a.SeriesCollection(4).HasErrorBars = True
+a.SeriesCollection(4).ErrorBar(Direction=1, Include=2, Type=2, Amount=100)
 
-a.FullSeriesCollection(4).Select()
+a.SeriesCollection(4).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 1
 Application.Selection.Format.Line.ForeColor.ObjectThemeColor = 13
 
-a.FullSeriesCollection(3).Select()
+a.SeriesCollection(3).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 1
 Application.Selection.Format.Line.ForeColor.ObjectThemeColor = 13
@@ -521,13 +524,13 @@ a.deselect()
 # Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
 # a = Application.ActiveChart
 # a.SeriesCollection().NewSeries()
-# a.FullSeriesCollection(1).Name = 'GPA'
-# a.FullSeriesCollection(1).Values = ws.Range(ws.Cells(3, 5), ws.Cells(2 + number_groups, 5))
-# a.FullSeriesCollection(1).XValues = x_axis_range
+# a.SeriesCollection(1).Name = 'GPA'
+# a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 5), ws.Cells(2 + number_groups, 5))
+# a.SeriesCollection(1).XValues = x_axis_range
 # a.SeriesCollection().NewSeries()
-# a.FullSeriesCollection(2).Name = 'GPA Variance'
-# a.FullSeriesCollection(2).Values = ws.Range(ws.Cells(3, 6), ws.Cells(2 + number_groups, 6))
-# a.FullSeriesCollection(2).XValues = x_axis_range
+# a.SeriesCollection(2).Name = 'GPA Variance'
+# a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 6), ws.Cells(2 + number_groups, 6))
+# a.SeriesCollection(2).XValues = x_axis_range
 # a.SetElement(2)
 # a.SetElement(306)
 # a.SetElement(301)
@@ -551,13 +554,13 @@ ws.Cells(number_groups+5, 1).Select()
 Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
 a = Application.ActiveChart
 a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(1).Name = 'Male'
-a.FullSeriesCollection(1).Values = ws.Range(ws.Cells(3, 3), ws.Cells(2 + number_groups, 3))
-a.FullSeriesCollection(1).XValues = x_axis_range
+a.SeriesCollection(1).Name = 'Male'
+a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 3), ws.Cells(2 + number_groups, 3))
+a.SeriesCollection(1).XValues = x_axis_range
 a.SeriesCollection().NewSeries()
-a.FullSeriesCollection(2).Name = 'Female'
-a.FullSeriesCollection(2).Values = ws.Range(ws.Cells(3, 4), ws.Cells(2 + number_groups, 4))
-a.FullSeriesCollection(2).XValues = x_axis_range
+a.SeriesCollection(2).Name = 'Female'
+a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 4), ws.Cells(2 + number_groups, 4))
+a.SeriesCollection(2).XValues = x_axis_range
 a.SetElement(2)
 a.SetElement(306)
 a.SetElement(301)
@@ -585,9 +588,9 @@ for s in SPECIALISATIONS:
     ws.Shapes.AddChart(201, 54).Select()
     a = Application.ActiveChart
     a.SeriesCollection().NewSeries()
-    a.FullSeriesCollection(1).Name = s
-    a.FullSeriesCollection(1).Values = y_axis_range
-    a.FullSeriesCollection(1).XValues = x_axis_range
+    a.SeriesCollection(1).Name = s
+    a.SeriesCollection(1).Values = y_axis_range
+    a.SeriesCollection(1).XValues = x_axis_range
     a.SetElement(2)
     a.SetElement(306)
     a.SetElement(301)
@@ -617,9 +620,9 @@ for e in ETHNICITIES:
     ws.Shapes.AddChart(201, 54).Select()
     a = Application.ActiveChart
     a.SeriesCollection().NewSeries()
-    a.FullSeriesCollection(1).Name = e
-    a.FullSeriesCollection(1).Values = y_axis_range
-    a.FullSeriesCollection(1).XValues = x_axis_range
+    a.SeriesCollection(1).Name = e
+    a.SeriesCollection(1).Values = y_axis_range
+    a.SeriesCollection(1).XValues = x_axis_range
     a.SetElement(2)
     a.SetElement(306)
     a.SetElement(301)
@@ -644,11 +647,11 @@ Application.Worksheets('Summary_Results').Move(after=Application.Worksheets('Stu
 now = datetime.datetime.now()
 path = Application.ActiveWorkbook.path
 append_string = now.strftime('%Y-%m-%d_%H.%M.%S')
-instructor_workbook_name = 'Groups_InstructorView_%s' % (append_string)
-student_workbook_name = 'Groups_StudentView_%s' % (append_string)
+instructor_workbook_name = 'Groups_InstructorView_%s.xlsx' % (append_string)
+student_workbook_name = 'Groups_StudentView_%s.xlsx' % (append_string)
 
-save_path_instructor = '%s\\%s.xlsx' % (path, instructor_workbook_name)
-save_path_student = '%s\\%s.xlsx' % (path, student_workbook_name)
+save_path_instructor = '%s\\%s' % (path, instructor_workbook_name)
+save_path_student = '%s\\%s' % (path, student_workbook_name)
 
 # Instructor View
 # Create new workbook
