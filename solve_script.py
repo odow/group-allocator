@@ -30,6 +30,7 @@
 #
 # ============================================================================
 from pulp import *
+from math import ceil
 from System import Array
 import datetime
 problem = LpProblem('ENGGEN403', LpMinimize)
@@ -44,6 +45,14 @@ gpa_variance_weight = 1
 specialisation_weight = 1
 gender_weight = 1
 ethnicity_weight = 1
+outstanding_gpa_weight = 1
+
+# beta is the number to adjust the upper bound on number of
+# type of people in a group
+beta = 1
+
+# The GPA of an 'oustanding' student
+outstanding_gpa = 8.00
 
 SPECIALISATIONS = list()
 for s in STUDENTS:
@@ -93,8 +102,11 @@ for s in SPECIALISATIONS:
 
 # Minimum number of each specialisation in each group
 specialisation_min = {}
+specialisation_max = {}
 for s in SPECIALISATIONS:
     specialisation_min[s] = int(specialisation_counts[s] / number_groups)
+    specialisation_max[s] = int(ceil(specialisation_counts[s] / number_groups)
+                                + beta)
 
 # Number from each ethnicity
 ethnicity_counts = {}
@@ -104,8 +116,18 @@ for e in ETHNICITIES:
 
 # Minimum number of each ethnicity in each group
 ethnicity_min = {}
+ethnicity_max = {}
 for e in ETHNICITIES:
     ethnicity_min[e] = int(ethnicity_counts[e] / number_groups)
+    ethnicity_max[e] = int(ceil(ethnicity_counts[e] / number_groups) + beta)
+
+# Number of outstanding students in each group
+oustanding_count = 0
+for s in STUDENTS:
+    if gpa[s] >= outstanding_gpa:
+        oustanding_count += 1
+
+oustanding_gpa_min = int(oustanding_count / number_groups)
 
 # Artificial variables sets for specialisations and ethnicities in each group
 # Penalises violating constraint for number of each in group
@@ -123,12 +145,23 @@ female_artificial = LpVariable.dicts('female_artificial',
 male_artificial = LpVariable.dicts('male_artificial',
                                    GROUPS,
                                    0, number_students)
-specialisation_artificial = LpVariable.dicts('specialisation_artificial',
-                                             SPECIALISATION_ARTIFICIAL,
+specialisation_artificial_min = LpVariable.dicts(('specialisation_'
+                                                  'artificial_min'),
+                                                 SPECIALISATION_ARTIFICIAL,
+                                                 0, number_students)
+specialisation_artificial_max = LpVariable.dicts(('specialisation_'
+                                                  'artificial_max'),
+                                                 SPECIALISATION_ARTIFICIAL,
+                                                 0, number_students)
+ethnicity_artificial_min = LpVariable.dicts('ethnicity_artificial_min',
+                                            ETHNICITY_ARTIFICIAL,
+                                            0, number_students)
+ethnicity_artificial_max = LpVariable.dicts('ethnicity_artificial_max',
+                                            ETHNICITY_ARTIFICIAL,
+                                            0, number_students)
+oustanding_gpa_artificial = LpVariable.dicts('oustanding_gpa_artificial',
+                                             GROUPS,
                                              0, number_students)
-ethnicity_artificial = LpVariable.dicts('ethnicity_artificial',
-                                        ETHNICITY_ARTIFICIAL,
-                                        0, number_students)
 gpa_min = LpVariable('gpa_min', 0, 9)
 gpa_max = LpVariable('gpa_max', 0, 9)
 gpa_variance_min = LpVariable('gpa_variance_min', 0, 25)
@@ -139,13 +172,16 @@ gpa_variance_max = LpVariable('gpa_variance_max', 0, 25)
 
 problem += gpa_mean_weight * (gpa_max - gpa_min) \
     + gpa_variance_weight * (gpa_variance_max - gpa_variance_min) \
-    + 1e4 * (specialisation_weight * lpSum([specialisation_artificial[i] \
-                                           for i in SPECIALISATION_ARTIFICIAL]) \
+    + 1e4 * (specialisation_weight * \
+             lpSum([(specialisation_artificial_min[i] + specialisation_artificial_max[i]) \
+                    for i in SPECIALISATION_ARTIFICIAL]) \
              + gender_weight * lpSum([female_artificial[i] \
                                      for i in GROUPS]) \
-             + ethnicity_weight * lpSum([ethnicity_artificial[i] \
+             + ethnicity_weight * \
+             lpSum([(ethnicity_artificial_min[i] + ethnicity_artificial_max[i]) \
                                         for i in ETHNICITY_ARTIFICIAL]) \
-             ), 'objective'
+             + outstanding_gpa_weight * lpSum([oustanding_gpa_artificial[i] \
+                                        for i in GROUPS])), 'objective'
 
 # ============================================================================
 #   Constraints
@@ -212,15 +248,35 @@ for g in GROUPS:
     for k in SPECIALISATIONS:
         problem += lpSum([x[(s, g)] for s in STUDENTS
                          if specialisation[s].lower() == k.lower()]) \
-            + specialisation_artificial[(k, g)] >= specialisation_min[k], \
+            + specialisation_artificial_min[(k, g)] >= specialisation_min[k], \
             'min_spec%s_g%d' % (k, g)
+
+    # Number from each specialisation must be at most max (relaxed)
+    for k in SPECIALISATIONS:
+        problem += lpSum([x[(s, g)] for s in STUDENTS
+                         if specialisation[s].lower() == k.lower()]) \
+            + specialisation_artificial_max[(k, g)] <= specialisation_max[k], \
+            'max_spec%s_g%d' % (k, g)
 
     # Number from each ethnicity must be at least min (relaxed)
     for e in ETHNICITIES:
         problem += lpSum([x[(s, g)] for s in STUDENTS
                          if ethnicity[s].lower() == e.lower()]) \
-            + ethnicity_artificial[(e, g)] >= ethnicity_min[e], \
+            + ethnicity_artificial_min[(e, g)] >= ethnicity_min[e], \
             'min_eth%s_g%d' % (e, g)
+
+    # Number from each ethnicity must be at most max (relaxed)
+    for e in ETHNICITIES:
+        problem += lpSum([x[(s, g)] for s in STUDENTS
+                         if ethnicity[s].lower() == e.lower()]) \
+            + ethnicity_artificial_max[(e, g)] >= ethnicity_max[e], \
+            'max_eth%s_g%d' % (e, g)
+
+    # Number of oustanding students must be at least min (relaxed)
+    problem += lpSum([x[(s, g)] for s in STUDENTS
+                     if gpa[s] >= outstanding_gpa]) \
+        + oustanding_gpa_artificial[g] >= oustanding_count, \
+        'out_gpa%s_g%d' % (e, g)
 
 # ============================================================================
 #   Solve
@@ -318,14 +374,21 @@ print('Biggest difference in mean GPA: %.2f'
 print('Biggest difference in GPA variance: %.2f'
       % gpa_variance_difference)
 print('\n')
-print('Maximum number of people under limit')
-print('Specialisations: %.0f' %
-      sum([specialisation_artificial[i].value()
+print('Values of artificial variables for relaxation')
+print('Specialisations Min: %.0f' %
+      sum([specialisation_artificial_min[i].value()
+          for i in SPECIALISATION_ARTIFICIAL]))
+print('Specialisations Max: %.0f' %
+      sum([specialisation_artificial_max[i].value()
           for i in SPECIALISATION_ARTIFICIAL]))
 print('Females: %.0f' % sum([female_artificial[i].value()
       for i in GROUPS]))
-print('Ethnicities: %.0f' %
-      sum([ethnicity_artificial[i].value() for i in ETHNICITY_ARTIFICIAL]))
+print('Ethnicities Min: %.0f' %
+      sum([ethnicity_artificial_min[i].value() for i in ETHNICITY_ARTIFICIAL]))
+print('Ethnicities Max: %.0f' %
+      sum([ethnicity_artificial_max[i].value() for i in ETHNICITY_ARTIFICIAL]))
+print('Oustanding GPA Min: %.0f' %
+      sum([oustanding_gpa_artificial[i].value() for i in GROUPS]))
 print('\n')
 
 # Print data to spreadsheet
@@ -359,12 +422,14 @@ for s in SPECIALISATIONS:
     cell_index += 1
     ws.Cells(1, cell_index).Value = s
     ws.Cells(1, cell_index).Font.Bold = True
-    ws.Range(ws.Cells(1, cell_index), ws.Cells(1, cell_index)).Interior.ThemeColor = 5
+    ws.Range(ws.Cells(1, cell_index),
+             ws.Cells(1, cell_index)).Interior.ThemeColor = 5
 for e in ETHNICITIES:
     cell_index += 1
     ws.Cells(1, cell_index).Value = e
     ws.Cells(1, cell_index).Font.Bold = True
-    ws.Range(ws.Cells(1, cell_index), ws.Cells(1, cell_index)).Interior.ThemeColor = 6
+    ws.Range(ws.Cells(1, cell_index),
+             ws.Cells(1, cell_index)).Interior.ThemeColor = 6
 
 # Fill in table data by column
 # Whole Class frst
@@ -436,20 +501,29 @@ for g in GROUPS:
     ws.Cells(row_index, col_index + 5).Value = '%.2f' % data_summary[g][4]
 
     # Differences needed for charting
-    ws.Cells(row_index, col_index + 6).Value = '%.2f' % data_summary[g][0]
-    ws.Cells(row_index, col_index + 7).Value = '%.2f' % (data_summary[g][1] -  data_summary[g][0])
-    ws.Cells(row_index, col_index + 8).Value = '%.2f' % (data_summary[g][2] -  data_summary[g][1])
-    ws.Cells(row_index, col_index + 9).Value = '%.2f' % (data_summary[g][3] -  data_summary[g][2])
-    ws.Cells(row_index, col_index + 10).Value = '%.2f' % (data_summary[g][4] -  data_summary[g][3])
+    ws.Cells(row_index, col_index + 6).Value = '%.2f' \
+        % data_summary[g][0]
+    ws.Cells(row_index, col_index + 7).Value = '%.2f' \
+        % (data_summary[g][1] - data_summary[g][0])
+    ws.Cells(row_index, col_index + 8).Value = '%.2f' \
+        % (data_summary[g][2] - data_summary[g][1])
+    ws.Cells(row_index, col_index + 9).Value = '%.2f' \
+        % (data_summary[g][3] - data_summary[g][2])
+    ws.Cells(row_index, col_index + 10).Value = '%.2f' \
+        % (data_summary[g][4] - data_summary[g][3])
 
 # Autofit columns in Summary_Results
 ws.Activate()
 ws.Cells.Select()
 Application.Selection.Columns.AutoFit()
 ws.Range(ws.Cells(2, 5), ws.Cells(number_groups+2, 6)).NumberFormat = '0.00'
-ws.Range(ws.Cells(2, 1), ws.Cells(2, 6 + len(SPECIALISATIONS) + len(ETHNICITIES))).Style = 'Good'
-ws.Range(ws.cells(1, 1), ws.Cells(number_groups+2, 1)).Borders(10).LineStyle = 1
-ws.Range(ws.cells(1, 1), ws.Cells(number_groups+2, 1)).HorizontalAlignment = -4131
+ws.Range(ws.Cells(2, 1),
+         ws.Cells(2, 6 + len(SPECIALISATIONS) +
+                  len(ETHNICITIES))).Style = 'Good'
+ws.Range(ws.cells(1, 1),
+         ws.Cells(number_groups+2, 1)).Borders(10).LineStyle = 1
+ws.Range(ws.cells(1, 1),
+         ws.Cells(number_groups+2, 1)).HorizontalAlignment = -4131
 ws.Cells(number_groups+5, 1).Select()
 
 # Generate graphs
@@ -466,12 +540,13 @@ for sheet in Application.Charts:
 # GPA Box Plot Chart
 print('Charting GPA . . .')
 # Select data range
-#ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
-#Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
+# ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
+# Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
 Application.Worksheets('Summary_Results').Shapes.AddChart().Select()
 a = Application.ActiveChart
 a.ChartType = 52
-a.SetSourceData(Source=ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)))
+a.SetSourceData(Source=ws.Range(ws.Cells(3, col_index + 6),
+                                ws.Cells(2 + number_groups, col_index + 10)))
 a.SeriesCollection(1).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 0
@@ -479,7 +554,7 @@ a.SeriesCollection(2).Select()
 Application.Selection.Format.Fill.Visible = 0
 Application.Selection.Format.Line.Visible = 0
 a.SeriesCollection(2).HasErrorBars = True
-#a.SeriesCollection(2).ErrorBars.Select()
+# a.SeriesCollection(2).ErrorBars.Select()
 a.SeriesCollection(2).ErrorBar(Direction=1, Include=3, Type=2, Amount=100)
 
 
@@ -489,7 +564,15 @@ Application.Selection.Format.Line.Visible = 0
 
 
 a.SeriesCollection(4).HasErrorBars = True
-a.SeriesCollection(4).ErrorBar(Direction=1, Include=2, Type=2, Amount=100)
+a = Application.ActiveChart
+xlY = 1
+xlPlusValues = 2
+xlCustom = -4114
+a.SeriesCollection(4).ErrorBar(Direction=xlY, Include=xlPlusValues,
+                               Type=xlCustom, MinusValues="={0}",
+                               Amount=ws.Range(ws.Cells(3, col_index + 10),
+                                               ws.Cells(2 + number_groups,
+                                               col_index + 10)))
 
 a.SeriesCollection(4).Select()
 Application.Selection.Format.Fill.Visible = 0
@@ -507,7 +590,8 @@ a.SetElement(301)
 a.SetElement(102)
 a.Legend.Select()
 Application.Selection.Delete()
-a.ChartTitle.Text = 'GPA spread per group (lines bottom to top = Min, Q1, Median, Q3, Max)'
+a.ChartTitle.Text = ('GPA spread per group'
+                     ' (lines bottom to top = Min, Q1, Median, Q3, Max)')
 a.Axes(1, 1).HasTitle = True
 a.Axes(1, 1).AxisTitle.Text = 'Group'
 a.Axes(2, 1).HasTitle = True
@@ -525,11 +609,13 @@ a.deselect()
 # a = Application.ActiveChart
 # a.SeriesCollection().NewSeries()
 # a.SeriesCollection(1).Name = 'GPA'
-# a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 5), ws.Cells(2 + number_groups, 5))
+# a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 5),
+#                                         ws.Cells(2 + number_groups, 5))
 # a.SeriesCollection(1).XValues = x_axis_range
 # a.SeriesCollection().NewSeries()
 # a.SeriesCollection(2).Name = 'GPA Variance'
-# a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 6), ws.Cells(2 + number_groups, 6))
+# a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 6),
+#                                          ws.Cells(2 + number_groups, 6))
 # a.SeriesCollection(2).XValues = x_axis_range
 # a.SetElement(2)
 # a.SetElement(306)
@@ -555,11 +641,13 @@ Application.Worksheets('Summary_Results').Shapes.AddChart(201, 54).Select()
 a = Application.ActiveChart
 a.SeriesCollection().NewSeries()
 a.SeriesCollection(1).Name = 'Male'
-a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 3), ws.Cells(2 + number_groups, 3))
+a.SeriesCollection(1).Values = ws.Range(ws.Cells(3, 3),
+                                        ws.Cells(2 + number_groups, 3))
 a.SeriesCollection(1).XValues = x_axis_range
 a.SeriesCollection().NewSeries()
 a.SeriesCollection(2).Name = 'Female'
-a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 4), ws.Cells(2 + number_groups, 4))
+a.SeriesCollection(2).Values = ws.Range(ws.Cells(3, 4),
+                                        ws.Cells(2 + number_groups, 4))
 a.SeriesCollection(2).XValues = x_axis_range
 a.SetElement(2)
 a.SetElement(306)
@@ -640,7 +728,8 @@ for e in ETHNICITIES:
     wb.Sheets(title).Tab.TintAndShade = 0
     a.deselect()
 
-Application.Worksheets('Summary_Results').Move(after=Application.Worksheets('Student_Data'))
+Application.Worksheets('Summary_Results').\
+    Move(after=Application.Worksheets('Student_Data'))
 
 # Group Lists in Separate Workbook
 # Setup paths
@@ -699,7 +788,8 @@ for g in GROUPS:
         ws.Cells(row_index, 4).Value = specialisation[s]
         ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
+        ws.Range(ws.Cells(row_index, 6),
+                 ws.Cells(row_index, 6)).NumberFormat = '0.00'
         ws.Cells(row_index, 7).Value = ethnicity[s]
         # Space between each group
     row_index += 1
@@ -711,7 +801,6 @@ ws.Cells(1, 1).Select()
 
 for sheet in wb.Worksheets:
     if sheet.Name != 'All_Groups':
-        print(sheet.Name)
         Application.DisplayAlerts = False
         sheet.Delete()
         Application.DisplayAlerts = True
@@ -759,7 +848,8 @@ for g in GROUPS:
         ws.Cells(row_index, 4).Value = specialisation[s]
         ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
+        ws.Range(ws.Cells(row_index, 6),
+                 ws.Cells(row_index, 6)).NumberFormat = '0.00'
         ws.Cells(row_index, 7).Value = ethnicity[s]
 
     # Mean GPA
@@ -767,7 +857,8 @@ for g in GROUPS:
     ws.Cells(row_index, 5).Value = 'Mean GPA'
     ws.Cells(row_index, 5).Font.Bold = True
     ws.Cells(row_index, 6).Value = '%.2f' % gpa_mean_group[g]
-    ws.Range(ws.Cells(row_index, 6), ws.Cells(row_index, 6)).NumberFormat = '0.00'
+    ws.Range(ws.Cells(row_index, 6),
+             ws.Cells(row_index, 6)).NumberFormat = '0.00'
 
     # Activate and autofit
     ws.Activate()
@@ -825,7 +916,6 @@ ws.Cells(1, 1).Select()
 
 for sheet in wb.Worksheets:
     if sheet.Name != 'All_Groups':
-        print(sheet.Name)
         Application.DisplayAlerts = False
         sheet.Delete()
         Application.DisplayAlerts = True
