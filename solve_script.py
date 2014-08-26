@@ -56,13 +56,15 @@ outstanding_gpa = 8.00
 
 SPECIALISATIONS = list()
 for s in STUDENTS:
-    if specialisation[s] not in SPECIALISATIONS:
-        SPECIALISATIONS.append(specialisation[s])
+    if specialisation[s] != 'Not Applicable':
+        if specialisation[s] not in SPECIALISATIONS:
+            SPECIALISATIONS.append(specialisation[s])
 
 ETHNICITIES = list()
 for s in STUDENTS:
-    if ethnicity[s] not in ETHNICITIES:
-        ETHNICITIES.append(ethnicity[s])
+    if ethnicity[s] != 'Not Applicable':
+        if ethnicity[s] not in ETHNICITIES:
+            ETHNICITIES.append(ethnicity[s])
 
 # Set for all groups
 GROUPS = range(1, int(number_groups) + 1)
@@ -89,9 +91,9 @@ GROUPS2 = range(j1 + 1, int(number_groups) + 1)
 gpa_mean = sum([gpa[i] for i in STUDENTS]) / number_students
 
 # Minimum number of females and males in each group
-number_males = sum([gender[i].lower() == 'm' for i in STUDENTS])
+number_males = sum([gender[i].lower() == 'male' for i in STUDENTS])
 male_min = int(number_males / number_groups)
-number_females = sum([gender[i].lower() == 'f' for i in STUDENTS])
+number_females = sum([gender[i].lower() == 'female' for i in STUDENTS])
 female_min = int(number_females / number_groups)
 
 # Number in each specialisation
@@ -236,11 +238,11 @@ for g in GROUPS2:
 # specialisation and ethnicity distribution
 for g in GROUPS:
     # Gender must be at least minimum (relaxed)
-    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'f']) \
+    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'female']) \
         + female_artificial[g] >= female_min, \
         'min_females_g%d' % g
 
-    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'm']) \
+    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'male']) \
         + male_artificial[g] >= male_min, \
         'min_males_g%d' % g
 
@@ -343,9 +345,9 @@ for g in GROUPS:
 # Count the number of males, females etc in each group
 for s in STUDENTS:
     g = groups[s]
-    if gender[s].lower() == 'f':
+    if gender[s].lower() == 'female':
         females_group[g] += 1
-    elif gender[s].lower() == 'm':
+    elif gender[s].lower() == 'male':
         males_group[g] += 1
     gpa_total_group[g] += gpa[s]
     for k in SPECIALISATIONS:
@@ -761,22 +763,25 @@ ws.Cells(1, 1).Font.Bold = True
 ws.Cells(1, 2).Value = 'Name'
 ws.Cells(1, 2).Font.Bold = True
 
-ws.Cells(1, 3).Value = 'UPI'
+ws.Cells(1, 3).Value = 'Gender'
 ws.Cells(1, 3).Font.Bold = True
 
-ws.Cells(1, 4).Value = 'Discipline'
+ws.Cells(1, 4).Value = 'UPI'
 ws.Cells(1, 4).Font.Bold = True
 
-ws.Cells(1, 5).Value = 'UoA Email'
+ws.Cells(1, 5).Value = 'Discipline'
 ws.Cells(1, 5).Font.Bold = True
 
-ws.Cells(1, 6).Value = 'GPA'
-ws.Range(ws.Cells(1, 6), ws.Cells(1, 6)).Style = 'Bad'
+ws.Cells(1, 6).Value = 'UoA Email'
 ws.Cells(1, 6).Font.Bold = True
 
-ws.Cells(1, 7).Value = 'Ethnic Group'
+ws.Cells(1, 7).Value = 'GPA'
 ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
 ws.Cells(1, 7).Font.Bold = True
+
+ws.Cells(1, 8).Value = 'Ethnic Group'
+ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
+ws.Cells(1, 8).Font.Bold = True
 
 # Data
 row_index = 1
@@ -785,13 +790,14 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = UPI[s]
-        ws.Cells(row_index, 4).Value = specialisation[s]
-        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
-        ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6),
-                 ws.Cells(row_index, 6)).NumberFormat = '0.00'
-        ws.Cells(row_index, 7).Value = ethnicity[s]
+        ws.Cells(row_index, 3).Value = gender[s]
+        ws.Cells(row_index, 4).Value = UPI[s]
+        ws.Cells(row_index, 5).Value = specialisation[s]
+        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
+        ws.Range(ws.Cells(row_index, 7),
+                 ws.Cells(row_index, 7)).NumberFormat = '0.00'
+        ws.Cells(row_index, 8).Value = ethnicity[s]
         # Space between each group
     row_index += 1
 
@@ -822,22 +828,25 @@ for g in GROUPS:
     ws.Cells(1, 2).Value = 'Name'
     ws.Cells(1, 2).Font.Bold = True
 
-    ws.Cells(1, 3).Value = 'UPI'
+    ws.Cells(1, 3).Value = 'Gender'
     ws.Cells(1, 3).Font.Bold = True
 
-    ws.Cells(1, 4).Value = 'Discipline'
+    ws.Cells(1, 4).Value = 'UPI'
     ws.Cells(1, 4).Font.Bold = True
 
-    ws.Cells(1, 5).Value = 'UoA Email'
+    ws.Cells(1, 5).Value = 'Discipline'
     ws.Cells(1, 5).Font.Bold = True
 
-    ws.Cells(1, 6).Value = 'GPA'
-    ws.Range(ws.Cells(1, 6), ws.Cells(1, 6)).Style = 'Bad'
+    ws.Cells(1, 6).Value = 'UoA Email'
     ws.Cells(1, 6).Font.Bold = True
 
-    ws.Cells(1, 7).Value = 'Ethnic Group'
+    ws.Cells(1, 7).Value = 'GPA'
     ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
     ws.Cells(1, 7).Font.Bold = True
+
+    ws.Cells(1, 8).Value = 'Ethnic Group'
+    ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
+    ws.Cells(1, 8).Font.Bold = True
 
     # Data
     row_index = 1
@@ -845,21 +854,22 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = UPI[s]
-        ws.Cells(row_index, 4).Value = specialisation[s]
-        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
-        ws.Cells(row_index, 6).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 6),
-                 ws.Cells(row_index, 6)).NumberFormat = '0.00'
-        ws.Cells(row_index, 7).Value = ethnicity[s]
+        ws.Cells(row_index, 3).Value = gender[s]
+        ws.Cells(row_index, 4).Value = UPI[s]
+        ws.Cells(row_index, 5).Value = specialisation[s]
+        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
+        ws.Range(ws.Cells(row_index, 7),
+                 ws.Cells(row_index, 7)).NumberFormat = '0.00'
+        ws.Cells(row_index, 8).Value = ethnicity[s]
 
     # Mean GPA
     row_index += 2
-    ws.Cells(row_index, 5).Value = 'Mean GPA'
-    ws.Cells(row_index, 5).Font.Bold = True
-    ws.Cells(row_index, 6).Value = '%.2f' % gpa_mean_group[g]
-    ws.Range(ws.Cells(row_index, 6),
-             ws.Cells(row_index, 6)).NumberFormat = '0.00'
+    ws.Cells(row_index, 6).Value = 'Mean GPA'
+    ws.Cells(row_index, 6).Font.Bold = True
+    ws.Cells(row_index, 7).Value = '%.2f' % gpa_mean_group[g]
+    ws.Range(ws.Cells(row_index, 7),
+             ws.Cells(row_index, 7)).NumberFormat = '0.00'
 
     # Activate and autofit
     ws.Activate()
@@ -888,14 +898,17 @@ ws.Cells(1, 1).Font.Bold = True
 ws.Cells(1, 2).Value = 'Name'
 ws.Cells(1, 2).Font.Bold = True
 
-ws.Cells(1, 3).Value = 'UPI'
+ws.Cells(1, 3).Value = 'Gender'
 ws.Cells(1, 3).Font.Bold = True
 
-ws.Cells(1, 4).Value = 'Discipline'
+ws.Cells(1, 4).Value = 'UPI'
 ws.Cells(1, 4).Font.Bold = True
 
-ws.Cells(1, 5).Value = 'UoA Email'
+ws.Cells(1, 5).Value = 'Discipline'
 ws.Cells(1, 5).Font.Bold = True
+
+ws.Cells(1, 6).Value = 'UoA Email'
+ws.Cells(1, 6).Font.Bold = True
 
 # Data
 row_index = 1
@@ -904,9 +917,10 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = UPI[s]
-        ws.Cells(row_index, 4).Value = specialisation[s]
-        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 3).Value = gender[s]
+        ws.Cells(row_index, 4).Value = UPI[s]
+        ws.Cells(row_index, 5).Value = specialisation[s]
+        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         # Space between each group
     row_index += 1
 
@@ -937,14 +951,17 @@ for g in GROUPS:
     ws.Cells(1, 2).Value = 'Name'
     ws.Cells(1, 2).Font.Bold = True
 
-    ws.Cells(1, 3).Value = 'UPI'
+    ws.Cells(1, 3).Value = 'Gender'
     ws.Cells(1, 3).Font.Bold = True
 
-    ws.Cells(1, 4).Value = 'Discipline'
+    ws.Cells(1, 4).Value = 'UPI'
     ws.Cells(1, 4).Font.Bold = True
 
-    ws.Cells(1, 5).Value = 'UoA Email'
+    ws.Cells(1, 5).Value = 'Discipline'
     ws.Cells(1, 5).Font.Bold = True
+
+    ws.Cells(1, 6).Value = 'UoA Email'
+    ws.Cells(1, 6).Font.Bold = True
 
     # Data
     row_index = 1
@@ -952,9 +969,10 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = UPI[s]
-        ws.Cells(row_index, 4).Value = specialisation[s]
-        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 3).Value = gender[s]
+        ws.Cells(row_index, 4).Value = UPI[s]
+        ws.Cells(row_index, 5).Value = specialisation[s]
+        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
 
     # Activate
     ws.Activate()
