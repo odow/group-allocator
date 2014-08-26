@@ -540,7 +540,8 @@ for sheet in Application.Charts:
 # GPA Box Plot Chart
 print('Charting GPA . . .')
 # Select data range
-# ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups, col_index + 10)).Select()
+# ws.Range(ws.Cells(3, col_index + 6), ws.Cells(2 + number_groups,
+#                                               col_index + 10)).Select()
 # Application.Worksheets('Summary_Results').Shapes.AddChart2(297, 52).Select()
 Application.Worksheets('Summary_Results').Shapes.AddChart().Select()
 a = Application.ActiveChart
