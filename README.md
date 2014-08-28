@@ -1,7 +1,7 @@
 Group-Allocator
 ===============
 
-Group-Allocator is a solution developed by Oscar Dowson and Michael Fairley for allocating students to groups in a way that balances the characteristics of the students between the groups. It was first used to group over 650 students for a systems engineering project at The University of Auckland with the goal to balance GPA, gender, engineering specialization and ethnicity between the groups. It is released under the MIT Licence.
+Group-Allocator is a solution developed by Oscar Dowson and Michael Fairley for allocating students to groups in a way that balances the characteristics of the students between the groups. It was first used to group 571 students for a systems engineering project at The University of Auckland with the goal to balance GPA, gender, engineering specialization and ethnicity between the groups. It is released under the MIT Licence.
 
 The solution is implemented in a Microsoft Excel interface so it makes it easy for administrators to download and use. It requires SolverStudio, an add-in for Excel that provides "an integrated environment for optimization using modeling languages within Excel". SolverStudio can be downloaded from http://solverstudio.org. For further details, please read the "Instructions" sheet in the "Group_Allocator.xlsx" spreadsheet.
 
