@@ -1,0 +1,175 @@
+\documentclass[12pt]{ORSNZ}
+\usepackage{amssymb, vmargin,  ORSNZ}
+\setpapersize{A4}
+\setmargnohfrb{30mm}{20mm}{30mm}{20mm} % no header/footer, margins as required
+\title{Partitioning of students into equitable groups: A SolverStudio solution}
+\author{M. Fairley*, O. Dowson\\Department of Engineering Science\\University of
+  Auckland\\New Zealand\\{*}mfai035\@@aucklanduni.ac.nz} 
+
+\date{} % Don't include the date
+\setlength{\parindent}{6mm} % 6mm paragraph indentation
+\renewcommand{\baselinestretch}{1.0417} % to get 15pt lines (does it work?)
+
+\begin{document}
+
+\maketitle
+\pagestyle{empty} \thispagestyle{empty}
+\begin{abstract}
+Students in their final year of a Bachelor’s in Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In order to make this as fair and equitable as possible, the students should be partitioned in a way to make the groups are as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A model was formulated to minimise a weighted combination of the greatest difference between the mean grade point average of each group, and the greatest difference between the variance of the grade point averages in each group. The model was also constrained to balance gender, ethnicity and discipline. This model was then implemented in the PuLP modelling language using the SolverStudio modelling environment. The resulting solution was given to the course organiser who used the model to partition students in the 2014 ENGGEN403 class. This paper shows how the combination of Excel and python-based optimisation languages can result in the rapid creation of an optimisation solution that requires little understanding by the end user in order to operate.
+
+\textbf{Key words:} knapsack, pulp, solverstudio, university of auckland, group allocator
+\end{abstract}
+
+\section{The first section}
+
+\subsection{The first subsection}
+
+This is how to \emph{emphasize} things, do not underline!
+
+
+\subsection{The second subsection}
+
+Remember: don't use footnotes!
+
+
+\section{The next section}
+
+\subsection{Diagrams and tables}
+Centre your diagrams and tables. Right-justify numbers in tables.
+Tables look better if there are no vertical lines, and this is almost
+always achievable. Table headings are above the table, figure headings
+are below the figure.
+
+\begin{center}
+
+\begin{table}[h]
+\caption{A table}
+\vspace{0.5ex}
+
+\begin{center}
+\begin{tabular}{r r r}
+\hline
+0 & 1 & 1.87 \\
+9 & 5.5 & 666 \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{table}
+
+\end{center}
+
+\subsection{Images}
+
+Please convert photographs and screen shots to greyscale before you convert
+the file to postscript or PDF. (In Word, right click the picture, select
+Format Picture, Picture, Color, Grayscale.) You will be able to preview the
+image on screen as it would be printed, and the resulting PDF file will be
+much smaller.
+
+\section{Math models}
+Math models should be formatted to best suit their purpose in the
+paper. All parameters and variables should be clearly defined in the
+paper. These definitions and explanations of the non-trival constraints
+and objective functions should be included or referred to near the
+model formulation.The following guidelines will help to ensure the
+model is complete and well documented.
+
+Name the model (e.g. FruitTraNZ below) for handy reference elsewhere in
+the paper. Parameters, variables, and subscripts should be formatted in
+math-mode (\emph{e.g.}, $x$) in running text and formatted equations.
+Font style and size should be consistent with the document's text. Do
+not use more than two levels of subscripting or superscripting. It is
+helpful to distinguish parameters from decision variables, for instance
+with parameters as upper case and decision variables as lower case.
+
+The following example may be helpful:
+
+\begin{description}
+\item[Indices] \mbox{}\\
+        $i =$ plant: $P=\{\mbox{Chch}, \mbox{Auckland}\}$;
+        $j =$ wholesaler: $1,..., 5$.
+\item[Parameters] \mbox{} \\
+$C_{ij} = $ cost to send a box from plant $i$ to wholesaler $j$; \\
+$K_i = $ production capacity of plant $i$; \\
+$D_j$ = boxes of demand at wholesaler $j$.
+
+\item[Decision variables]\mbox{} \\
+$x_{ij} = $ boxes to send from plant $i$ to wholesaler $j$.
+
+\item[Model FruitTraNZ]\mbox{} \\
+Minimize \quad $\sum_{i \in P}\sum_{j=1}^5 C_{ij}x_{ij}$
+\begin{equation} \label{con1}
+\sum_{j=1}^5 x_{ij} =  K_i \qquad \mbox{for $i = $ Chch, Auckland.}
+\end{equation}
+\begin{equation} \label{con2}
+\sum_{i \in P} x_{ij} \geq D_j \qquad \mbox{for $ j = 1, 2, \ldots, 5$.}
+\end{equation}
+\[x_{ij} \geq 0.\]
+
+\item[Explanation] The objective is to minisime total transportation
+cost. Constraint~(\ref{con1}) requires plants to produce at full
+capacity. Constraint~(\ref{con2}) ensures minimum demand is satisfied
+for each wholesaler.
+\end{description}
+
+\section{Readability}
+Please proofread your paper and use a spelling checker. Spelling should
+follow standard New Zealand, British or U.S. spelling, but must be
+consistent throughout. Authors (especially new authors) are urged to
+study a style manual such as the famous one of Strunk and White.
+
+\section{Submission format}
+Please submit your documents in ``printer-ready'' form, as PostScript or
+Adobe PDF. Many free PDF converters are available through the web. If
+you cannot produce a PostScript or PDF file, please contact the editor
+of the Proceedings.
+
+Send your file to conference@orsnz.org.nz.
+
+\section{How to reference other articles}
+Format references as in the journal Management Science. Perhaps easiest
+is to use the achicago package and achicago bibstyle. An example of a
+citation is \cite{dantzig-fulkerson-johnson} and \cite{kruskal}. There
+are other options,  see the achicago documentation. Please avoid using
+abbreviations of journals in the references.
+
+Reference a web page in the text by its author and the date that you check
+it, as University of Canterbury (2002). In the Reference section, give its
+author, title, URL, and the date that you checked it. This is easily done
+by manipulating the .bbl file directly if you can't work out how to do it
+with BibTeX.
+
+\section{LaTeX notes}
+
+Included is an alteration of the standard article.cls, called ORSNZ.cls.
+This ORSNZ.cls is then referred to in ORSNZ.sty which is a very slightly
+altered form of achicago.sty. It is therefore safest not to change the
+name of ORSNZ.cls, but others can be changed. The subsidiary files used
+by achicago.sty must also be used with ORSNZ.sty. These are included in
+the {\tt frankenstein} package, available from CTAN. The latter package
+is included in the tarfile that includes ORSNZ.cls, etc, for convenience.
+Installing {\tt frankenstein} properly is probably worth the effort,
+instructions are provided. It is possible, but trickier, to avoid this.
+
+\section{Checklist}
+\begin{itemize}
+\item Graphics are clean and grey-scale, with appropriately sized text.
+\item References, reference format.
+\item Spell-checked and proofread.
+\end{itemize}
+
+
+\section*{Acknowledgments}
+
+Acknowledgments can appear in an unnumbered section preceding the
+references. The Word version of this article was revised by John F.
+Raffensperger, based on a version by Andrew Mason, University of
+Auckland. This LaTeX version was prepared by Mark Wilson and Golbon
+Zakeri, University of Auckland, and updated by Andrew Mason
+and Shane Dye.
+
+
+\bibliographystyle{achicago}
+\bibliography{ORSNZ}
+\end{document}

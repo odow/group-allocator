@@ -1,0 +1,488 @@
+%^^A* legal notices
+% \iffalse
+%
+%   This program is part of the Frankenstein bundle for LaTeX.  
+%
+%   Copyright 1995-2001 Matt Swift <swift@alum.mit.edu>.
+%
+%   This file contains both the code and documentation for the
+%   drama LaTeX package.  It will work ONLY if it is placed in a
+%   proper directory.  Files called README, INSTALL, drama.tex
+%   and drama.ins should have also been distributed to you
+%   with this file.  See them for more information on how to typeset
+%   the documentation with LaTeX and how to generate a version of this
+%   file that will work faster than this one.
+%
+%   This program is free software; you may redistribute it and/or
+%   modify it under the conditions of the LaTeX Project Public
+%   License, either version 1.2 or (at your option) any later version.
+%   The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt, and version 1.2 or later is
+%   part of all distributions of LaTeX version 1999/12/01 or later.
+%
+%   This program is distributed in the hope that it will be useful,
+%   but without any warranty; without even the implied warranty of
+%   merchantability or fitness for a particular purpose.  See the
+%   LaTeX Project Public License for more details.
+%
+% \fi  
+%
+%^^A* checks
+%
+%^^A NOTE:  The character table, with two %'s, will get written to all files.
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+%
+% \CheckSum{314}
+%
+%^^A** abstract
+% \begin{abstract}
+%   Defines macros for typesetting a basic production-style stage script.
+% 
+%   This package is useful but may have problems and is unsupported.
+% \end{abstract}
+% \tableofcontents
+%
+% \part{Discussion}
+%
+%  I am close to handling the insertion of a ``continued'' message at the top
+%  of the page when a speech is broken across the page.  But it's not there
+%  yet.
+%
+% \DescribeEnv{script}
+%   This is the only environment so far, for a basic production-style stage
+%   script.  It is implemented as a bitstyle: see the \package{bits} package
+%   for details of use.  I think you only need to issue an
+%   \cs\author\marg{author's name} and \cs\date\marg{date} command.  Also,
+%   create an empty file called \file{bits.cfg} on your system (or put the
+%   \cs\author declaration in it).
+%
+%  Options come in pairs (boldface is default):
+%  \begin{description}
+%    \item[\textmd{oneact}/multiact] Multiact scripts use act numbers; oneacts
+%    just have scenes.
+%  \end{description}
+%
+% \DescribeMacro\character
+%   \cs\character\marg{full description}\marg{name}\marg{csname} defines a new
+%   character.  \meta{full description} is used in the dramatis personae
+%   listing.  \meta{name} is the name to use to refer to the character in stage
+%   directions, and to introduce their speeches.  \cs\character defines a
+%   command |\|\meta{csname} which prints \meta{name} in the font given in
+%   \cs\DirectStyle.  Use this in stage directions.  It is an abbreviation
+%   macro of category \cat{Character}; following spacing is handled
+%   automatically for you. See the \package{abbrevs} package for details.  Also
+%   defined is the command
+% \DescribeMacro\SpeakAppend
+%   |\|\meta{csname}|says|, which is used to introduce the character's
+%   speeches.  The suffix ``says'' can be changed by redefining \cs\SpeakAppend
+%   before using \cs\character.  You can also define it before loading the
+%   \package{drama} package.
+%
+% \DescribeMacro\scene
+% \DescribeMacro\act
+%   Use \cs\scene and \cs\act to start acts and scenes.
+%
+% \DescribeMacro\direct
+% \DescribeMacro\setstage
+%   \cs\direct\marg{stage directions}.  Use \cs\setstage\marg{stage directions}
+%   at the beginning of scenes and acts.
+%
+% \StopEventually{}
+%
+% \part{Implementation}
+%
+% \section{Version control}
+%
+%  \begin{macro}{\fileinfo}
+%  \begin{macro}{\DoXUsepackagE}
+%  \begin{macro}{\HaveECitationS}
+%  \begin{macro}{\fileversion}
+%  \begin{macro}{\filedate}
+%  \begin{macro}{\docdate}
+%  \begin{macro}{\PPOptArg}
+% These definitions must be the first ones in the file.
+%    \begin{macrocode}
+\def\fileinfo{drama package (Frankenstein's heart)}
+\def\DoXPackageS {}
+\def\initelyHavECitationS {}
+\def\fileversion{v0.2}
+\def\filedate{1996/05/05}
+\def\docdate{1996/05/05}
+\edef\PPOptArg {%
+  \filedate\space \fileversion\space \fileinfo
+}
+%    \end{macrocode}
+%  \end{macro}
+%  \end{macro}
+%  \end{macro}
+%  \end{macro}
+%  \end{macro}
+%  \end{macro}
+%  \end{macro}
+%
+% If we're loading this file from a \cs\ProcessDTXFile command (see the
+% \package{compsci} package), then \cs\JusTLoaDInformatioN will be defined;
+% othewise we assume it is not (that's why the FunkY NamE).
+% 
+% If we're loading from \cs\ProcessDTXFile, we want to load the packages listed
+% in \cs\DoXPackageS (needed to typeset the documentation for this file) and
+% then bail out.  Otherwise, we're using this file in a normal way as a
+% package, so do nothing.  \cs\DoXPackageS, if there are any, are declared in
+% the \ext{dtx} file, and, if you're reading the typeset documentation of this
+% package, would appear just above.  (It's OK to call \cs\usepackage with an
+% empty argument or \cs\relax, by the way.)
+%    \begin{macrocode}
+\makeatletter% A special comment to help create bst files.  Don't change!
+\@ifundefined{JusTLoaDInformatioN} {%
+  }{% ELSE (we know the compsci package is already loaded, too)
+  \UndefineCS\JusTLoaDInformatioN
+  \SaveDoXVarS
+  \eExpand\csname DoXPackageS\endcsname\In {%use \csname in case it's undefined
+    \usepackage{#1}%
+  }%
+  \RestoreDoXVarS
+  \makeatother
+  \endinput
+}% A special comment to help create bst files.  Don't change!
+%    \end{macrocode}
+%
+% Now we check for \LaTeX2e and declare the LaTeX package.
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{drama}[\PPOptArg]
+%    \end{macrocode}^^A special comment to help create bst files.  Don't change!
+%
+% ^^A NOTE: We have to compensate for the above backslashes, which are not
+% ^^A       actually in the .dtx file the author works on, by adding to the
+% ^^A       CheckSum.
+%%
+% \AddToCheckSum{17}^^A `dtx-update-checksum' automatically handles this.
+% \AddToCheckSum{7}^^A The half a macrocode env. at the top is missed, however...
+% \AddToCheckSum{10}^^A ... and so are the 5 \defs from the .dtx file 
+%                   ^^A     that precede it.
+% \IfCitations {%
+%   \AddToCheckSum{2}^^A When \initelyHavECitationS is defined in
+% }                  ^^A the .dtx file, we need 2 more in the CheckSum.
+%
+%
+%    \begin{macrocode}
+\RequirePackage{abbrevs,bits,dialogue,moredefs,relsize}
+%\RequirePackage{xmark}
+\let\sc@mark\Gobble
+\VerboseErrors
+
+\DeclareBooleanOptions{oneact}{multiact}
+\ProcessOptions
+%    \end{macrocode}
+%
+% \section{characters}
+%
+% \begin{macro}{\SpeakAppend}
+% \begin{macro}{\sc@cast}
+% \begin{macro}{\character}
+% 
+%    \begin{macrocode}
+\providecommand\SpeakAppend {says}
+\ReserveCS\sc@cast
+\NewUserAbbrevDefiner\NewCharacterAbbrev{Character}
+\let\TMFontCharacter\scshape
+\newcommand*\character [3] {% args: dramper name csname
+  \expandafter\NewCharacterAbbrev\csname #3\endcsname{#2}%
+  \NewName* {#3\SpeakAppend} {} {%
+    \speak{#2}%
+  }%
+  \addto@macro\sc@cast{,#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% The |\@cdr| gets rid of the first silly comma.
+%    \begin{macrocode}
+\newcommand\DramPer {%
+  \ifx\sc@cast\LongEmpty\else
+    {\larger\scshape Cast}%
+    \relax\begin{verse}
+    \edef\sc@t@a{\E@cdr\sc@cast\@nil}%
+    \@for\sc@t@b:=\sc@t@a \do {%
+      \sc@t@b\\%
+    }%
+    \relax\end{verse}%
+%    \end{macrocode}
+% Prepare for another set of characters.
+%    \begin{macrocode}
+    \InitCS\sc@cast
+    \bigbreak
+  \fi
+}
+%    \end{macrocode}
+%
+%       \subsubsection{sectioning}
+%
+%  \begin{macro}{\sc@toks@saved@output}
+% We pull some fancy stuff with the output routine here.  The algorithm is a
+% simpler version of Knuth's \cite[260ff]{knuth:texbook}.
+%    \begin{macrocode}
+\newtokens\sc@toks@saved@output
+\sc@toks@saved@output=\output
+%    \end{macrocode}
+%  \end{macro}
+%
+% The |\sc@botmark|, if not empty, will contain text to be inserted at the top
+% of the next page. It must contain vertical not horizontal material. 
+%
+% We actually need to communicate the boolean |sc@directing| via the mark,
+% because only the information in the marks is guaranteed to reflect the state
+% at the end of the page, and not several lines later.   
+%    \begin{macrocode}
+\providelength\sc@len
+
+\newcommand\sc@outputwrapper {%
+  \setlength{\sc@len}{\dp255}%
+  \the\sc@toks@saved@output
+  \def\sc@t@b {%
+    \sc@botmark
+    \addtolength{\sc@len}{-\prevdepth}%
+    \kern\sc@len
+  }%
+  \InitCS\sc@t@a
+  \ifx\sc@botmark\ShortEmpty
+    \let\sc@t@a\sc@t@b
+  \else
+    \ifsc@directing
+      \let\sc@t@a\sc@t@b
+    \fi
+  \fi
+  \sc@t@a
+}
+\newcommand\script {%
+  \MakeDirectTakeArg
+  \relax\begin{Script}%
+}
+\NewName{endscript} {} {%
+  \relax\end{Script}%
+}
+\NewName{script*} {} {%
+  \MakeDirectTakeNoArg
+  \relax\begin{Script}%
+}
+\NewName{endscript*} {} {%
+  \relax\end{Script}%
+}
+\newcommand\sc@make@begin@bit@D [2] {% args: bitstyle copystyle
+  \DefName{sc@begin@bit@#1@#2}{##1##2} {%
+    \def\BitStyle{#1}%
+    \sc@begin@bit@common{##1}{##2}%
+    \PreBitAll
+%
+%    \ClaimXMarkTwo
+%    \FrankenInfo{drama}{The script environment is changing \protect\output.}%
+%    \output={\sc@outputwrapper}%
+%    \let\maxdepth\maxdimen
+%    \let\@maxdepth\maxdimen
+    \if@oneact@
+      \def\thepage {%
+        \arabic{bitbitbit}\hspace{\@ne em}\arabic{page}%
+      }%
+    \else
+      \def\thepage {%
+        \arabic{bitbit}--\arabic{bitbitbit}\hspace{\@ne em}\arabic{page}%
+      }%
+    \fi
+    \DramPer
+%
+    \@nameuse{PreBit#1}%
+  }%
+}
+\newcommand\sc@make@end@bit@D [2]  {% args: bitstyle copystyle
+  \DefName{sc@end@bit@#1@#2}{##1} {%
+    \sc@possiblyfinishdirecting
+    \TheEnd
+    \FrankenInfo{drama}{\protect\output is back to normal now.}%
+  }%
+}
+\NewBitstyle{Script}
+\PromulgateComponentAcrossCopystyles{end@bit}{D}{Script}
+\PromulgateComponentAcrossCopystyles{begin@bit}{D}{Script}
+
+\newcommand\act {%
+  \sc@possiblyfinishdirecting
+  \sc@mark{\ShortEmpty}%
+  \stepcounter{bitbit}%
+  \pagebreak[3]%
+  \bigskip
+  \centerline{\relsize{2}Act \thebitbit}%
+  \par
+  \nobreak
+  \smallskip
+}
+\newcommand\scene {%
+  \sc@possiblyfinishdirecting
+  \sc@mark{\ShortEmpty}%
+  \stepcounter{bitbitbit}%
+  \pagebreak[3]%
+  \bigskip
+  \centerline{\relsize{1}Scene \thebitbitbit}%
+  \par
+  \nobreak
+  \smallskip
+}
+%    \end{macrocode}
+%
+%       \subsubsection{speakers and stage directions}
+%
+%    \begin{macrocode}
+\newlength{\halfacross}
+  \setlength{\halfacross}{\textwidth}
+  \divide\halfacross by 2
+\newlength{\quarteracross}
+  \setlength{\quarteracross}{\textwidth}
+  \divide\quarteracross by 4
+
+\newenvironment{DramaTab} [1] {%
+    \relax\begin{list}{} {%
+        \setlength{\leftmargin}{#1}%
+        \setlength{\listparindent}{\z@}%
+        \sloppy
+        }%
+      \item\relax
+  }{%
+  \relax\end{list}%
+}
+\newcommand\setstage [1] {%
+  \relax\begin{DramaTab}{\halfacross}%
+    \DirectStyle
+    \DirectOpen
+    \ignorespaces
+    #1%
+    \unskip
+    \DirectClose
+  \relax\end{DramaTab}%
+}
+%    \end{macrocode}
+%
+% It is a question of style whether to announce the speaker's name a second
+% time, if his speech continues after a stage direction in a paragraph by
+% itself.  If the page breaks immediately before the stage direction, or
+% duringit, no continuation message will be given.  If it breaks after the
+% stage direction, and before the next speaker is announced with the |\speak|
+% command, a continuation message appropriate to the speaker \emph{before} the
+% stage direction is given.  Of course, sectioning commands will cancel any
+% continuation messages. 
+%
+% Communicating via the mark is giving me a problem.  I need to solve this
+% problem and replace @sc@bool with mark information.
+%
+% Also, when using the no-argument form on a source with arguments, you cannot
+% swallow the spaces with |\ignorespaces|, because the open brace shields them.
+%
+% There are problems with certain combinations of taking arguments and
+% reannouncing speakers after a stage direction.  I should draw a chart, and
+% see how I can handle things.  
+%  \begin{macro}{\DirectOpen}
+%  \begin{macro}{\DirectClose}
+% \mbox{}
+%    \begin{macrocode}
+\newcommand\DirectOpen {\textrm{(}}
+\newcommand\DirectClose {\textrm{)}}
+%    \end{macrocode}
+%  \end{macro}
+%  \end{macro}
+%
+%    \begin{macrocode}
+\newboolean{sc@directing}
+
+\newcommand*\DirectNoArg {%
+  \sc@noargs@finishdirecting
+  \sc@direct
+}
+\newcommand\DirectWithArg [1] {%
+  \sc@args@finishdirecting
+  \sc@direct
+  #1%
+  \sc@really@finishdirecting
+}
+\newcommand\sc@direct {%
+  \global\let\sc@lastmark\sc@themark
+  \sc@mark{\ShortEmpty}%
+  \sc@directingtrue
+  \pagebreak[0]% mild encouragement
+  \relax\begin{DramaTab}{\quarteracross}%
+    \DirectStyle
+    \DirectOpen
+    \ignorespaces
+}
+\newcommand\sc@really@finishdirecting {%
+  \unskip
+  \DirectClose
+  \relax\end{DramaTab}
+  \sc@directingfalse
+%  \sc@mark\expandafter{\sc@lastmark}% FIXME:
+}
+%    \end{macrocode}
+% Looks like args version is null.
+%    \begin{macrocode}
+\ReserveCS\sc@args@finishdirecting
+\newcommand\sc@noargs@finishdirecting {%
+  \ifsc@directing
+    \sc@really@finishdirecting
+  \fi
+}
+\ReserveCS\sc@possiblyfinishdirecting
+\newcommand\MakeDirectTakeArg {%
+  \let\sc@possiblyfinishdirecting\sc@args@finishdirecting
+  \let\direct\DirectWithArg
+}
+\newcommand\MakeDirectTakeNoArg {%
+  \let\sc@possiblyfinishdirecting\sc@noargs@finishdirecting
+  \let\direct\DirectNoArg
+}
+%    \end{macrocode}
+%
+% \todo{Do penalties better?}
+%
+%  \begin{macro}{\GiveSpeaker}
+%    \begin{macrocode}
+\newcommand\GiveSpeaker [1] {%
+  \par
+  \centerline{\textsc{#1}}%
+}
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\GiveSpeakerContinued}
+% The space is explicit for clarity.
+%    \begin{macrocode}
+\newcommand\GiveSpeakerContinued [1] {%
+  \GiveSpeaker{#1\space\rlap{\textsl{(continued)}}}%
+}
+\newcommand\speak [1] {%
+  \sc@possiblyfinishdirecting
+  \sc@mark{\ShortEmpty}%
+  \pagebreak[2]%
+  \smallskip
+  \sc@mark{\GiveSpeakerContinued{#1}}%
+  \GiveSpeaker{#1}%
+  \par
+  \nopagebreak
+  \noindent
+}
+%    \end{macrocode}
+%  \end{macro}
+%
+% \Finale

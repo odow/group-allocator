@@ -1,0 +1,394 @@
+This is pdfTeX, Version 3.14159-1.00b-pretest-20020211 (Web2C 7.3.7) (format=pdflatex 2002.5.6)  4 AUG 2002 10:10
+**achicago.tex
+(./achicago.tex{/usr/local/teTeX/share/texmf.local/pdftex/config/pdftex.cfg}
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, d
+utch, nohyphenation, loaded.
+(/usr/local/teTeX/share/texmf/tex/latex/base/ltxdoc.cls
+Document Class: ltxdoc 1999/08/08 v2.0u Standard LaTeX documentation class
+*************************************
+* Local config file ltxdoc.cfg used
+*************************************
+(/usr/local/teTeX/share/texmf/tex/latex/config/ltxdoc.cfg
+File: ltxdoc.cfg 2001/06/05 v1.0 teTeX: LaTeX documentation setup
+)
+(/usr/local/teTeX/share/texmf/tex/latex/base/article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/local/teTeX/share/texmf/tex/latex/base/size10.clo
+File: size10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/teTeX/share/texmf/tex/latex/base/doc.sty
+Package: doc 2001/05/16 v2.0n Standard LaTeX documentation package (FMi)
+\c@StandardModuleDepth=\count87
+\guard@level=\count88
+\MacrocodeTopsep=\skip43
+\MacroIndent=\dimen103
+\macro@cnt=\count89
+\MacroTopsep=\skip44
+\index@excludelist=\toks14
+
+(/usr/local/teTeX/share/texmf/tex/latex/tools/multicol.sty
+Package: multicol 2000/07/10 v1.5z multicolumn formatting (FMi)
+\c@tracingmulticols=\count90
+\mult@box=\box26
+\multicol@leftmargin=\dimen104
+\c@unbalance=\count91
+\c@collectmore=\count92
+\doublecol@number=\count93
+\multicoltolerance=\count94
+\multicolpretolerance=\count95
+\full@width=\dimen105
+\page@free=\dimen106
+\premulticols=\dimen107
+\postmulticols=\dimen108
+\multicolsep=\skip45
+\multicolbaselineskip=\skip46
+\partial@page=\box27
+\last@line=\box28
+\mult@rightbox=\box29
+\mult@grightbox=\box30
+\mult@gfirstbox=\box31
+\mult@firstbox=\box32
+\@tempa=\box33
+\@tempa=\box34
+\@tempa=\box35
+\@tempa=\box36
+\@tempa=\box37
+\@tempa=\box38
+\@tempa=\box39
+\@tempa=\box40
+\@tempa=\box41
+\@tempa=\box42
+\@tempa=\box43
+\@tempa=\box44
+\@tempa=\box45
+\@tempa=\box46
+\@tempa=\box47
+\@tempa=\box48
+\@tempa=\box49
+\c@columnbadness=\count96
+\c@finalcolumnbadness=\count97
+\last@try=\dimen109
+\multicolovershoot=\dimen110
+\multicolundershoot=\dimen111
+\mult@nat@firstbox=\box50
+\colbreak@box=\box51
+)
+\IndexMin=\dimen112
+\c@IndexColumns=\count98
+\GlossaryMin=\dimen113
+\c@GlossaryColumns=\count99
+\check@sum=\count100
+\bslash@cnt=\count101
+\wrong@table=\toks15
+\c@CodelineNo=\count102
+)) (./attrib.sty
+Package: attrib 2001/08/31 v1.3 attribution of block elements (Frankenstein's h
+at)
+
+(./moredefs.sty
+Package: moredefs 2001/08/31 v1.8 more defining commands (Frankenstein's brain)
+
+\sc@toks@a=\toks16
+\sc@toks@b=\toks17
+)
+\AttribMinSkip=\skip47
+) (./compsci.sty
+Package: compsci 2001/08/31 v1.2 macros for writing about macros (Frankenstein'
+s conscience)
+ (./abbrevs.sty
+Package: abbrevs 2001/09/08 v1.4 abbreviation macros (Frankenstein's briefs)
+ (./slemph.sty
+Package: slemph 1999/02/25 v1.2 slanted emphasis (Frankenstein's gait)
+LaTeX Info: Redefining \itswitch on input line 177.
+LaTeX Info: Redefining \slswitch on input line 186.
+LaTeX Info: Redefining \textitswitch on input line 195.
+LaTeX Info: Redefining \textslswitch on input line 196.
+ (./slemph.cfg
+File: slemph.cfg 
+))
+\c@tm@util=\count103
+
+(./abbrevs.cfg
+File: abbrevs.cfg 
+ (/usr/local/teTeX/share/texmf/tex/latex/misc/relsize.sty
+Package: relsize 1999/11/01 ver 2.0b
+)))
+(/usr/local/teTeX/share/texmf/tex/latex/base/alltt.sty
+Package: alltt 1997/06/16 v2.0g defines alltt environment
+) (./lips.sty
+Package: lips 2001/08/31 v2.1 Chicago Manual text ellipses (Frankenstein's lips
+)
+)
+(/usr/local/teTeX/share/texmf/tex/latex/base/shortvrb.sty
+Package: shortvrb 2001/05/16 v2.0n Standard LaTeX documentation package (FMi)
+) (./titles.sty
+Package: titles 2001/08/31 v1.2 title macros (Frankenstein's references)
+
+(./titles.cfg
+File: titles.cfg 
+)) (/usr/local/teTeX/share/texmf/tex/latex/misc/url.sty
+\Urlmuskip=\muskip10
+Package: url 1999/03/28  ver 1.5x  Verb mode for urls, etc.
+)
+(/usr/local/teTeX/share/texmf/tex/latex/tools/verbatim.sty
+Package: verbatim 2001/03/12 v1.5p LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks18
+\verbatim@line=\toks19
+\verbatim@in@stream=\read1
+)
+Package shortvrb Info: Made | a short reference for \verb on input line 509.
+\verbatim@out=\write3
+LaTeX Info: Redefining \cmd on input line 985.
+ (./compsci.cfg
+File: compsci.cfg 
+))
+\c@lessoninternal=\count104
+
+(./achicago.sty (./achicago.sty
+Package: achicago 2001/08/31 v1.2 Chicago Manual author-date citations
+ (./blkcntrl.sty
+Package: blkcntrl 2001/08/31 v1.2 block control
+)
+\sc@box@a=\box52
+))
+\@indexfile=\write4
+\openout4 = `achicago.idx'.
+
+
+Writing index file achicago.idx
+(./achicago.aux)
+\openout1 = `achicago.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+Package shortvrb Info: | already a short reference for \verb on input line 57.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 62.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 62.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 62.
+ (./achicago.sty
+***************************
+* Character table correct *
+***************************
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <9> on input line 53.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 53.
+
+LaTeX Warning: Citation `chicago:14' undefined on input line 54.
+
+(./achicago.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 6.
+)
+\tf@toc=\write5
+\openout5 = `achicago.toc'.
+
+ [1
+
+{/usr/local/teTeX/share/texmf/dvips/config/pdftex.map}{/usr/local/teTeX/share/t
+exmf.os/dvips/config/Ttbbold.map}{/usr/local/teTeX/share/texmf.os/dvips/config/
+wolfram.map}]
+LaTeX Font Info:    Try loading font information for OMS+cmss on input line 98.
+
+LaTeX Font Info:    No file OMScmss.fd. on input line 98.
+
+
+LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead
+(Font)              for symbol `textsection' on input line 98.
+
+[2
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 165--166
+[][]
+ []
+
+
+Overfull \hbox (28.48296pt too wide) in paragraph at lines 165--166
+[]| 
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 168.
+
+(/usr/local/teTeX/share/texmf/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 168.
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--169
+[][]
+ []
+
+
+Overfull \hbox (47.92746pt too wide) in paragraph at lines 168--169
+[]| 
+ []
+
+
+Overfull \hbox (86.42752pt too wide) in paragraph at lines 171--172
+[][]| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
+[]$/cmtt10/\cite$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
+/cmtt10/[[]]{[]}
+ []
+
+
+Overfull \hbox (86.42752pt too wide) in paragraph at lines 174--175
+[][]| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 177--178
+[][]
+ []
+
+
+Overfull \hbox (20.70515pt too wide) in paragraph at lines 177--178
+[]| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 180--181
+[][]
+ []
+
+
+Overfull \hbox (5.14957pt too wide) in paragraph at lines 180--181
+[]| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+[][]
+ []
+
+
+Underfull \hbox (badness 1210) in paragraph at lines 191--192
+[]/cmr10/principal list and paren-
+ []
+
+
+Overfull \hbox (47.45195pt too wide) in paragraph at lines 162--196
+[][]
+ []
+
+[3]
+
+LaTeX Font Warning: Font shape `OMS/cmss/m/sl' undefined
+(Font)              using `OMS/cmss/m/n' instead
+(Font)              for symbol `textsection' on input line 211.
+
+[4] [5]
+Overfull \hbox (0.5877pt too wide) in paragraph at lines 280--280
+ [][]/cmtt9/\makeatletter% A special comment to help create bst files.  Don't c
+hange! 
+ []
+
+
+Overfull \hbox (28.93738pt too wide) in paragraph at lines 280--280
+ [][]  /cmtt9/\eExpand\csname DoXPackageS\endcsname\In {%use \csname in case it
+'s undefined 
+ []
+
+[6
+
+]
+Overfull \hbox (0.2771pt too wide) in paragraph at lines 383--385
+[]/cmr10/This will make the def-i-ni-tion of the /cmtt10/thebibliography /cmr10
+/en-vi-ron-ment in $/cmtt10/classes .
+ []
+
+[7]
+Overfull \hbox (22.0263pt too wide) in paragraph at lines 439--442
+/cmr10/false, we gob-ble ev-ery-thing be-tween $/cmtt10/\begin{SCannotation}$ /
+cmr10/and $/cmtt10/\end{SCannotation}$/cmr10/. 
+ []
+
+[8] [9] [10]
+Overfull \hbox (10.0376pt too wide) in paragraph at lines 653--653
+ [][]          /cmtt9/\@warning{Citation `\ac@label' on page \thepage\space und
+efined}% 
+ []
+
+[11]
+*******************
+* Checksum passed *
+*******************
+) [12]
+No file achicago.bbl.
+No file achicago.ind.
+(./achicago.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1310 strings out of 30382
+ 16023 string characters out of 438882
+ 72807 words of memory out of 1000001
+ 4285 multiletter control sequences out of 10000+30000
+ 13419 words of font info for 47 fonts, out of 400000 for 1000
+ 54 hyphenation exceptions out of 1000
+ 31i,13n,22p,265b,766s stack positions out of 300i,100n,500p,50000b,4000s
+ 110 PDF objects out of 65536
+ 0 named destinations out of 20000
+ 0 words of extra memory for PDF output out of 65536
+</usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmsltt10.pfb></usr/local
+/teTeX/share/texmf/fonts/type1/bluesky/cm/cmr8.pfb></usr/local/teTeX/share/texm
+f/fonts/type1/bluesky/cm/cmssi10.pfb></usr/local/teTeX/share/texmf/fonts/type1/
+bluesky/cm/cmss10.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmsy
+10.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmbxsl10.pfb></usr/
+local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmr7.pfb></usr/local/teTeX/share
+/texmf/fonts/type1/bluesky/cm/cmti10.pfb></usr/local/teTeX/share/texmf/fonts/ty
+pe1/bluesky/cm/cmsl10.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/
+cmtt10.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmr10.pfb></usr
+/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmbx10.pfb></usr/local/teTeX/sh
+are/texmf/fonts/type1/bluesky/cm/cmbx12.pfb></usr/local/teTeX/share/texmf/fonts
+/type1/bluesky/cm/cmtt9.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/c
+m/cmcsc10.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmti9.pfb></
+usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmr6.pfb></usr/local/teTeX/s
+hare/texmf/fonts/type1/bluesky/cm/cmsl9.pfb></usr/local/teTeX/share/texmf/fonts
+/type1/bluesky/cm/cmbx9.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/c
+m/cmr9.pfb></usr/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmtt12.pfb></us
+r/local/teTeX/share/texmf/fonts/type1/bluesky/cm/cmr12.pfb></usr/local/teTeX/sh
+are/texmf/fonts/type1/bluesky/cm/cmss17.pfb></usr/local/teTeX/share/texmf/fonts
+/type1/bluesky/cm/cmr17.pfb>
+Output written on achicago.pdf (12 pages, 183389 bytes).

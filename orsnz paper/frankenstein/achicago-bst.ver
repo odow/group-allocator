@@ -1,0 +1,18 @@
+ \def\fileinfo{A Chicago Manual BibTeX style}
+ \def\DoXPackageS {longtable}
+ \def\initelyHavECitationS {}
+ \def\fileversion{v1}
+ \def\filedate{2001/08/31}
+ \def\docdate{2001/08/31}
+\makeatletter% A special comment to help create bst files.  Don't change!
+\@ifundefined{JusTLoaDInformatioN} {%
+  }{% ELSE (we know the compsci package is already loaded, too)
+  \UndefineCS\JusTLoaDInformatioN
+  \SaveDoXVarS
+  \eExpand\csname DoXPackageS\endcsname\In {%use \csname in case it's undefined
+    \usepackage{#1}%
+  }%
+  \RestoreDoXVarS
+  \makeatother
+  \endinput
+}% A special comment to help create bst files.  Don't change!

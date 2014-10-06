@@ -1,0 +1,122 @@
+\documentclass[12pt]{ORSNZ}
+\usepackage{amssymb, vmargin,  ORSNZ}
+
+\setpapersize{A4}
+\setmargnohfrb{30mm}{20mm}{30mm}{20mm} % no header/footer, margins as required
+\title{Partitioning of students into equitable groups: A SolverStudio solution}
+\author{M. Fairley*, O. Dowson\\Department of Engineering Science\\University of
+  Auckland\\New Zealand\\{*}mfai035\@@aucklanduni.ac.nz} 
+
+\date{} % Don't include the date
+\setlength{\parindent}{6mm} % 6mm paragraph indentation
+\renewcommand{\baselinestretch}{1.0417} % to get 15pt lines (does it work?)
+
+\begin{document}
+
+\maketitle
+\pagestyle{empty} \thispagestyle{empty}
+\begin{abstract}
+Students in their final year of a Bachelor’s in Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In order to make this as fair and equitable as possible, the students should be partitioned in a way to make the groups are as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A model was formulated to minimise a weighted combination of the greatest difference between the mean grade point average of each group, and the greatest difference between the variance of the grade point averages in each group. The model was also constrained to balance gender, ethnicity and discipline. This model was then implemented in the PuLP modelling language using the SolverStudio modelling environment. The resulting solution was given to the course organiser who used the model to partition students in the 2014 ENGGEN403 class.
+
+\textbf{Key words:} knapsack, pulp, solverstudio, university of auckland, group allocator
+\end{abstract}
+
+\section{Introduction}
+Students in their final year of a Bachelor’s in Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch, a proposal for the future of Auckland’s transport network and a tender to run a new public-private partnership investment agency.
+
+\section{Method}
+It is of interest to all involved stakeholders to make the groups as fair and equitable as possible. The variable of most interest is grade point average (GPA). There is anecdotal evidence from students and the course organiser of groups in previous years with large numbers of high GPA students. Although this does not necessarily lead to a better grade, there is a perception of inequity amongst students from other groups. A second cause for concern was groups with a bi-modal split of high-GPA students and low-GPA students. Therefore, two key metrics in determining the quality of any partition: the difference in mean GPA between groups, and the difference in the group GPA variance between groups.
+
+A second set of variables concern the demographic make-up of the groups. Although not as strictly related to academic performance as GPA, group demographics can have a large impact on the perceived fairness and enjoyment by students.
+
+One key demographic variable is gender. It is widely acknowledged that women are under-represented in Engineering at the University of Auckland.
+
+ENGGEN403 is a common paper to all the engineering disciplines at the University of Auckland. In addition, each discipline has a unique set of skills and perspective to contribute to group projects. To give all groups an equal balance of these skills, and to prevent a single discipline from dominating a group, students from each discipline should be distributed equally amongst the groups.
+
+\section{Mathematical model}
+
+\begin{description}
+\item[Indices] \mbox{}\\
+        $s =$ student: $S = 1, 2, \dots, m$;
+        $g =$ group: $1, 2, \dots, n$.
+\item[Parameters] \mbox{} \\
+$G_s = $ grade point average of student $s$; \\
+$K_s = $ gender of student $s$; \\
+$E_s = $ ethnicity of student $s$; \\
+$D_s = $ discipline of student $s$; \\
+$M_g = $ the number of students in group $g$.
+
+
+\item[Decision variables]\mbox{} \\
+$x_{sg} = $ allocate student $s$ to group $g$;\\
+$G^{max} = $ maximum mean GPA of group;\\
+$G^{min} = $ minimum mean GPA of group;\\
+$V^{max} = $ maximum variance of group GPA;\\
+$V^{min} = $  minimum variance of group GPA.
+
+
+\item[Group-Allocator]\mbox{} \\
+Minimize $\alpha (G^{max} - G^{min}) + (1-\alpha)(V^{max} - V^{min})$
+
+\textbf{Partition}
+\begin{equation} \label{con1}
+\sum_{g=1}^n x_{sg} =  1 \qquad \mbox{$\forall s \in S$}
+\end{equation}
+
+\textbf{Bounds on mean GPA}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \geq G^{min} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \leq G^{max} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+
+\textbf{Bounds on GPA variance}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \geq V^{min} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \leq V^{max} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+
+
+\textbf{Bounds on Gender}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg} \geq \left\lfloor\frac{M_g\times N}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+
+\textbf{Bounds on Discipline}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg} \geq \left\lfloor\frac{M_g\times N}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+
+\textbf{Bounds on Ethnicity}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg} \geq \left\lfloor\frac{M_g\times N}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\end{equation}
+
+\textbf{Variable Bounds}
+\[x_{sg} \in \{0, 1\}\]
+\[G^{min}, G^{max}, V^{min}, V^{max} \ge 0.\]
+
+\item[Explanation] The objective is to minisime total transportation
+cost. Constraint~(\ref{con1}) requires plants to produce at full
+capacity. Constraint~(\ref{con2}) ensures minimum demand is satisfied
+for each wholesaler.
+\end{description}
+
+\section{Reporting}
+	In this section we discuss the visual aids produced to help users understand the solution.
+
+\section{Results}
+	In this section we discuss the results of the 2013 ENGGEN403 class.
+	
+\section{Discussion}
+
+
+\section*{Acknowledgments}
+The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Department at the University of Auckland, as well as the `Systems Team' who organise ENGGEN403.
+
+\bibliographystyle{achicago}
+\bibliography{ORSNZ}
+\end{document}
