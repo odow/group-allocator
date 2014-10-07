@@ -1,0 +1,201 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.3.15)  7 OCT 2014 13:56
+entering extended mode
+**C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz*paper/FAIRLEY_DOW
+SON_ORSNZ.tex
+
+("C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz paper/FAIRLEY_DOW
+SON_ORSNZ.tex"
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
+abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
+croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, ga
+lician, german, german-x-2013-05-26, greek, gujarati, hindi, hungarian, iceland
+ic, indonesian, interlingua, irish, italian, kannada, kurmanji, latin, latvian,
+ lithuanian, malayalam, marathi, mongolian, mongolianlmc, monogreek, ngerman, n
+german-x-2013-05-26, nynorsk, oriya, panjabi, pinyin, polish, portuguese, roman
+ian, russian, sanskrit, serbian, slovak, slovenian, spanish, swedish, swissgerm
+an, tamil, telugu, turkish, turkmen, ukenglish, ukrainian, uppersorbian, usengl
+ishmax, welsh, loaded.
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\ORSNZ.cls"
+
+LaTeX Warning: You have requested document class `ORSNZ',
+               but the document class provides `article'.
+
+Document Class: article 1997/10/10 v1.3x Standard LaTeX document class
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\size12.clo"
+File: size12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\amssymb.sty"
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\amsfonts.sty"
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks14
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\vmargin.sty
+"
+Package: vmargin 1999/06/01
+
+Package `vmargin', V2.2, <1999/06/01>
+\PaperWidth=\dimen103
+\PaperHeight=\dimen104
+) ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\ORSNZ.sty
+"
+Package: ORSNZ 2001/08/31 v1.2 Chicago Manual author-date citations
+
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\blkcntrl.st
+y"
+Package: blkcntrl 2001/08/31 v1.2 block control
+
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\moredefs.st
+y"
+Package: moredefs 2001/08/31 v1.8 more defining commands (Frankenstein's brain)
+
+\sc@toks@a=\toks15
+\sc@toks@b=\toks16
+)
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\relsize.sty
+"
+Package: relsize 1999/11/01 ver 2.0b
+))
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\slemph.sty"
+Package: slemph 1999/02/25 v1.2 slanted emphasis (Frankenstein's gait)
+LaTeX Info: Redefining \itswitch on input line 177.
+LaTeX Info: Redefining \slswitch on input line 186.
+LaTeX Info: Redefining \textitswitch on input line 195.
+LaTeX Info: Redefining \textslswitch on input line 196.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\frankenstein\slemph.cfg"
+File: slemph.cfg 
+))
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\titles.sty"
+Package: titles 2001/08/31 v1.2 title macros (Frankenstein's references)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\frankenstein\titles.cfg"
+File: titles.cfg 
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\verbatim.sty"
+Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks17
+\verbatim@line=\toks18
+\verbatim@in@stream=\read1
+)
+\sc@box@a=\box26
+)
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
+SON_ORSNZ.aux"
+
+LaTeX Warning: Label `con2' multiply defined.
+
+
+LaTeX Warning: Label `con2' multiply defined.
+
+
+LaTeX Warning: Label `con2' multiply defined.
+
+
+LaTeX Warning: Label `con2' multiply defined.
+
+
+LaTeX Warning: Label `con2' multiply defined.
+
+
+LaTeX Warning: Label `con2' multiply defined.
+
+)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Try loading font information for U+msa on input line 16.
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 16.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--23
+
+ []
+
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+[1
+
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 42--48
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--64
+
+ []
+
+[2] [3]
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
+SON_ORSNZ.bbl"
+
+LaTeX Warning: Empty `thebibliography' environment on input line 3.
+
+) [4]
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
+SON_ORSNZ.aux")
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 950 strings out of 493921
+ 12642 string characters out of 3144876
+ 61448 words of memory out of 3000000
+ 4269 multiletter control sequences out of 15000+200000
+ 9504 words of font info for 36 fonts, out of 3000000 for 9000
+ 841 hyphenation exceptions out of 8191
+ 29i,6n,26p,1208b,200s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C
+:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/
+Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Pro
+gram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Progra
+m Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Fi
+les (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program File
+s (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on FAIRLEY_DOWSON_ORSNZ.pdf (4 pages, 104697 bytes).
+PDF statistics:
+ 47 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
