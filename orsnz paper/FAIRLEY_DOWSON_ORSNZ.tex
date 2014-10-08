@@ -1,9 +1,13 @@
 \documentclass[12pt]{ORSNZ}
-\usepackage{amssymb, vmargin,  ORSNZ}
+\usepackage{amssymb, amsmath, vmargin,  ORSNZ}
+
+
+
+
 
 \setpapersize{A4}
 \setmargnohfrb{30mm}{20mm}{30mm}{20mm} % no header/footer, margins as required
-\title{Partitioning of students into equitable groups: A SolverStudio solution}
+\title{Partitioning of students into equitable groups using SolverStudio}
 \author{M. Fairley*, O. Dowson\\Department of Engineering Science\\University of
   Auckland\\New Zealand\\{*}mfai035\@@aucklanduni.ac.nz} 
 
@@ -16,9 +20,9 @@
 \maketitle
 \pagestyle{empty} \thispagestyle{empty}
 \begin{abstract}
-Students in their final year of a Bachelor’s in Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In order to make this as fair and equitable as possible, the students should be partitioned in a way to make the groups are as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A model was formulated to minimise a weighted combination of the greatest difference between the mean grade point average of each group, and the greatest difference between the variance of the grade point averages in each group. The model was also constrained to balance gender, ethnicity and discipline. This model was then implemented in the PuLP modelling language using the SolverStudio modelling environment. The resulting solution was given to the course organiser who used the model to partition students in the 2014 ENGGEN403 class.
+Students in their final year of a Bachelor of Engineering at The University of Auckland are required to complete a course known as ENGGEN 403. As part of this course, students are partitioned into groups of around 25 students and given a single week to produce a large piece of work on a given topic. In order to make this fair and equitable, the students should be partitioned in a way to make the groups as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A model was formulated to minimise a weighted combination of the greatest difference between the mean grade point average of each group, and the greatest difference between the variance of the grade point averages in each group. The model was also constrained to balance gender, ethnicity and engineering discipline. This model was then implemented in the PuLP modelling language using the SolverStudio modelling environment. The model was validated against 2013 data, and shown to improve all key metrics. The Excel spreadsheet was given to the course organiser who used the model to partition 571 students into 23 groups in the 2014 ENGGEN 403 class.
 
-\textbf{Key words:} knapsack, pulp, solverstudio, university of auckland, group allocator
+\textbf{Key words:} knapsack, pulp, solverstudio, group allocator
 \end{abstract}
 
 \section{Introduction}
@@ -34,17 +38,27 @@ One key demographic variable is gender. It is widely acknowledged that women are
 ENGGEN403 is a common paper to all the engineering disciplines at the University of Auckland. In addition, each discipline has a unique set of skills and perspective to contribute to group projects. To give all groups an equal balance of these skills, and to prevent a single discipline from dominating a group, students from each discipline should be distributed equally amongst the groups.
 
 \subsection{Previous Solution}
-In previous years, the job of partitioning the students into groups has been the course organisers job. His method for doing so was not rigorous, but can be considered to be a greedy heuristic.  
+In previous years, the job of partitioning the students into groups has been the course organisers job. The method for doing so was not rigorous, but can be considered to be a greedy heuristic. 
+
+The basic method was as follows:
+
+Starting with the smallest discipline, distribute the students across the groups aiming for equal mean GPA. Move onto the next smallest discipline and repeat. As more students are added, try to balance gender as well as GPA. Once all students are added, perform a series of swaps between pairs of students to improve the balance.
+
+This process usually took on the order of two days to complete.
 
 \section{Mathematical model}
 
 \begin{description}
-\item[Indices] \mbox{}\\
-        $s =$ student: $S = \{1, 2, \dots, m\}$;\\
-        $g =$ group: $G = \{1, 2, \dots, n\}$;\\
-        $e =$ ethnicity: $E = \{\mbox{European, M\=aori, Pacific, Asian, Other}\}$;\\
-        $k =$ gender: $K = \{\mbox{Male, Female, Other}\}$;\\
-        $d =$ discipline: $D = \{\mbox{Civil, \dots, Mechanical}\}$;\\
+\item[Sets] \mbox{}\\
+        Students: $S = \{1, 2, \dots, m\}$;\\
+        Groups: $G = \{1, 2, \dots, n\}$;\\
+        Ethnicities: $E = \{\mbox{European, M\=aori, Pacific, Asian, Other}\}$;\\
+        Genders: $K = \{\mbox{Male, Female, Other}\}$;\\
+        Disciplines: D = \{Civil, Chemical \& Materials, Mechatronics,Mechanical, Electrical, Software, Computer Systems, Engineering Science, Biomedical\};
+        Students who identify as gender $k$: $S^K_k \subset S$;\\
+        Students who identify as ethnicity $e$: $S^E_e \subset S$;\\
+        Students who study discipline $d$: $S^D_d \subset S$.
+
 
 
 \item[Parameters] \mbox{} \\
@@ -52,11 +66,7 @@ $GPA_s = $ grade point average of student $s$; \\
 $P^K_s = $ gender of student $s$; \\
 $P^E_s = $ ethnicity of student $s$; \\
 $P^D_s = $ discipline of student $s$; \\
-$M_g = $ the number of students in group $g$;\\
-$M^K_k = $ the number of students who identify as gender $k$;\\
-$M^E_e = $ the number of students belonging to ethnicity $e$;\\
-$M^D_d = $ the number of students who study discipline $d$.
-
+$M_g = $ the number of students in group $g$.
 
 \item[Decision variables]\mbox{} \\
 $x_{sg} = $ allocate student $s$ to group $g$;\\
@@ -69,49 +79,51 @@ $V^{min} = $  minimum variance of group GPA.
 
 
 \item[Group-Allocator]\mbox{} \\
-Minimize $\alpha (G^{max} - G^{min}) + (1-\alpha)(V^{max} - V^{min})$
+The objective function is to minimise a convex combination of the spread between the maximum and minimum mean group GPA, and the spread between the maximum and minimum variance of the GPAs within a group. Adding a penalty term with a large coefficient $\beta$ is necessary as some constraints are relaxed.
 
+
+\begin{equation}\begin{split}
+\mbox{Minimise }& \alpha\underbrace{(G^{max} - G^{min})}_{mean} + (1-\alpha)\underbrace{(V^{max} - V^{min})}_{Variance} \\&+ \beta\underbrace{\sum_{g \in G}\left(\sum_{k \in K}y^K_{gk} + \sum_{d \in D}y^D_{gd} + \sum_{e \in E}y^E_{ge}\right)}_{\mbox{Penalty variables}}
+\end{split}\end{equation}
+
+\textbf{Partitioning Constraint} This constraint ensures that all students are allocated to exactly one group.
 \begin{equation} \label{con1}
 \sum_{g=1}^n x_{sg} =  1 \qquad \mbox{$\forall s \in S$}
 \end{equation}
 
-\textbf{Bounds on objective variables}
+\textbf{Bounds on objective variables} These constraints set the values of the variables used in the objective function.
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \geq G^{min} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
+\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \geq G^{min} \qquad \mbox{$\forall g \in G$}
 \end{equation}
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \leq G^{max} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
-\end{equation}
-
-\begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \geq V^{min} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
-\end{equation}
-\begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \leq V^{max} \qquad \mbox{for $ g = 1, 2, \ldots, n$.}
-\end{equation}
-
-
-\textbf{Bounds on demographic variables}
-\begin{equation} \label{con2}
-\sum_{s \in S} x_{sg} + y^K_{gk} \geq \left\lfloor\frac{M_g\times M^K_k}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$\qquad $\forall k \in K$}
+\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \leq G^{max} \qquad \mbox{$\forall g \in G$}
 \end{equation}
 
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg} + y^D_{gd}  \geq \left\lfloor\frac{M_g\times M^D_d}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$\qquad $\forall d \in D$}
+\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \geq V^{min} \qquad\mbox{$\forall g \in G$}
+\end{equation}
+\begin{equation} \label{con2}
+\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \leq V^{max} \qquad\mbox{$\forall g \in G$}
+\end{equation}
+
+
+\textbf{Bounds on demographic variables} These constraints set the minimum number of students in each group from each demographic sub-group. These constraints are relaxed via the addition of $y$ variables.
+\begin{equation} \label{con2}
+\sum_{s \in S^K_k} x_{sg} + y^K_{gk} \geq \left\lfloor\frac{M_g\times |S^K_k|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall k \in K$}
 \end{equation}
 
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg} + y^E_{ge}  \geq \left\lfloor\frac{M_g\times M^E_e}{m}\right\rfloor \qquad \mbox{for $ g = 1, 2, \ldots, n$\qquad $\forall e \in E$}
+\sum_{s \in S^D_d} x_{sg} + y^D_{gd}  \geq \left\lfloor\frac{M_g\times |S^D_d|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall d \in D$}
 \end{equation}
 
-\textbf{Variable Bounds}
+\begin{equation} \label{con2}
+\sum_{s \in S^E_e} x_{sg} + y^E_{ge}  \geq \left\lfloor\frac{M_g\times |S^E_e|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall e \in E$}
+\end{equation}
+
+\textbf{Variable Bounds} The allocation variables ($x$) are binary, all other variables are non-negative.
 \[x_{sg} \in \{0, 1\}\]
 \[G^{min}, G^{max}, V^{min}, V^{max}, y^I_{gi}  \ge 0.\]
 
-\item[Explanation] The objective is to minisime total transportation
-cost. Constraint~(\ref{con1}) requires plants to produce at full
-capacity. Constraint~(\ref{con2}) ensures minimum demand is satisfied
-for each wholesaler.
 \end{description}
 
 \section{Reporting}
@@ -128,4 +140,5 @@ The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Depa
 
 \bibliographystyle{achicago}
 \bibliography{ORSNZ}
+
 \end{document}
