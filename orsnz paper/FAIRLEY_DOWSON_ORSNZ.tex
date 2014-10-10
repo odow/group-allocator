@@ -1,5 +1,5 @@
 \documentclass[12pt]{ORSNZ}
-\usepackage{amssymb, amsmath, vmargin,  ORSNZ}
+\usepackage{amssymb, amsmath, vmargin, graphicx, ORSNZ}
 
 
 
@@ -20,34 +20,38 @@
 \maketitle
 \pagestyle{empty} \thispagestyle{empty}
 \begin{abstract}
-Students in their final year of a Bachelor of Engineering at The University of Auckland are required to complete a course known as ENGGEN 403. As part of this course, students are partitioned into groups of around 25 students and given a single week to produce a large piece of work on a given topic. In order to make this fair and equitable, the students should be partitioned in a way to make the groups as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A model was formulated to minimise a weighted combination of the greatest difference between the mean grade point average of each group, and the greatest difference between the variance of the grade point averages in each group. The model was also constrained to balance gender, ethnicity and engineering discipline. This model was then implemented in the PuLP modelling language using the SolverStudio modelling environment. The model was validated against 2013 data, and shown to improve all key metrics. The Excel spreadsheet was given to the course organiser who used the model to partition 571 students into 23 groups in the 2014 ENGGEN 403 class.
+Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course known as ENGGEN 403. As part of this course, students are partitioned into groups of around 25 students and given a single week to solve a large problem. In order to make this partitioning fair and equitable, the students should be partitioned in a way that makes the groups as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A mixed integer programme was formulated to balance the number of students in each group by academic performance, gender, ethnicity and engineering discipline. This model was implemented in the PuLP modelling language using the SolverStudio modelling environment. The model was validated against data from the 2013 ENGGEN 403 class, and shown to improve all key metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 ENGGEN 403 class into 23 groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
 
-\textbf{Key words:} knapsack, pulp, solverstudio, group allocator
+\textbf{Key words:} excel, pulp, solverstudio, group allocator
 \end{abstract}
 
 \section{Introduction}
-Students in their final year of a Bachelor’s in Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch, a proposal for the future of Auckland’s transport network and a tender to run a new public-private partnership investment agency.
+Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch, a proposal for the future of Auckland’s transport network and a tender to run a new public-private partnership investment agency.
+
+Although the stated aim of the project is to practice the skills taught throughout the course, a large component relates to team dynamics. 
+
+This paper details the development, implementation and results of an optimisation solution to the student partitioning problem. 
 
 \subsection{Variables of Interest}
-It is of interest to all involved stakeholders to make the groups as fair and equitable as possible. The variable of most interest is grade point average (GPA). There is anecdotal evidence from students and the course organiser of groups in previous years with large numbers of high GPA students. Although this does not necessarily lead to a better grade, there is a perception of inequity amongst students from other groups. A second cause for concern was groups with a bi-modal split of high-GPA students and low-GPA students. Therefore, two key metrics in determining the quality of any partition are the difference in mean GPA between groups, and the difference in the group GPA variance between groups.
+There is no clear definition of fair and equitable, however we can identify two distinct types of variables that are of interest: academic ability and demographic composition. The first is important as it would be unfair to have one group composed of mainly high-achieving students, and another with low-achieving students. 
 
-A second set of variables concern the demographic make-up of the groups. Although not as strictly related to academic performance as GPA, group demographics can have a large impact on the perceived fairness and enjoyment by students.
+The variable of most interest is grade point average (GPA). At the University of Auckland, GPA's are measured on a 1-9 scale, where 1 represents a C- average, and 9 represents an A+ average. There is anecdotal evidence from students and the course organiser of groups in previous years with large numbers of high GPA students. Although this does not necessarily lead to a better grade, there is a perception of inequity amongst students from other groups. A second cause for concern was groups with a bi-modal split of high-GPA students and low-GPA students. 
 
-One key demographic variable is gender. It is widely acknowledged that women are under-represented in Engineering at the University of Auckland.
+Therefore, two key metrics in determining the quality of any partition are the mean GPA of a group, and the variance of student GPAs within a groups.
 
 ENGGEN403 is a common paper to all the engineering disciplines at the University of Auckland. In addition, each discipline has a unique set of skills and perspective to contribute to group projects. To give all groups an equal balance of these skills, and to prevent a single discipline from dominating a group, students from each discipline should be distributed equally amongst the groups.
 
+Two other demographic variables are gender and ethnicity. Although these have less of an impact on group performance than GPA or discipline, group demographics can have a large impact on the perceived fairness and enjoyment by students. Therefore, there should be an equal number of students identifying as each gender in every group. Balancing on ethnicity also contributes to the perceived fairness of the groups by students.
+
 \subsection{Previous Solution}
-In previous years, the job of partitioning the students into groups has been the course organisers job. The method for doing so was not rigorous, but can be considered to be a greedy heuristic. 
+In previous years, the job of partitioning the students into groups has been the course organisers job. The method for doing so was not rigorous, but can be considered to be a greedy heuristic. The basic method was as follows:
 
-The basic method was as follows:
-
-Starting with the smallest discipline, distribute the students across the groups aiming for equal mean GPA. Move onto the next smallest discipline and repeat. As more students are added, try to balance gender as well as GPA. Once all students are added, perform a series of swaps between pairs of students to improve the balance.
+Starting with the smallest discipline, distribute the students across the groups aiming to balance the mean GPA of each group. Once complete, move onto the next smallest discipline and repeat. As more students are added, try to balance gender as well as GPA. Once all students are added, perform a series of swaps between pairs of students to improve the overall balance.
 
 This process usually took on the order of two days to complete.
 
 \section{Mathematical model}
-
+In this section, we define the mixed integer mathematical programme that was formulated to solve the problem.
 \begin{description}
 \item[Sets] \mbox{}\\
         Students: $S = \{1, 2, \dots, m\}$;\\
@@ -55,88 +59,234 @@ This process usually took on the order of two days to complete.
         Ethnicities: $E = \{\mbox{European, M\=aori, Pacific, Asian, Other}\}$;\\
         Genders: $K = \{\mbox{Male, Female, Other}\}$;\\
         Disciplines: D = \{Civil, Chemical \& Materials, Mechatronics,Mechanical, Electrical, Software, Computer Systems, Engineering Science, Biomedical\};
-        Students who identify as gender $k$: $S^K_k \subset S$;\\
-        Students who identify as ethnicity $e$: $S^E_e \subset S$;\\
-        Students who study discipline $d$: $S^D_d \subset S$.
+        Students who identify as gender $k$: $S^K_k \subset S, \quad \forall k \in K$;\\
+        Students who identify as ethnicity $e$: $S^E_e \subset S, \quad \forall e \in E$;\\
+        Students who study discipline $d$: $S^D_d \subset S, \quad \forall d \in D$.
 
 
 
 \item[Parameters] \mbox{} \\
-$GPA_s = $ grade point average of student $s$; \\
-$P^K_s = $ gender of student $s$; \\
-$P^E_s = $ ethnicity of student $s$; \\
-$P^D_s = $ discipline of student $s$; \\
-$M_g = $ the number of students in group $g$.
+$\gamma_s = $ grade point average of student $s$; \\
+$M_g = $ the number of students in group $g$;\\
+\textbf{Note:} the values of $M_g$ are computed a priori. They should add up to the total number of students in the class.\\
+$\alpha = $ priority given to allocating groups with equal mean compared to groups with equal variance. A good value for this is 0.5;\\
+$\beta^I = $ penalty weighting put on violating demographic constraints of type I, $I= D, E, K$.
 
 \item[Decision variables]\mbox{} \\
 $x_{sg} = $ allocate student $s$ to group $g$;\\
-$y^I_{gi} = $ artificial penalty variable for group $g$, factor $i$, \qquad $I=\{K, D, E\}$;\\
+$\rho^I_{gi} = $ artificial penalty variable for group $g$, factor $i$, \qquad $I=\{K, D, E\}$;\\
+$\mu_{max} = $ maximum mean GPA of group;\\
+$\mu_{min} = $ minimum mean GPA of group;\\
+$\sigma^2_{max} = $ maximum variance of group GPA;\\
+$\sigma^2_{min} = $  minimum variance of group GPA;\\
+$\hat{\mu} = $ mean GPA of all students;\\
+$\hat{\sigma^2} = $ variance in the GPA of all students.
 
-$G^{max} = $ maximum mean GPA of group;\\
-$G^{min} = $ minimum mean GPA of group;\\
-$V^{max} = $ maximum variance of group GPA;\\
-$V^{min} = $  minimum variance of group GPA.
 
-
-\item[Group-Allocator]\mbox{} \\
+\item[Objective Function]\mbox{} \\
 The objective function is to minimise a convex combination of the spread between the maximum and minimum mean group GPA, and the spread between the maximum and minimum variance of the GPAs within a group. Adding a penalty term with a large coefficient $\beta$ is necessary as some constraints are relaxed.
 
 
 \begin{equation}\begin{split}
-\mbox{Minimise }& \alpha\underbrace{(G^{max} - G^{min})}_{mean} + (1-\alpha)\underbrace{(V^{max} - V^{min})}_{Variance} \\&+ \beta\underbrace{\sum_{g \in G}\left(\sum_{k \in K}y^K_{gk} + \sum_{d \in D}y^D_{gd} + \sum_{e \in E}y^E_{ge}\right)}_{\mbox{Penalty variables}}
+\mbox{Minimise }&
+\underbrace{\alpha\left(\frac{\mu_{max} - \mu_{min}}{\hat{\mu}}\right)}_{\mbox{normalised mean}} 
++ \underbrace{(1-\alpha)\left(\frac{\sigma^2_{max} - \sigma^2_{min}}{\hat{\sigma^2}}\right)}_{\mbox{normalised variance}}
+\\&+ \underbrace{\sum_{g \in G}\left(\beta^K\sum_{k \in K}\rho^K_{gk} 
+	+ \beta^D\sum_{d \in D}\rho^D_{gd} 
+	+ \beta^E\sum_{e \in E}\rho^E_{ge}\right)}_{\mbox{penalty variables}}
 \end{split}\end{equation}
 
-\textbf{Partitioning Constraint} This constraint ensures that all students are allocated to exactly one group.
+\item[Constraints]\mbox{} \\
+\textbf{Partitioning Constraint} These constraints ensure that all students are allocated to exactly one group.
 \begin{equation} \label{con1}
 \sum_{g=1}^n x_{sg} =  1 \qquad \mbox{$\forall s \in S$}
 \end{equation}
 
+\begin{equation} \label{con1}
+\sum_{s \in S} x_{sg} =  M_g \qquad \mbox{$\forall g \in G$}
+\end{equation}
+
 \textbf{Bounds on objective variables} These constraints set the values of the variables used in the objective function.
-\begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \geq G^{min} \qquad \mbox{$\forall g \in G$}
+\begin{equation} \label{minu}
+\sum_{s \in S} \frac{x_{sg}\times \gamma_s}{M_g} \geq \mu_{min} \qquad \mbox{$\forall g \in G$}
 \end{equation}
+\begin{equation} \label{maxu}
+\sum_{s \in S} \frac{x_{sg}\times \gamma_s}{M_g} \leq \mu_{max} \qquad \mbox{$\forall g \in G$}
+\end{equation}
+
+\begin{equation} \label{minv}
+\sum_{s \in S} \frac{x_{sg}\times \gamma_s^2}{M_g}  - \hat{\mu}^2 \geq \sigma^2_{min} \qquad\mbox{$\forall g \in G$}
+\end{equation}
+\begin{equation} \label{maxv}
+\sum_{s \in S} \frac{x_{sg}\times \gamma_s^2}{M_g}  - \hat{\mu}^2 \leq \sigma^2_{max} \qquad\mbox{$\forall g \in G$}
+\end{equation}
+
+
+\textbf{Bounds on demographic variables} These constraints set the minimum number of students in each group from each demographic sub-group. These constraints are relaxed via the addition of $\rho$ variables.
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s}{M_g} \leq G^{max} \qquad \mbox{$\forall g \in G$}
+\sum_{s \in S^K_k} x_{sg} + \rho^K_{gk} \geq \left\lfloor\frac{M_g\times |S^K_k|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall k \in K$}
 \end{equation}
 
 \begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \geq V^{min} \qquad\mbox{$\forall g \in G$}
-\end{equation}
-\begin{equation} \label{con2}
-\sum_{s \in S} x_{sg}\times \frac{G_s^2}{M_g}  - \mu^2 \leq V^{max} \qquad\mbox{$\forall g \in G$}
-\end{equation}
-
-
-\textbf{Bounds on demographic variables} These constraints set the minimum number of students in each group from each demographic sub-group. These constraints are relaxed via the addition of $y$ variables.
-\begin{equation} \label{con2}
-\sum_{s \in S^K_k} x_{sg} + y^K_{gk} \geq \left\lfloor\frac{M_g\times |S^K_k|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall k \in K$}
+\sum_{s \in S^D_d} x_{sg} + \rho^D_{gd}  \geq \left\lfloor\frac{M_g\times |S^D_d|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall d \in D$}
 \end{equation}
 
 \begin{equation} \label{con2}
-\sum_{s \in S^D_d} x_{sg} + y^D_{gd}  \geq \left\lfloor\frac{M_g\times |S^D_d|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall d \in D$}
-\end{equation}
-
-\begin{equation} \label{con2}
-\sum_{s \in S^E_e} x_{sg} + y^E_{ge}  \geq \left\lfloor\frac{M_g\times |S^E_e|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall e \in E$}
+\sum_{s \in S^E_e} x_{sg} + \rho^E_{ge}  \geq \left\lfloor\frac{M_g\times |S^E_e|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall e \in E$}
 \end{equation}
 
 \textbf{Variable Bounds} The allocation variables ($x$) are binary, all other variables are non-negative.
 \[x_{sg} \in \{0, 1\}\]
-\[G^{min}, G^{max}, V^{min}, V^{max}, y^I_{gi}  \ge 0.\]
+\[\mu_{min}, \mu_{max}, \sigma^2_{min}, \sigma^2_{max}, \rho^I_{gi}  \ge 0.\]
 
 \end{description}
 
-\section{Reporting}
-	In this section we discuss the visual aids produced to help users understand the solution.
+\subsection{Estimating the variance of a group}
+In order to calculate the variance of a sample, one needs to know the square of the mean of that sample. This is a non-linear function of a variable in the model. Therefore, to prevent the problem from being non-linear, we make an assumption that the mean of every group is equal to the mean of all the students. This changes the square from acting on a variable, to acting on a parameter. We can make this assumption as constraints (\ref{minu}) and (\ref{maxu}) act to force the mean GPA of each group towards the global mean.
+
+\subsection{The affect of relaxing the demographic constraints}
+It is noticed that the demographic constraints take the form of 
+\begin{equation}
+\sum_i x_i + y \geq z
+\end{equation}
+where $x_i$ and $z$ are both integer values. Since the objective is to minimise, and the objective coefficients of the $y$ variables are positive, they will optimise to their lower bound. This implies that the $y$ variables will also take integer values in an optimal solution. 
+
+If the values are $\beta$ are large relative to the rest of the objective function, then the affect of this is to optimise the demographics of the groups first, and then proceed optimising the GPAs. When allocating small numbers of students, this is likely to lead to poor quality solutions with respect to GPA metrics. However, in ENGGEN 403 there are around 600 students every year. This means that there are likely to be multiple students with the same gender, ethnicity and discipline. Therefore, there is still enough freedom in the problem to produce a high quality solution with respect to the GPA metrics.
+
+Any of these constraints can be removed from the model by setting the corresponding $\beta$ value to zero. This may be desirable for smaller classes where a greater emphasis is placed on GPA.
+
+\section{Implementation}
+The above model was implemented in the SolverStudio \cite{solverstudio} modelling environment. SolverStudio is an add-in for Microsoft Excel. It acts as an interface between Excel and a variety of modelling languages including AMPL \cite{ampl}, GAMS \cite{gams}, PuLP \cite{pulp} and Gurobi \cite{gurobi}. In order to leverage the ability of SolverStudio to interface with Excel (see \emph{Reporting}), it was decided to use the PuLP modelling language. CBC was chosen was the solver as it is the default solver for SolverStudio.
+
+Model data is typed into cells in Excel and \emph{named ranges} are created using SolverStudio's \emph{Edit Data} function. 
+
+These ranges are dynamic, so that the user does not need to interact with this functionality. Adding a new row to the table will automatically adjust the named range in SolverStudio. This was done by using the following formula in the \emph{Cell Range} field in the SolverStudio Data Items Editor instead of hard coding a fixed range:
+
+\begin{equation}
+	= OFFSET(A2, 0, 0, COUNTA(A2:A10000), 1)
+\end{equation}
+%	\caption{Formula to create dynamic named ranges}
+
+where the variable being created is in column $A$ (so that the header is cell $A1$).
+
+When the model is solved, SolverStudio loads the data from the named ranges into standard Python dictionaries that can be accessed in the usual way. This provides seamless interaction between the PuLP model object and the data. When the model has finished solving, the reverse occurs, and SolverStudio writes the solution into a named range on the sheet. In this manner, the user does not need to understand any python or optimisation modelling in order to use the programme.
+
+Rather than solve to optimality, the user specifies a time limit for the solver.
+
+The programme has been tested in Excel 2010 and Excel 2013 with SolverStudio version $>$0.6.x.
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{c | c | c | c | c | c}
+	UPI & Name & Gender & Ethnicity & GPA & Specialisation\\
+	\hline
+	& & & & & \\
+	& & & & & 
+	\end{tabular}
+	\caption{Example layout of data in Excel. UPI (Unique Public Identifier) is a unique identifier for each student and forms the basis for emails at the University of Auckland.}
+\end{table}
+
+\subsection{Reporting} \label{reporting}
+In this section we discuss the visual aids produced to help users understand the solution.
+
+SolverStudio provides access to Excel's API (Application Programming Interface), allowing the Python code to not only create and solve the model via PuLP, but also leverage Excel's graphing functions to create a number of visualisations of the solution.
+
+\subsubsection{Graphing the solution}
+Bar charts showing the number of students in each group were produced for each gender, discipline and specialisation. This allowed a visual means of checking the solution quality. 
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.95\textwidth]{gender_2014.pdf}
+	\caption{An example graph produced by the python model.}
+\end{figure}
+
+\subsubsection{Creating reports}
+Excel's ability to save single worksheets as a PDF (portable document format) was utilised to create a final report that could be distributed to students showing their allocated group.
 
 \section{Results}
-	In this section we discuss the results of the 2013 ENGGEN403 class.
-	
+In 2013, \textbf{500} students enrolled in ENGGEN403. There were partitioned into \textbf{20} groups.
+
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{c | c | c c | c c}
+	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
+	GPA & Actual & min & max & min & max\\
+	\hline
+	Group mean	&	& & & &\\
+	Variance within group	&	& & & &	\\
+	\end{tabular}
+	\caption{GPA metrics.}
+\end{table}
+
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{c | c | c c | c c}
+	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
+	Specialisation & Actual \% & min & max & min & max\\
+	\hline
+	Biomedical	&		& & & &\\
+	Civil	&		& & & &\\
+	Chemical \& Materials	&		& & & &\\
+	Computer Systems	&		& & & &\\
+	Electrical	&		& & & &\\
+	Engineering Science	&		& & & &\\
+	Mechanical	&		& & & &\\
+	Mechatronics	&		& & & &\\
+	Software	&		& & & &\\
+	\end{tabular}
+	\caption{Breakdown of the 2013 ENGGEN403 class by specialisation.}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{c | c | c c | c c}
+	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
+	Gender & Actual \% & min & max & min & max\\
+	\hline
+	Male	&	& & & &\\
+	Female	&	& & & &	\\
+	\end{tabular}
+	\caption{Breakdown of the 2013 ENGGEN403 class by gender.}
+\end{table}
+
+\begin{table}[!ht]
+	\centering
+	\begin{tabular}{c | c | c c | c c}
+	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
+	Ethnicity & Actual \% & min & max & min & max\\
+	\hline
+	P\=akeh\=a/European	&	& & & &\\
+	M\=aori	&	& & & &\\
+	Pacific	&	& & & &\\
+	Asian	&	& & & &\\
+	Other	&	& & & &\\
+	\end{tabular}
+	\caption{Breakdown of the 2013 ENGGEN403 class by ethnicity.}
+\end{table}
+
 \section{Discussion}
 
+One issue with the model was that it took a long time to solve to optimality. This is due to a variety of factors, but chiefly the large number of binary variables (number of students $\times$ number of groups). Although the solver quickly (less than one minute) finds a good integer solution, it spends a long period of time the lower bound.
+
+One reason for this is that the solution to the relaxed problem has the trivial solution where a fraction of each student of each student is allocated to each group, enabling a perfectly balanced partition. This creates a large bound gap (the distance between the relaxed problem and the optimal integer solution) for the solver to overcome.
+
+\emph{Another reason is the nature of the binary variables. A branch and bound approach is inefficient at increasing the lower bound at it requires near complete enumeration of the branch and bound tree (?).}
+
+
+Other approaches, such as a set partitioning formulation, may improve the solution time and quality. However, given that students are unaware of the GPAs of other students in their groups, they are unlikely to perceive a small improvement in solution quality. It was for this reason, and the tight development timeframe, that other approaches were not investigated.
+
+
+
+This paper provides a case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of non-trivial optimisation solutions. The total development timeframe, from conception to delivery of a finished product, took two weeks of part time work. The majority of this was spent creating the reporting and visualisation tools. Using this model as a guide for future problems will reduce this time even further.
+
+It also highlights the ability for SolverStudio to abstract a large amount of complexity from the end user. The course co-ordinator needed only minutes of instruction to be able to successfully use the programme without supervision. Where the task of partitioning the students previously took two days, the Excel spreadsheet is able to achieve a more equitable result in the time it takes to make a cup of coffee.
+
+Optimisation does not always need to be applied to large commercial problems to be beneficial. Instead, there exist a large number of problems where years of experience has culminated in a solution that is `good enough'. Simple solutions to these problems can be created using SolverStudio in a short span of time that are user friendly and significantly reduce the work required by the user, freeing then up for more productive activities.
 
 \section*{Acknowledgments}
-The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Department at the University of Auckland, as well as the `Systems Team' who organise ENGGEN403.
+The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Department at the University of Auckland for providing valuable feedback, as well as the historical data used to validate the model. The final spreadsheet can be found on GitHub at http://www.github.com/odow/group-allocator.
 
 \bibliographystyle{achicago}
 \bibliography{ORSNZ}

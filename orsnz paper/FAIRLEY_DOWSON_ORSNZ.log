@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.3.15)  8 OCT 2014 15:39
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.3.15)  10 OCT 2014 17:06
 entering extended mode
 **C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz*paper/FAIRLEY_DOW
 SON_ORSNZ.tex
@@ -113,8 +113,39 @@ Package: vmargin 1999/06/01
 Package `vmargin', V2.2, <1999/06/01>
 \PaperWidth=\dimen112
 \PaperHeight=\dimen113
-) ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\ORSNZ.sty
-"
+) ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks20
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.def"
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\infwarerr.sty"
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds.sty"
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count99
+))
+\Gin@req@height=\dimen114
+\Gin@req@width=\dimen115
+)
+("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\ORSNZ.sty"
 Package: ORSNZ 2001/08/31 v1.2 Chicago Manual author-date citations
 
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\blkcntrl.st
@@ -125,8 +156,8 @@ Package: blkcntrl 2001/08/31 v1.2 block control
 y"
 Package: moredefs 2001/08/31 v1.8 more defining commands (Frankenstein's brain)
 
-\sc@toks@a=\toks20
-\sc@toks@b=\toks21
+\sc@toks@a=\toks21
+\sc@toks@b=\toks22
 )
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\relsize.sty
 "
@@ -148,8 +179,8 @@ File: titles.cfg
 ))
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\verbatim.sty"
 Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks22
-\verbatim@line=\toks23
+\every@verbatim=\toks23
+\verbatim@line=\toks24
 \verbatim@in@stream=\read1
 )
 \sc@box@a=\box28
@@ -157,16 +188,7 @@ Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
 SON_ORSNZ.aux"
 
-LaTeX Warning: Label `con2' multiply defined.
-
-
-LaTeX Warning: Label `con2' multiply defined.
-
-
-LaTeX Warning: Label `con2' multiply defined.
-
-
-LaTeX Warning: Label `con2' multiply defined.
+LaTeX Warning: Label `con1' multiply defined.
 
 
 LaTeX Warning: Label `con2' multiply defined.
@@ -187,6 +209,20 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
 LaTeX Font Info:    ... okay on input line 18.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
 LaTeX Font Info:    ... okay on input line 18.
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count100
+\scratchdimen=\dimen116
+\scratchbox=\box29
+\nofMPsegments=\count101
+\nofMParguments=\count102
+\everyMPshowfont=\toks25
+\MPscratchCnt=\count103
+\MPscratchDim=\dimen117
+\MPnumerator=\count104
+\makeMPintoPDFobject=\count105
+\everyMPtoPDFconversion=\toks26
+)
 LaTeX Font Info:    Try loading font information for U+msa on input line 20.
  ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -203,31 +239,27 @@ Underfull \hbox (badness 10000) in paragraph at lines 25--27
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
 [1
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 57.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 61.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 57.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 61.
+ [2] [3] [4]
+[5] <gender_2014.pdf, id=27, 845.19763pt x 597.19112pt>
+File: gender_2014.pdf Graphic file (type pdf)
+ <use gender_2014.pdf>
+Package pdftex.def Info: gender_2014.pdf used on input line 199.
+(pdftex.def)             Requested size: 406.05864pt x 286.90363pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 71--74
-
- []
-
-[2] [3]
+[6 <C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz paper/gender_20
+14.pdf>] [7]
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
-SON_ORSNZ.bbl"
-
-LaTeX Warning: Empty `thebibliography' environment on input line 3.
-
-) [4]
+SON_ORSNZ.bbl" [8]) [9]
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
 SON_ORSNZ.aux")
 
@@ -235,13 +267,13 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 1560 strings out of 493921
- 19621 string characters out of 3144876
- 72857 words of memory out of 3000000
- 4860 multiletter control sequences out of 15000+200000
- 9504 words of font info for 36 fonts, out of 3000000 for 9000
+ 2468 strings out of 493921
+ 32025 string characters out of 3144876
+ 90920 words of memory out of 3000000
+ 5734 multiletter control sequences out of 15000+200000
+ 10203 words of font info for 38 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 29i,23n,26p,1298b,238s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 29i,25n,26p,1328b,254s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 <C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C
 :/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/
@@ -249,11 +281,13 @@ Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Pro
 gram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Progra
 m Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program F
 iles (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files
- (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (
-x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on FAIRLEY_DOWSON_ORSNZ.pdf (4 pages, 118805 bytes).
+ (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl12.pfb><C:/Program Files (
+x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x8
+6)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/
+MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on FAIRLEY_DOWSON_ORSNZ.pdf (9 pages, 331014 bytes).
 PDF statistics:
- 51 PDF objects out of 1000 (max. 8388607)
+ 88 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
