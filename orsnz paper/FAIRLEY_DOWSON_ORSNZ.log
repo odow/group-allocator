@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.3.15)  10 OCT 2014 17:06
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.3.15)  11 OCT 2014 18:34
 entering extended mode
 **C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz*paper/FAIRLEY_DOW
 SON_ORSNZ.tex
@@ -257,9 +257,9 @@ Package pdftex.def Info: gender_2014.pdf used on input line 199.
 (pdftex.def)             Requested size: 406.05864pt x 286.90363pt.
 
 [6 <C:/Users/Oscar/Dropbox/Work/ENGGEN403/group-allocator/orsnz paper/gender_20
-14.pdf>] [7]
+14.pdf>] [7] [8]
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
-SON_ORSNZ.bbl" [8]) [9]
+SON_ORSNZ.bbl") [9]
 ("C:\Users\Oscar\Dropbox\Work\ENGGEN403\group-allocator\orsnz paper\FAIRLEY_DOW
 SON_ORSNZ.aux")
 
@@ -267,10 +267,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2468 strings out of 493921
- 32025 string characters out of 3144876
- 90920 words of memory out of 3000000
- 5734 multiletter control sequences out of 15000+200000
+ 2472 strings out of 493921
+ 32093 string characters out of 3144876
+ 90952 words of memory out of 3000000
+ 5738 multiletter control sequences out of 15000+200000
  10203 words of font info for 38 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  29i,25n,26p,1328b,254s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -285,7 +285,7 @@ iles (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files
 x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x8
 6)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/
 MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on FAIRLEY_DOWSON_ORSNZ.pdf (9 pages, 331014 bytes).
+Output written on FAIRLEY_DOWSON_ORSNZ.pdf (9 pages, 332822 bytes).
 PDF statistics:
  88 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
