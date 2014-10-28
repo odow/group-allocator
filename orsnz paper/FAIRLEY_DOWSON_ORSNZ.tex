@@ -1,6 +1,6 @@
 \documentclass[12pt]{ORSNZ}
 \usepackage{amssymb, amsmath, vmargin, graphicx, ORSNZ}
-
+\usepackage{multirow}
 
 
 
@@ -20,7 +20,7 @@
 \maketitle
 \pagestyle{empty} \thispagestyle{empty}
 \begin{abstract}
-Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course known as ENGGEN 403. As part of this course, students are partitioned into groups of around 25 students and given a single week to solve a large problem. In order to make this partitioning fair and equitable, the students should be partitioned in a way that makes the groups as similar as possible. This paper details the development, implementation, and results of an Excel based optimisation solution for this problem. A mixed integer programme was formulated to balance the number of students in each group by academic performance, gender, ethnicity and engineering discipline. This model was implemented in the PuLP modelling language using the SolverStudio modelling environment. The model was validated against data from the 2013 ENGGEN 403 class, and shown to improve all key metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 ENGGEN 403 class into 23 groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
+Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course called `Managing a Business'. As part of this course, students are partitioned into groups of around twenty-five students and given a single week to solve a large engineering or business related problem. In order to make this partitioning equitable, the students should be partitioned in a way that makes the groups as similar as possible across several factors. These include the gender and ethnic make-up of each group, as well as the number of students from each engineering discipline and the academic performance of the students in each group. A mixed integer program was formulated to solve this problem and implemented using PuLP, SolverStudio and Excel. The model was validated against data from the 2013 cohort, and shown to improve all key metrics. The end product was given to the course organiser who used the model to partition the 571 students of the 2014 class into twenty-three groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
 
 \textbf{Key words:} excel, pulp, solverstudio, group allocator
 \end{abstract}
@@ -69,7 +69,7 @@ In this section, we define the mixed integer mathematical programme that was for
 $\gamma_s = $ grade point average of student $s$; \\
 $M_g = $ the number of students in group $g$;\\
 \textbf{Note:} the values of $M_g$ are computed a priori. They should add up to the total number of students in the class.\\
-$\alpha = $ priority given to allocating groups with equal mean compared to groups with equal variance. A good value for this is 0.5;\\
+$\alpha = $ priority given to allocating groups with equal mean compared to groups with equal variance. This should be between 0 and 1;\\
 $\beta^I = $ penalty weighting put on violating demographic constraints of type I, $I= D, E, K$.
 
 \item[Decision variables]\mbox{} \\
@@ -196,87 +196,94 @@ Bar charts showing the number of students in each group were produced for each g
 
 \begin{figure}[!ht]
 	\centering
-	\includegraphics[width=0.95\textwidth]{gender_2014.pdf}
-	\caption{An example graph produced by the python model.}
+	\includegraphics[width=0.95\textwidth]{solverstudio_screenshot.pdf}
+	\caption{Screenshot of the SolverStudio workbook.}
 \end{figure}
 
 \subsubsection{Creating reports}
 Excel's ability to save single worksheets as a PDF (portable document format) was utilised to create a final report that could be distributed to students showing their allocated group.
 
 \section{Results}
-The following tables give the results for the 2013 ENGGEN403 class. In 2013, \textbf{500} students enrolled in ENGGEN403. There were partitioned into \textbf{20} groups. The actual columns give the corresponding value of all the students enrolled in the class. The Historic columns give the values for the groups as allocated by the course organiser, and the Optimisation columns give the values for the groups had they been allocated using the optimisation model outlined in this paper.
+Table \ref{TAB:results} shows the results of the partitioning for the 2013 ENGGEN403 class. In 2013, 586 students enrolled in ENGGEN403. There were partitioned into 24 groups. 
+
+The actual columns give the corresponding value of all the students enrolled in the class. The Historic columns give the values for the groups as allocated by the course organiser, and the SolverStudio columns give the values for the groups had they been allocated using the optimisation model outlined in this paper. 
+A value of 0.5 was used for $\alpha$, and all $\beta$ values were set to 1. The model was solved for 120s.
+Values in bold indicate that the method returned a solution with a value closer to the actual value than the other method.
 
 \begin{table}[!ht]
 	\centering
-	\begin{tabular}{c | c | c c | c c}
-	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
-	GPA & Actual & min & max & min & max\\
+	\begin{tabular}{l r | c | c c | c c}
+	& &  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{SolverStudio}\\
+	&  & Actual \% & Min \% & Max \% & Min \% & Max \%\\[1ex]
 	\hline
-	Group mean	&	& & & &\\
-	Variance within group	&	& & & &	\\
+	& &  & \multicolumn{2}{c |}{} & \multicolumn{2}{c}{}\\[-2ex]
+
+	\multirow{2}{*}{GPA}& Mean	&	5.92	&5.42	&6.60 	&\textbf{5.74}	&\textbf{6.05} \\
+	& Variance&	2.70	&1.70	&3.83	&\textbf{2.56}	&\textbf{3.16}\\[1ex]
+
+	\hline& &  & \multicolumn{2}{c |}{} & \multicolumn{2}{c}{}\\[-2ex]
+
+	\multirow{10}{*}{Discipline}&Biomedical			&4.44	&4.00	&8.33	&4.00	&8.33 	\\
+	&Engineering Science	&4.78	&0.00 	&8.33 	&\textbf{4.00}	&\textbf{8.00} 	\\
+	&Software			&8.02	&4.00 	&\textbf{12.00}  &4.00 	&12.50 	\\
+	&Electrical			&13.30 	&8.33 	&16.70 	&\textbf{12.00} 	&16.70 	\\
+	&Civil				&28.70 	&25.00 	&33.30 	&\textbf{28.00} 	&\textbf{29.20} 	\\
+	&Mechanical			&13.50 	&12.00 	&16.70 	&12.00	&16.70 	\\
+	&Computer Systems	&6.31 	&4.00 	&12.50 	&4.00 	&\textbf{12.00} 	\\
+	&Mechatronics		&9.90	&8.00 	&\textbf{12.50} 	&8.00 	&16.00 	\\
+	&Chemical \& Materials&	10.60&8.00	&12.50 	&8.00	&12.50 	\\
+	&Other				&0.51	&0.00	&4.17	&0.00	&4.17\\[1ex]
+
+	\hline& &  & \multicolumn{2}{c |}{} & \multicolumn{2}{c}{}\\[-2ex]
+
+	\multirow{2}{*}{Gender}&  Female	&26.11&	24.00&	\textbf{28.00}&	24.00&	33.33 \\
+	& Male	&73.89&	\textbf{72.00}&	76.00&	66.67&	76.00 \\[1ex]
+
+	\hline& &  & \multicolumn{2}{c |}{} & \multicolumn{2}{c}{}\\[-2ex]
+
+	\multirow{4}{*}{Ethnicity}&	P\=akeh\=a / European	&38.57 	&25.00	&50.00	&\textbf{36.00}	&\textbf{44.00} \\
+	&	M\=aori		&3.75	&0.00	&12.50	&0.00	&\textbf{8.33}  \\
+	&	Asian		&53.75	&41.67	&64.00	&\textbf{52.00}	&\textbf{58.33} \\
+	&	Other		&3.92	&0.00	&8.33	&0.00	&8.33
+
 	\end{tabular}
-	\caption{GPA metrics.}
-	\label{gpa_results}
+	\caption{Partitioned composition of the 2013 ENGGEN 403 class.}
+	\label{TAB:results}
 \end{table}
 
-\emph{As shown in Table \ref{gpa_results}, allocating the groups using optimisation results in groups with mean GPAs closer to the true mean. It also results in groups with a distribution in GPAs closer to the distribution of the whole class.}
+\subsection{Grade Point Average}
 
-\begin{table}[!ht]
+\begin{figure}[!ht]
 	\centering
-	\begin{tabular}{c | c | c c | c c}
-	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
-	Specialisation & Actual \% & min & max & min & max\\
-	\hline
-	Biomedical	&		& & & &\\
-	Civil	&		& & & &\\
-	Chemical \& Materials	&		& & & &\\
-	Computer Systems	&		& & & &\\
-	Electrical	&		& & & &\\
-	Engineering Science	&		& & & &\\
-	Mechanical	&		& & & &\\
-	Mechatronics	&		& & & &\\
-	Software	&		& & & &\\
-	\end{tabular}
-	\caption{Breakdown of the 2013 ENGGEN403 class by specialisation.}
-	\label{discipline_results}
-\end{table}
+	\includegraphics[width=\textwidth]{./gpa_plot.pdf}
+	\caption{Boxplots of mean group GPA and variance within group GPA for historic and optimisation partitionings.}
+\end{figure}
 
-\begin{table}[!ht]
-	\centering
-	\begin{tabular}{c | c | c c | c c}
-	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
-	Gender & Actual \% & min & max & min & max\\
-	\hline
-	Male	&	& & & &\\
-	Female	&	& & & &	\\
-	\end{tabular}
-	\caption{Breakdown of the 2013 ENGGEN403 class by gender.}
-	\label{gender_results}
-\end{table}
+When compared to the 2013 partitioning, the SolverStudio partitioning reduces the spread in mean GPA between the groups. The lowest mean GPA of any of the groups is 5.74 (compared to 5.42 for the historic solution), while the highest mean GPA is 6.05 (compared to 6.6 for the historic solution). 
 
-\begin{table}[!ht]
-	\centering
-	\begin{tabular}{c | c | c c | c c}
-	&  & \multicolumn{2}{c |}{Historic} & \multicolumn{2}{c}{Optimisation}\\
-	Ethnicity & Actual \% & min & max & min & max\\
-	\hline
-	P\=akeh\=a/European	&	& & & &\\
-	M\=aori	&	& & & &\\
-	Pacific	&	& & & &\\
-	Asian	&	& & & &\\
-	Other	&	& & & &\\
-	\end{tabular}
-	\caption{Breakdown of the 2013 ENGGEN403 class by ethnicity.}
-	\label{ethnicity_results}
-\end{table}
+Similarly, the SolverStudio model created groups with a larger minimum GPA variance (2.56 compared to 1.7), and a smaller maximum GPA variance (3.16 compared to 3.83) than the historic partitioning.
+
+\subsection{Discipline}
+When compared to the historic partitioning, the SolverStudio partition performed better in six metrics and poorer in two metrics. The historic partitioning had a smaller maximum number of software students (12\% compared to 12.5\%) and a smaller maximum number of Mechatronics students (12.5\% compared to 16\%). In addition, there was one group in the historic partitioning with zero Engineering Science students. In the SolverStudio solution there were at minimum 4\% Engineering Science students.
+
+There was a small number of students who did not have a recorded discipline, or were from a different degree program. They were classified in the \emph{Other} category.
+
+\subsection{Gender}
+When compared to the historic partitioning, the SolverStudio solution created a poorer partitioning of students based on gender. There was at most 28\% females in a group in the historic partitioning compared to 33.3\% in the SolverStudio partitioning. There was a corresponding difference in the minimum percentage of male students.
+
+\subsection{Ethnicity}
 
 \section{Discussion}
 
-One issue with the model was that it took a long time to solve to optimality. This is due to a variety of factors, but chiefly the large number of binary variables (number of students $\times$ number of groups). Although the solver quickly (less than one minute) finds a good integer solution, it spends a long period of time the lower bound.
+The historic solution had a smaller maximum number of Software students in a group than the SolverStudio solution (12\% compared to 12.5\%), however this small difference is due to groups of two different sizes (24 and 25 students). 
 
-One reason for this is that the solution to the relaxed problem has the trivial solution where a fraction of each student of each student is allocated to each group, enabling a perfectly balanced partition. This creates a large bound gap (the distance between the relaxed problem and the optimal integer solution) for the solver to overcome.
+Although the SolverStudio solution improved almost all metrics than when compared to the historic solution, it resulted in a poorer partitioning with respect to gender. The likely reason for this is that the course organiser placed more emphasis on balancing gender than other demographic factors. This could be overcome in future by the $B^K$ value.
 
-\emph{Another reason is the nature of the binary variables. A branch and bound approach is inefficient at increasing the lower bound at it requires near complete enumeration of the branch and bound tree (?).}
+One issue with the model was that it took a long time to solve to optimality. This is due to a variety of factors, but chiefly the large number of binary variables (number of students $\times$ number of groups). Although the CBC solver quickly (less than one minute) finds a good integer solution, it is unable to find an optimal solution. 
+
+% One reason for this is that the solution to the relaxed problem has the trivial solution where a fraction of each student of each student is allocated to each group, enabling a perfectly balanced partition. This creates a large bound gap (the distance between the relaxed problem and the optimal integer solution) for the solver to overcome.
+
+% \emph{Another reason is the nature of the binary variables. A branch and bound approach is inefficient at increasing the lower bound at it requires near complete enumeration of the branch and bound tree (?).}
 
 
 Other approaches, such as a set partitioning formulation, may improve the solution time and quality. However, given that students are unaware of the GPAs of other students in their groups, they are unlikely to perceive a small improvement in solution quality. It was for this reason, and the tight development timeframe, that other approaches were not investigated.
