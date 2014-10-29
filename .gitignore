@@ -4,3 +4,8 @@
 Groups_Instructor*
 Groups_Student*
 .DS_Store
+*.aux
+*.bbl
+*.blg
+*.log
+*.gz
