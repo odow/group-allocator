@@ -28,18 +28,16 @@ Students in their final year of a Bachelor of Engineering at the University of A
 \section{Introduction}
 Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course known as ENGGEN403. As part of the course, students are partitioned in to groups of around 25 students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch, a proposal for the future of Auckland’s transport network and a tender to run a new public-private partnership investment agency.
 
-Although the stated aim of the project is to practice the skills taught throughout the course, a large component relates to team dynamics. 
+Although the stated aim of the project is to practice the skills taught throughout the course, a large component relates to team dynamics. The partitioning of students into groups has a significant impact on both group performance, and the perceived fairness amongst groups. It is of interest, to both students and staff, that the groups be both fair and equitable.
 
 This paper details the development, implementation and results of an optimisation solution to the student partitioning problem. 
 
 \subsection{Variables of Interest}
-There is no clear definition of fair and equitable, however we can identify two distinct types of variables that are of interest: academic ability and demographic composition. The first is important as it would be unfair to have one group composed of mainly high-achieving students, and another with low-achieving students. 
+There is no clear definition of fair and equitable, however we can identify two distinct types of variables that are of interest: academic ability and demographic composition. The first is important as it would be unfair to have one group composed of mainly high-achieving students, and another with low-achieving students. The second is important to ensure no one feels excluded in their group, and to ensure each group has a diverse mix of people.
 
-The variable of most interest is grade point average (GPA). At the University of Auckland, GPA's are measured on a 1-9 scale, where 1 represents a C- average, and 9 represents an A+ average. There is anecdotal evidence from students and the course organiser of groups in previous years with large numbers of high GPA students. Although this does not necessarily lead to a better grade, there is a perception of inequity amongst students from other groups. A second cause for concern was groups with a bi-modal split of high-GPA students and low-GPA students. 
+The variable of most interest is grade point average (GPA). A GPA is a quantitative measure of a student's academic performance. At the University of Auckland, GPA's are measured on a 1-9 scale, where 1 represents a C- average, and 9 represents an A+ average. There is anecdotal evidence from students and the course organiser of groups in previous years with large numbers of high GPA students. Although this does not necessarily lead to a better grade, there is a perception of inequity amongst students from other groups. A second cause for concern were groups with a bi-modal split of high-GPA students and low-GPA students. Therefore, two key metrics in determining the quality of any partition are the mean GPA of a group, and the variance of student GPAs within a group.
 
-Therefore, two key metrics in determining the quality of any partition are the mean GPA of a group, and the variance of student GPAs within a groups.
-
-ENGGEN403 is a common paper to all the engineering disciplines at the University of Auckland. In addition, each discipline has a unique set of skills and perspective to contribute to group projects. To give all groups an equal balance of these skills, and to prevent a single discipline from dominating a group, students from each discipline should be distributed equally amongst the groups.
+In addition, ENGGEN403 is a common paper to all the engineering disciplines at the University of Auckland. Each discipline has a unique set of skills and perspective to contribute to group projects. To give all groups an equal balance of these skills, and to prevent a single discipline from dominating a group, students from each discipline should be distributed equally amongst the groups.
 
 Two other demographic variables are gender and ethnicity. Although these have less of an impact on group performance than GPA or discipline, group demographics can have a large impact on the perceived fairness and enjoyment by students. Therefore, there should be an equal number of students identifying as each gender in every group. Balancing on ethnicity also contributes to the perceived fairness of the groups by students.
 
@@ -56,8 +54,8 @@ In this section, we define the mixed integer mathematical programme that was for
 \item[Sets] \mbox{}\\
         Students: $S = \{1, 2, \dots, m\}$;\\
         Groups: $G = \{1, 2, \dots, n\}$;\\
-        Ethnicities: $E = \{\mbox{European, M\=aori, Pacific, Asian, Other}\}$;\\
-        Genders: $K = \{\mbox{Male, Female, Other}\}$;\\
+        Ethnicities: $E = \{\mbox{P\=akeh\=a/European, M\=aori, Asian, Other}\}$;\\
+        Genders: $K = \{\mbox{Male, Female}\}$;\\
         Disciplines: D = \{Civil, Chemical \& Materials, Mechatronics,Mechanical, Electrical, Software, Computer Systems, Engineering Science, Biomedical\};
         Students who identify as gender $k$: $S^K_k \subset S, \quad \forall k \in K$;\\
         Students who identify as ethnicity $e$: $S^E_e \subset S, \quad \forall e \in E$;\\
@@ -70,18 +68,17 @@ $\gamma_s = $ grade point average of student $s$; \\
 $M_g = $ the number of students in group $g$;\\
 \textbf{Note:} the values of $M_g$ are computed a priori. They should add up to the total number of students in the class.\\
 $\alpha = $ priority given to allocating groups with equal mean compared to groups with equal variance. This should be between 0 and 1;\\
-$\beta^I = $ penalty weighting put on violating demographic constraints of type I, $I= D, E, K$.
-
-\item[Decision variables]\mbox{} \\
-$x_{sg} = $ allocate student $s$ to group $g$;\\
-$\rho^I_{gi} = $ artificial penalty variable for group $g$, factor $i$, \qquad $I=\{K, D, E\}$;\\
-$\mu_{max} = $ maximum mean GPA of group;\\
-$\mu_{min} = $ minimum mean GPA of group;\\
-$\sigma^2_{max} = $ maximum variance of group GPA;\\
-$\sigma^2_{min} = $  minimum variance of group GPA;\\
+$\beta^I = $ penalty weighting put on violating demographic constraints of type I, $I= D, E, K$;\\
 $\hat{\mu} = $ mean GPA of all students;\\
 $\hat{\sigma^2} = $ variance in the GPA of all students.
 
+\item[Decision variables]\mbox{} \\
+$x_{sg}\in\{0,1\} = $ 1 if student $s$ allocated to group $g$, 0 otherwise;\\
+$\rho^I_{gi} = $ artificial penalty variable for group $g$, factor $i$, \qquad $I=\{K, D, E\}$;\\
+$\mu_{max} = $ maximum mean GPA of any group;\\
+$\mu_{min} = $ minimum mean GPA of any group;\\
+$\sigma^2_{max} = $ maximum variance of GPA within any group;\\
+$\sigma^2_{min} = $  minimum variance of GPA within any group.
 
 \item[Objective Function]\mbox{} \\
 The objective function is to minimise a convex combination of the spread between the maximum and minimum mean group GPA, and the spread between the maximum and minimum variance of the GPAs within a group. Adding a penalty term with a large coefficient $\beta$ is necessary as some constraints are relaxed.
@@ -142,7 +139,7 @@ The objective function is to minimise a convex combination of the spread between
 \end{description}
 
 \subsection{Estimating the variance of a group}
-In order to calculate the variance of a sample, one needs to know the square of the mean of that sample. This is a non-linear function of a variable in the model. Therefore, to prevent the problem from being non-linear, we make an assumption that the mean of every group is equal to the mean of all the students. This changes the square from acting on a variable, to acting on a parameter. We can make this assumption as constraints (\ref{minu}) and (\ref{maxu}) act to force the mean GPA of each group towards the global mean.
+In order to calculate the variance of a population, one needs to know the square of the mean of that population. This is a non-linear function of a variable in the model. Therefore, to prevent the problem from being non-linear, we make an assumption that the mean GPA of every group is equal to the mean GPA of all the students. This changes the square from acting on a variable, to acting on a parameter. We can make this assumption as constraints (\ref{minu}) and (\ref{maxu}) act to force the mean GPA of each group towards the global mean GPA ($\hat{\mu}$).
 
 \subsection{The affect of relaxing the demographic constraints}
 It is noticed that the demographic constraints take the form of 
@@ -156,11 +153,16 @@ If the values are $\beta$ are large relative to the rest of the objective functi
 Any of these constraints can be removed from the model by setting the corresponding $\beta$ value to zero. This may be desirable for smaller classes where a greater emphasis is placed on GPA.
 
 \section{Implementation}
-The above model was implemented in the SolverStudio \cite{solverstudio} modelling environment. SolverStudio is an add-in for Microsoft Excel. It acts as an interface between Excel and a variety of modelling languages including AMPL \cite{ampl}, GAMS \cite{gams}, PuLP \cite{pulp} and Gurobi \cite{gurobi}. In order to leverage the ability of SolverStudio to interface with Excel (see \emph{Reporting}), it was decided to use the PuLP modelling language. CBC \cite{CBC} was chosen was the solver as it is the default solver for SolverStudio.
+The above model was implemented in the SolverStudio \cite{solverstudio} modelling environment (Figure \ref{FIG:solverstudio_screen}). SolverStudio is an add-in for Microsoft Excel. It acts as an interface between Excel and a variety of modelling languages including AMPL \cite{ampl}, GAMS \cite{gams}, PuLP \cite{pulp} and Gurobi \cite{gurobi}. In order to leverage the ability of SolverStudio to interface with Excel, it was decided to use the PuLP modelling language. CBC \cite{CBC} was chosen for the solver as it is the default solver for PuLP/SolverStudio.
 
-Model data is typed into cells in Excel and \emph{named ranges} are created using SolverStudio's \emph{Edit Data} function. 
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=\textwidth]{solverstudio_screenshot.pdf}
+	\caption{Screenshot of the SolverStudio workbook.}
+	\label{FIG:solverstudio_screen}
+\end{figure}
 
-These ranges are dynamic, so that the user does not need to interact with this functionality. Adding a new row to the table will automatically adjust the named range in SolverStudio. This was done by using the following formula in the \emph{Cell Range} field in the SolverStudio Data Items Editor instead of hard coding a fixed range:
+Model data is typed into cells in Excel and \emph{named ranges} are created using SolverStudio's \emph{Edit Data} function. These ranges are dynamic, so that the user does not need to interact with this functionality. Adding a new row to the table will automatically adjust the named range in SolverStudio. This was done by using the following formula in the \emph{Cell Range} field in the SolverStudio Data Items Editor instead of hard coding a fixed range:
 
 \begin{verbatim}
 	= OFFSET(A2, 0, 0, COUNTA(A2:A10000), 1)
@@ -174,33 +176,21 @@ Rather than solve to optimality, the user specifies a time limit for the solver.
 
 The programme has been tested in Excel 2010 and Excel 2013 with SolverStudio version $>$0.6.x.
 
-\begin{table}[!ht]
-	\centering
-	\begin{tabular}{c | c | c | c | c | c}
-	UPI & Name & Gender & Ethnicity & GPA & Specialisation\\
-	\hline
-	& & & & & \\
-	& & & & & 
-	\end{tabular}
-	\caption{Example layout of data in Excel. UPI (Unique Public Identifier) is a unique identifier for each student and forms the basis for emails at the University of Auckland.}
-\end{table}
-
 \subsection{Reporting} \label{reporting}
-In this section we discuss the visual aids produced to help users understand the solution.
-
 SolverStudio provides access to Excel's API (Application Programming Interface), allowing the Python code to not only create and solve the model via PuLP, but also leverage Excel's graphing functions to create a number of visualisations of the solution.
 
-\subsubsection{Graphing the solution}
-Bar charts showing the number of students in each group were produced for each gender, discipline and specialisation. This allowed a visual means of checking the solution quality. 
+Figure \ref{FIG:solverstudio_boxplot} shows an example of one of the plots produced by the python code. In this case, boxplots of GPA are produced for each group. This enables a quick visual tool for users to understand the quality of the solution, ensuring there are no clear outliers.
 
 \begin{figure}[!ht]
 	\centering
-	\includegraphics[width=0.95\textwidth]{solverstudio_screenshot.pdf}
-	\caption{Screenshot of the SolverStudio workbook.}
+	\includegraphics[trim=50 50 50 50, clip, width=\textwidth]{solverstudio_boxplot.pdf}
+	\caption{Example graph produced programatically by the SolverStudio model.}
+	\label{FIG:solverstudio_boxplot}
 \end{figure}
 
-\subsubsection{Creating reports}
-Excel's ability to save single worksheets as a PDF (portable document format) was utilised to create a final report that could be distributed to students showing their allocated group.
+In addition, Bar charts showing the number of students in each group were produced for each gender, discipline and specialisation. This allowed a visual means of checking the solution quality. 
+
+Excel's ability to save single worksheets as a PDF (portable document format) was also utilised to create a final report that could be distributed to students showing their allocated group. This saved considerable time that was previously spent manually collating lists for students.
 
 \section{Validation with historic data}
 In 2013, 586 students enrolled in ENGGEN403. There were partitioned into 24 groups by the course organiser. To test the quality of the SolverStudio model, an anonymised version of the dataset was obtained from the course organiser.
