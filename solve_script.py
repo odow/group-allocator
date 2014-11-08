@@ -90,6 +90,11 @@ GROUPS2 = range(j1 + 1, int(number_groups) + 1)
 # Average GPA of all students
 gpa_mean = sum([gpa[i] for i in STUDENTS]) / number_students
 
+# Total GPA variance
+gpa_variance_total = (sum(pow(gpa[s] - gpa_mean, 2)
+                          for s in STUDENTS)) \
+    / number_students
+
 # Minimum number of females and males in each group
 number_males = sum([gender[i].lower() == 'male' for i in STUDENTS])
 male_min = int(number_males / number_groups)
@@ -137,170 +142,207 @@ SPECIALISATION_ARTIFICIAL = [(s, g) for s in SPECIALISATIONS for g in GROUPS]
 ETHNICITY_ARTIFICIAL = [(e, g) for e in ETHNICITIES for g in GROUPS]
 
 # ============================================================================
-#   Decision Variables
+# OPTIMISATION MODEL START
 
-# x = 1 if student s is assigned to group g, else 0
-x = LpVariable.dicts('x', STUDENT_GROUP, None, None, LpBinary)
-female_artificial = LpVariable.dicts('female_artificial',
-                                     GROUPS,
-                                     0, number_students)
-male_artificial = LpVariable.dicts('male_artificial',
-                                   GROUPS,
-                                   0, number_students)
-specialisation_artificial_min = LpVariable.dicts(('specialisation_'
-                                                  'artificial_min'),
-                                                 SPECIALISATION_ARTIFICIAL,
+if chart_only != "Yes":
+
+    # ============================================================================
+    #   Decision Variables
+
+    # x = 1 if student s is assigned to group g, else 0
+    x = LpVariable.dicts('x', STUDENT_GROUP, None, None, LpBinary)
+    female_artificial = LpVariable.dicts('female_artificial',
+                                         GROUPS,
+                                         0, number_students)
+    male_artificial = LpVariable.dicts('male_artificial',
+                                       GROUPS,
+                                       0, number_students)
+    specialisation_artificial_min = LpVariable.dicts(('specialisation_'
+                                                      'artificial_min'),
+                                                     SPECIALISATION_ARTIFICIAL,
+                                                     0, number_students)
+    specialisation_artificial_max = LpVariable.dicts(('specialisation_'
+                                                      'artificial_max'),
+                                                     SPECIALISATION_ARTIFICIAL,
+                                                     0, number_students)
+    ethnicity_artificial_min = LpVariable.dicts('ethnicity_artificial_min',
+                                                ETHNICITY_ARTIFICIAL,
+                                                0, number_students)
+    ethnicity_artificial_max = LpVariable.dicts('ethnicity_artificial_max',
+                                                ETHNICITY_ARTIFICIAL,
+                                                0, number_students)
+    oustanding_gpa_artificial = LpVariable.dicts('oustanding_gpa_artificial',
+                                                 GROUPS,
                                                  0, number_students)
-specialisation_artificial_max = LpVariable.dicts(('specialisation_'
-                                                  'artificial_max'),
-                                                 SPECIALISATION_ARTIFICIAL,
-                                                 0, number_students)
-ethnicity_artificial_min = LpVariable.dicts('ethnicity_artificial_min',
-                                            ETHNICITY_ARTIFICIAL,
-                                            0, number_students)
-ethnicity_artificial_max = LpVariable.dicts('ethnicity_artificial_max',
-                                            ETHNICITY_ARTIFICIAL,
-                                            0, number_students)
-oustanding_gpa_artificial = LpVariable.dicts('oustanding_gpa_artificial',
-                                             GROUPS,
-                                             0, number_students)
-gpa_min = LpVariable('gpa_min', 0, 9)
-gpa_max = LpVariable('gpa_max', 0, 9)
-gpa_variance_min = LpVariable('gpa_variance_min', 0, 25)
-gpa_variance_max = LpVariable('gpa_variance_max', 0, 25)
+    gpa_min = LpVariable('gpa_min', 0, 9)
+    gpa_max = LpVariable('gpa_max', 0, 9)
+    gpa_variance_min = LpVariable('gpa_variance_min', 0, 25)
+    gpa_variance_max = LpVariable('gpa_variance_max', 0, 25)
+
+    # ============================================================================
+    #   Objective Function
+
+    problem += gpa_mean_weight * (gpa_max - gpa_min) \
+        + gpa_variance_weight * (gpa_variance_max - gpa_variance_min) \
+        + 1e4 * (specialisation_weight * \
+                 lpSum([(specialisation_artificial_min[i] + specialisation_artificial_max[i]) \
+                        for i in SPECIALISATION_ARTIFICIAL]) \
+                 + gender_weight * lpSum([female_artificial[i] \
+                                         for i in GROUPS]) \
+                 + ethnicity_weight * \
+                 lpSum([(ethnicity_artificial_min[i] + ethnicity_artificial_max[i]) \
+                                            for i in ETHNICITY_ARTIFICIAL]) \
+                 + outstanding_gpa_weight * lpSum([oustanding_gpa_artificial[i] \
+                                            for i in GROUPS])), 'objective'
+
+    # ============================================================================
+    #   Constraints
+
+    # Every student is assigned to exactly one group
+    for s in STUDENTS:
+        problem += lpSum([x[(s, g)] for g in GROUPS]) == 1, 'single_group_%s' % s
+
+    # Constraint for first group size
+    for g in GROUPS1:
+        # Size if group is m1
+        problem += lpSum([x[(s, g)] for s in STUDENTS]) == m1, 'size_g%d' % g
+
+        # Minimum GPA is given by group with lowest GPA
+        problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) >= m1 * gpa_min, \
+            'calculate_min_gpa_g%d' % g
+
+        # Maximum GPA is given by group with highest GPA
+        problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) <= m1 * gpa_max, \
+            'calculate_max_gpa_g%d' % g
+
+        # Minimum variance of GPA is given by group with lowest variance
+        problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
+            >= m1 * gpa_variance_min, 'calculate_gpa_variance_min_g%d' % g
+
+        # Maximum variance of GPA is given by group with highest variance
+        problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
+            <= m1 * gpa_variance_max, 'calculate_gpa_variance_max_g%d' % g
+
+    # Constraint for second group size
+    for g in GROUPS2:
+        # Size if group is m2
+        problem += lpSum([x[(s, g)] for s in STUDENTS]) == m2, 'size_g%d' % g
+
+        # Minimum GPA is given by group with lowest GPA
+        problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) >= m2 * gpa_min, \
+            'calculate_min_gpa_g%d' % g
+
+        # Maximum GPA is given by group with highest GPA
+        problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) <= m2 * gpa_max, \
+            'calculate_max_gpa_g%d' % g
+
+        # Minimum variance of GPA is given by group with lowest variance
+        problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
+            >= m2 * gpa_variance_min, 'calculate_gpa_variance_min_g%d' % g
+     
+        # Maximum variance of GPA is given by group with highest variance
+        problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
+            <= m2 * gpa_variance_max, 'calculate_gpa_variance_max_g%d' % g
+
+    # Semi-relaxed constraints to enforce gender,
+    # specialisation and ethnicity distribution
+    for g in GROUPS:
+        # Gender must be at least minimum (relaxed)
+        problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'female']) \
+            + female_artificial[g] >= female_min, \
+            'min_females_g%d' % g
+
+        problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'male']) \
+            + male_artificial[g] >= male_min, \
+            'min_males_g%d' % g
+
+        # Number from each specialisation must be at least min (relaxed)
+        for k in SPECIALISATIONS:
+            problem += lpSum([x[(s, g)] for s in STUDENTS
+                             if specialisation[s].lower() == k.lower()]) \
+                + specialisation_artificial_min[(k, g)] >= specialisation_min[k], \
+                'min_spec%s_g%d' % (k, g)
+
+        # Number from each specialisation must be at most max (relaxed)
+        for k in SPECIALISATIONS:
+            problem += lpSum([x[(s, g)] for s in STUDENTS
+                             if specialisation[s].lower() == k.lower()]) \
+                + specialisation_artificial_max[(k, g)] <= specialisation_max[k], \
+                'max_spec%s_g%d' % (k, g)
+
+        # Number from each ethnicity must be at least min (relaxed)
+        for e in ETHNICITIES:
+            problem += lpSum([x[(s, g)] for s in STUDENTS
+                             if ethnicity[s].lower() == e.lower()]) \
+                + ethnicity_artificial_min[(e, g)] >= ethnicity_min[e], \
+                'min_eth%s_g%d' % (e, g)
+
+        # Number from each ethnicity must be at most max (relaxed)
+        for e in ETHNICITIES:
+            problem += lpSum([x[(s, g)] for s in STUDENTS
+                             if ethnicity[s].lower() == e.lower()]) \
+                + ethnicity_artificial_max[(e, g)] >= ethnicity_max[e], \
+                'max_eth%s_g%d' % (e, g)
+
+        # Number of oustanding students must be at least min (relaxed)
+        problem += lpSum([x[(s, g)] for s in STUDENTS
+                         if gpa[s] >= outstanding_gpa]) \
+            + oustanding_gpa_artificial[g] >= oustanding_count, \
+            'out_gpa%s_g%d' % (e, g)
+
+    # ============================================================================
+    #   Solve
+
+    print('Solving . . .')
+    try:
+        # SolverStudio version < 0.6
+        problem.solve(solvers.PULP_CBC_CMD(msg=1, maxSeconds=time_limit))
+    except:
+        # new version >= 0.6
+        problem.solve(COIN_CMD(msg=1, maxSeconds=time_limit))
+
+    # ============================================================================
+    #   Solution Post Processing and Display in Excel spreadsheet
+
+    print('Finished Solving')
+
+
+    # Write group number for each student and add to group list
+    for s, g in STUDENT_GROUP:
+        if x[(s, g)].value() == 1:
+            groups[s] = g
+
+    gpa_difference = gpa_max.value() - gpa_min.value()
+    gpa_variance_difference = gpa_variance_max.value() - gpa_variance_min.value()
+
+    print('\n')
+    print('Biggest difference in mean GPA: %.2f'
+          % gpa_difference)
+    print('Biggest difference in GPA variance: %.2f'
+          % gpa_variance_difference)
+    print('\n')
+    print('Values of artificial variables for relaxation')
+    print('Specialisations Min: %.0f' %
+          sum([specialisation_artificial_min[i].value()
+              for i in SPECIALISATION_ARTIFICIAL]))
+    print('Specialisations Max: %.0f' %
+          sum([specialisation_artificial_max[i].value()
+              for i in SPECIALISATION_ARTIFICIAL]))
+    print('Females: %.0f' % sum([female_artificial[i].value()
+          for i in GROUPS]))
+    print('Ethnicities Min: %.0f' %
+          sum([ethnicity_artificial_min[i].value() for i in ETHNICITY_ARTIFICIAL]))
+    print('Ethnicities Max: %.0f' %
+          sum([ethnicity_artificial_max[i].value() for i in ETHNICITY_ARTIFICIAL]))
+    print('Oustanding GPA Min: %.0f' %
+          sum([oustanding_gpa_artificial[i].value() for i in GROUPS]))
+    print('\n')
+
 
 # ============================================================================
-#   Objective Function
+# OPTIMISATION MODEL END
 
-problem += gpa_mean_weight * (gpa_max - gpa_min) \
-    + gpa_variance_weight * (gpa_variance_max - gpa_variance_min) \
-    + 1e4 * (specialisation_weight * \
-             lpSum([(specialisation_artificial_min[i] + specialisation_artificial_max[i]) \
-                    for i in SPECIALISATION_ARTIFICIAL]) \
-             + gender_weight * lpSum([female_artificial[i] \
-                                     for i in GROUPS]) \
-             + ethnicity_weight * \
-             lpSum([(ethnicity_artificial_min[i] + ethnicity_artificial_max[i]) \
-                                        for i in ETHNICITY_ARTIFICIAL]) \
-             + outstanding_gpa_weight * lpSum([oustanding_gpa_artificial[i] \
-                                        for i in GROUPS])), 'objective'
-
-# ============================================================================
-#   Constraints
-
-# Every student is assigned to exactly one group
-for s in STUDENTS:
-    problem += lpSum([x[(s, g)] for g in GROUPS]) == 1, 'single_group_%s' % s
-
-# Constraint for first group size
-for g in GROUPS1:
-    # Size if group is m1
-    problem += lpSum([x[(s, g)] for s in STUDENTS]) == m1, 'size_g%d' % g
-
-    # Minimum GPA is given by group with lowest GPA
-    problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) >= m1 * gpa_min, \
-        'calculate_min_gpa_g%d' % g
-
-    # Maximum GPA is given by group with highest GPA
-    problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) <= m1 * gpa_max, \
-        'calculate_max_gpa_g%d' % g
-
-    # Minimum variance of GPA is given by group with lowest variance
-    problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
-        >= m1 * gpa_variance_min, 'calculate_gpa_variance_min_g%d' % g
-
-    # Maximum variance of GPA is given by group with highest variance
-    problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
-        <= m1 * gpa_variance_max, 'calculate_gpa_variance_max_g%d' % g
-
-# Constraint for second group size
-for g in GROUPS2:
-    # Size if group is m2
-    problem += lpSum([x[(s, g)] for s in STUDENTS]) == m2, 'size_g%d' % g
-
-    # Minimum GPA is given by group with lowest GPA
-    problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) >= m2 * gpa_min, \
-        'calculate_min_gpa_g%d' % g
-
-    # Maximum GPA is given by group with highest GPA
-    problem += lpSum([gpa[s] * x[(s, g)] for s in STUDENTS]) <= m2 * gpa_max, \
-        'calculate_max_gpa_g%d' % g
-
-    # Minimum variance of GPA is given by group with lowest variance
-    problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
-        >= m2 * gpa_variance_min, 'calculate_gpa_variance_min_g%d' % g
-
-    # Maximum variance of GPA is given by group with highest variance
-    problem += lpSum([pow(gpa[s] - gpa_mean, 2) * x[(s, g)] for s in STUDENTS]) \
-        <= m2 * gpa_variance_max, 'calculate_gpa_variance_max_g%d' % g
-
-# Semi-relaxed constraints to enforce gender,
-# specialisation and ethnicity distribution
-for g in GROUPS:
-    # Gender must be at least minimum (relaxed)
-    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'female']) \
-        + female_artificial[g] >= female_min, \
-        'min_females_g%d' % g
-
-    problem += lpSum([x[(s, g)] for s in STUDENTS if gender[s].lower() == 'male']) \
-        + male_artificial[g] >= male_min, \
-        'min_males_g%d' % g
-
-    # Number from each specialisation must be at least min (relaxed)
-    for k in SPECIALISATIONS:
-        problem += lpSum([x[(s, g)] for s in STUDENTS
-                         if specialisation[s].lower() == k.lower()]) \
-            + specialisation_artificial_min[(k, g)] >= specialisation_min[k], \
-            'min_spec%s_g%d' % (k, g)
-
-    # Number from each specialisation must be at most max (relaxed)
-    for k in SPECIALISATIONS:
-        problem += lpSum([x[(s, g)] for s in STUDENTS
-                         if specialisation[s].lower() == k.lower()]) \
-            + specialisation_artificial_max[(k, g)] <= specialisation_max[k], \
-            'max_spec%s_g%d' % (k, g)
-
-    # Number from each ethnicity must be at least min (relaxed)
-    for e in ETHNICITIES:
-        problem += lpSum([x[(s, g)] for s in STUDENTS
-                         if ethnicity[s].lower() == e.lower()]) \
-            + ethnicity_artificial_min[(e, g)] >= ethnicity_min[e], \
-            'min_eth%s_g%d' % (e, g)
-
-    # Number from each ethnicity must be at most max (relaxed)
-    for e in ETHNICITIES:
-        problem += lpSum([x[(s, g)] for s in STUDENTS
-                         if ethnicity[s].lower() == e.lower()]) \
-            + ethnicity_artificial_max[(e, g)] >= ethnicity_max[e], \
-            'max_eth%s_g%d' % (e, g)
-
-    # Number of oustanding students must be at least min (relaxed)
-    problem += lpSum([x[(s, g)] for s in STUDENTS
-                     if gpa[s] >= outstanding_gpa]) \
-        + oustanding_gpa_artificial[g] >= oustanding_count, \
-        'out_gpa%s_g%d' % (e, g)
-
-# ============================================================================
-#   Solve
-
-print('Solving . . .')
-try:
-    # SolverStudio version < 0.6
-    problem.solve(solvers.PULP_CBC_CMD(msg=1, maxSeconds=time_limit))
-except:
-    # new version >= 0.6
-    problem.solve(COIN_CMD(msg=1, maxSeconds=time_limit))
-
-# ============================================================================
-#   Solution Post Processing and Display in Excel spreadsheet
-
-print('Finished Solving')
-
-
-# Write group number for each student and add to group list
-for s, g in STUDENT_GROUP:
-    if x[(s, g)].value() == 1:
-        groups[s] = g
+# If charting only, code will continue here
 
 # Make list to hold groups
 students_in_group = {}
@@ -313,12 +355,6 @@ for s in STUDENTS:
         if groups[s] == g:
             students_in_group[g].append(s)
 
-
-gpa_difference = gpa_max.value() - gpa_min.value()
-gpa_variance_difference = gpa_variance_max.value() - gpa_variance_min.value()
-gpa_variance_total = (sum(pow(gpa[s] - gpa_mean, 2)
-                      for s in STUDENTS)) \
-    / number_students
 # Perform calculations for each group
 students_group = {}
 males_group = {}
@@ -370,28 +406,7 @@ for g in GROUPS:
                                   for s in students_in_group[g]))) \
         / float(len(students_in_group[g]))
 
-print('\n')
-print('Biggest difference in mean GPA: %.2f'
-      % gpa_difference)
-print('Biggest difference in GPA variance: %.2f'
-      % gpa_variance_difference)
-print('\n')
-print('Values of artificial variables for relaxation')
-print('Specialisations Min: %.0f' %
-      sum([specialisation_artificial_min[i].value()
-          for i in SPECIALISATION_ARTIFICIAL]))
-print('Specialisations Max: %.0f' %
-      sum([specialisation_artificial_max[i].value()
-          for i in SPECIALISATION_ARTIFICIAL]))
-print('Females: %.0f' % sum([female_artificial[i].value()
-      for i in GROUPS]))
-print('Ethnicities Min: %.0f' %
-      sum([ethnicity_artificial_min[i].value() for i in ETHNICITY_ARTIFICIAL]))
-print('Ethnicities Max: %.0f' %
-      sum([ethnicity_artificial_max[i].value() for i in ETHNICITY_ARTIFICIAL]))
-print('Oustanding GPA Min: %.0f' %
-      sum([oustanding_gpa_artificial[i].value() for i in GROUPS]))
-print('\n')
+
 
 # Print data to spreadsheet
 # Summary Results
