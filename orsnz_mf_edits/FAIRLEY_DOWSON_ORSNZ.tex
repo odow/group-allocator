@@ -20,14 +20,14 @@
 \maketitle
 \pagestyle{empty} \thispagestyle{empty}
 \begin{abstract}
-Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course called \emph{Managing a Business}. As part of this course, students are partitioned into groups of around twenty-five students and given a single week to solve a large engineering or business related problem. In order to make this partitioning equitable, the students should be partitioned in a way that makes the groups as similar as possible across several factors. These include the gender and ethnic make-up of each group, as well as the number of students from each engineering discipline and the academic performance of the students in each group. A mixed integer programme was formulated to solve this problem and implemented using Excel, SolverStudio and PuLP. The model was validated against data from the 2013 cohort, and shown to improve all metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 class into twenty-three groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
+Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course called \emph{Managing a Business}. As part of this course, students are partitioned into groups of around twenty-five students and given a single week to solve a large engineering or business related problem. In order to make this partitioning equitable, the students should be partitioned in a way that makes the groups as similar as possible across several factors. These include the gender and ethnic make-up of each group, as well as the number of students from each engineering discipline and the academic performance of the students in each group. A mixed integer programme was formulated to solve this problem and implemented using Excel, SolverStudio and PuLP. The model was validated against data from the 2013 cohort, and shown to improve key metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 class into twenty-three groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
 
 \textbf{Key words:} Excel, PuLP, SolverStudio, partitioning students, equitable groups
 \end{abstract}
 \section{Introduction}
 Group work is an important component of many university courses that lets students learn how to work with a diverse range of people. Many students will have an ideal group in mind before beginning a group project, for example, they may wish to work with other students who are all excellent academic performers. It is also clear the people of different backgrounds bring different attitudes and skills to a group. For example, it is likely that a group of all females would tend to behave differently to a group of all males. The mix of people in a group can have a large impact on the performance of a group, and therefore, it is important for every group in a class to share the same characteristics in order to make the partitioning of students into groups equitable for all students.
 
-We formulated an optimisation problem for the partitioning of students into equitable groups for a group project that all final year engineering students at the University of Auckland take part in. ENGGEN 403, or `Managing a Business', runs a systems engineering group project that constitutes forty percent of each student's final course mark, and involves students being divided into groups of around twenty-five students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch and a proposal for the future of Auckland's transport network.
+We formulated an optimisation problem for the partitioning of students into equitable groups for a group project that all final year engineering students at the University of Auckland take part in. ENGGEN 403, or \emph{Managing a Business}, runs a systems engineering group project that constitutes forty percent of each student's final course mark, and involves students being divided into groups of around twenty-five students and given a single week to produce a large piece of work on a given topic. In recent years, these topics have included a rebuild plan for Christchurch and a proposal for the future of Auckland's transport network.
 
 In 2014 the project was to write a tender to run a new public-private partnership investment agency, and for the first time, the groups were automatically allocated to groups using the solution described in this paper. We call our solution \emph{Group-Allocator}.
 
@@ -122,15 +122,15 @@ The objective function is to minimise a convex combination of the spread between
 
 \textbf{Bounds on demographic variables} These constraints set the minimum number of students in each group from each demographic sub-group. These constraints are relaxed via the addition of $\rho$ variables.
 \begin{equation} \label{con3}
-\sum_{s \in S^K_k} x_{sg} + \rho^K_{gk} \geq \left\lfloor\frac{|S^K_k|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall k \in K$}
+\sum_{s \in S^K_k} x_{sg} + \rho^K_{gk} \geq \left\lfloor\frac{M_g \times |S^K_k|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall k \in K$}
 \end{equation}
 
 \begin{equation} \label{con4}
-\sum_{s \in S^D_d} x_{sg} + \rho^D_{gd}  \geq \left\lfloor\frac{|S^D_d|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall d \in D$}
+\sum_{s \in S^D_d} x_{sg} + \rho^D_{gd}  \geq \left\lfloor\frac{M_g \times |S^D_d|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall d \in D$}
 \end{equation}
 
 \begin{equation} \label{con5}
-\sum_{s \in S^E_e} x_{sg} + \rho^E_{ge}  \geq \left\lfloor\frac{|S^E_e|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall e \in E$}
+\sum_{s \in S^E_e} x_{sg} + \rho^E_{ge}  \geq \left\lfloor\frac{M_g \times |S^E_e|}{|S|}\right\rfloor \qquad \mbox{$\forall g \in G \quad \forall e \in E$}
 \end{equation}
 
 \textbf{Variable Bounds} The allocation variables ($x$) are binary, all other variables are non-negative.
@@ -276,9 +276,9 @@ This paper provides a case study on how the combination of Excel, SolverStudio a
 
 This case study also highlights the ability for SolverStudio to abstract a large amount of complexity from the end user. The course co-ordinator needed only minutes of instruction to be able to successfully use the spreadsheet without supervision. Where the task of partitioning the students previously took two days, the Excel spreadsheet is able to achieve a more equitable result in the time it takes to make a cup of coffee.
 
-Optimisation does not always need to be applied to large commercial problems to be beneficial. Instead, there exist a large number of problems where years of experience has culminated in a solution that is `good enough'. Simple solutions to these problems can be created using SolverStudio in a short span of time that are user friendly and significantly reduce the work required by the user, freeing then up for more productive activities.
+Optimisation does not always need to be applied to large commercial problems to be beneficial. Instead, there exist a large number of problems where years of experience has culminated in manual solutions with good results, but for which optimisation can provide even better quality solutions in faster times. Simple solutions to these problems can be created using SolverStudio in a short span of time that are user friendly and significantly reduce the work required by the user, freeing them up for more productive activities.
 \section*{Acknowledgments}
-The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Department at the University of Auckland for using the model to partition the ENGGEN 403 groups in 2014, providing the historical data used to validate the model, and for providing valuable feedback. The final spreadsheet can be found on GitHub at http://www.github.com/odow/group-allocator.
+The authors gratefully acknowledge Dr. Keith Adams of the Civil Engineering Department at the University of Auckland for using the model to make the ENGGEN 403 groups in 2014, providing the historical data used to validate the model, and for providing valuable feedback. The final spreadsheet can be found on GitHub at http://www.github.com/odow/group-allocator.
 \bibliographystyle{achicago}
 \bibliography{ORSNZ}
 
