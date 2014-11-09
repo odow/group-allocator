@@ -3,10 +3,12 @@
 man2013.df <- read.csv("2013_manual_summary_r.csv", header=TRUE)
 man2013.df["Type"] <- "Manual"
 auto2013.df <- read.csv("2013_automatic_summary_r.csv", header=TRUE)
-auto2013.df["Type"] <- "Automatic"
+auto2013.df["Type"] <- "Group-Allocator"
+#auto2014.df <- read.csv("2014_automatic_summary_r.csv", header=TRUE)
+#auto2014.df["Type"] <- "Group-Allocator 2014"
 # Combine dataframes
 all.df <- rbind(man2013.df, auto2013.df)
-all.df$Type <- factor(all.df$Type, levels=c("Manual","Automatic"), labels=c("Manual", "Automatic"))
+all.df$Type <- factor(all.df$Type, levels=c("Manual","Group-Allocator"), labels=c("Manual", "Automatic"))
 
 # GPA
 par(mfrow=c(1,2))
