@@ -1,0 +1,321 @@
+
+			     INSTRUCTIONS
+				 for
+		       BUILDING AND INSTALLING
+			     FRANKENSTEIN
+
+----------------------------------------------------------------------
+			       CONTENTS
+
+		   NOTE
+		   QUICK AND DIRTY
+		   THE BEST WAY: USING THE MAKEFILE
+		   NON-FRANKENSTEIN PACKAGES
+		   DOING IT BY HAND
+			basics
+			configuration files
+			generating quick versions
+			regenerating DVI documentation
+			fileset dependencies
+		   FILE LOCATIONS
+			TDS locations
+			CTAN locations
+		   MAKEFILE TECHNICAL NOTES
+			Frankenbundle
+		   TERMINOLOGY
+		   AUTHOR
+
+----------------------------------------------------------------------
+				 NOTE
+
+If you are reading this file in a TeX installation, you probably don't
+need to install anything at all.  Simply try using one of the
+Frankenstein packages in your document and see if it works.  If LaTeX
+can't find the package, you need to install it, so read on.
+
+Since you're reading on, I'll assume from here on that you are reading
+this file in a directory with other Frankenstein files as you found
+them on CTAN.
+
+----------------------------------------------------------------------
+			   QUICK AND DIRTY
+
+You can simply put this entire directory (or just the .sty files)
+somewhere in LaTeX's search path for input files, e.g.,
+TDS:/texmf/tex/latex/frankenstein.  You will then be able to use all
+the Frankenstein packages, with the following qualifications:
+
+  1.  The documentation won't be in the standard place.
+  2.  To use the achicago bibstyle, you must also put the file
+      "achicago.bst" where BibTeX can find it.
+  3.  With a web2c-based installation you _may_ also need to take the
+      extra step of rebuilding your ls-R databases with a command like
+      "texconfig rehash".
+  4.  To use the abbrevs, achicago, blkcntrl, and dialogue packages,
+      you must have the relsize package on your system; to use the
+      compsci package, you must have the the relsize, url and verbatim
+      packages on your system.  For how to obtain and install these
+      non-Frankenstein packages on your system, see the section on
+      non-Frankenstein packages below.
+
+----------------------------------------------------------------------
+			     THE BEST WAY:
+			  USING THE MAKEFILE
+
+If you have the GNU Make program on your system, using the Makefile is
+the easiest way to do everything described in this document and more.
+Simply run "make" and you will see a help message describing the
+things you can do.  You probably won't need to read anything else in
+this file except the section NON-FRANKENSTEIN PACKAGES below.
+
+To use the Makefile on the unsupported filesets, you must do two
+things.  
+
+  1. Copy all the files in the "unsupported" subdirectory into its
+     parent directory ("frankenstein").
+
+  2. Set the variable USE_UNSUP to something nonempty either by:
+       a. uncommenting the line in the file Makefile, or
+       b. setting it in your environment, or
+       c. set the variable on the Make command line, e.g., "make
+          USE_UNSUP=t all".
+
+----------------------------------------------------------------------
+		      NON-FRANKENSTEIN PACKAGES
+
+Certain Frankenstein packages depend on packages that are not part of
+Frankenstein or the official LaTeX distribution:
+
+  abbrevs,	     
+  achicago,
+  blkcntrl,
+  and dialogue depend on "relsize.sty".
+  compsci      depends on "relsize.sty", "url.sty", and "verbatim.sty".
+
+If you wish to use one of those four Frankenstein packages, I suggest
+you follow these steps:
+
+First check if you already have them on your system:
+
+   If you have a TeX installation based on web2c (e.g., UN*X
+   installations derived from teTeX or TeXLive), you can type:
+
+     % kpsewhich X.sty
+
+   (where X is relsize, url, or verbatim) and if you get a response,
+   you already have that file on your system.  If you don't have web2c
+   but do have a TDS-compliant texmf tree, see the section FILE
+   LOCATIONS below to see where to look.  If you have neither web2c
+   nor a TDS-compliant texmf tree, you can simply try to use the
+   Frankenstein package, and if LaTeX tells you one of the
+   non-Frankenstein packages is missing, well then you have to install
+   it.
+
+If you don't already have the files you need, download them from CTAN.
+
+  The locations are given in the section FILE LOCATIONS below.
+
+  To install relsize.sty and url.sty, simply put them where LaTeX can
+  find them.
+
+  To install verbatim, I recommend you install the entire "tools"
+  distribution, following the directions in the file readme.txt.
+
+----------------------------------------------------------------------
+			   DOING IT BY HAND
+
+				basics
+
+Each package fileset X in the Frankenstein bundle contains either four
+or five files:
+
+  X.sty        the package macros
+  X.dvi        package documentation
+  X.tex        may be used to regenerate X.dvi from X.sty
+  X.ins        may be used to generate a fast-loading version of X.sty
+
+A standard configuration file is included in the abbrevs, compsci,
+slemph, and titles package filesets:
+
+  X.cfg         package configuration file (not in all packages)
+
+The file X.sty may be used as it is; simply put it where LaTeX can
+find it.  TDS locations are given below.  To use the package, put
+\usepackage{X} in the preamble of your LaTeX source document.  If a
+configuration file exists for the package, you must also put it where
+LaTeX can find it.
+
+The following files compose the achicago bibstyle fileset:
+
+  achicago.bst       the bibstyle macros
+  achicago-bst.dvi   bibstyle documentation
+  achicago-bst.tex   may be used to regenerate achicago-bst.dvi from
+                     achicago.bst and achicago-bst.ver
+  achicago-bst.ins   may be used to generate a fast-loading version 
+                     of achicago.bst (see below)
+  achicago-bst.ver   a file needed by achicago-bst.tex
+
+The file achicago.bst may be used as it is; simply put it where BibTeX
+can find it.  To use the bibstyle, you must load the achicago PACKAGE
+by putting \usepackage{achicago} in the preamble of your LaTeX source
+document.
+
+
+			 configuration files
+
+If you want to alter a configuration file, make a copy of it, put it
+the copy in the LaTeX search path prior to the distributed
+configuration file, and alter the copy.
+
+
+	     generating fast-loading or "quick" versions
+
+Running TeX or LaTeX on X.ins will produce a file called either X.stq
+(for packages) or X.bsq (for bibstyles).  For packages X, the file
+X.sty must be in the LaTeX search path (usually the current
+directory); for bibstyles Y-bst, the files Y.bst and Y-bst.ver must be
+in the same directory.  The new file is functionally identical to the
+X.sty or X.bst file, but is stripped of comments and will therefore be
+processed faster by TeX or BibTeX.  I am unable to tell you how much
+faster!  To use X.stq (X.bsq), you must rename it to X.sty (X.bst) and
+put it where LaTeX (BibTeX) can find it.  DO NOT DELETE THE ORIGINAL
+X.sty (X.bst) because it contains the documentation which X.tex
+(X-bst.tex) transforms into the file X.dvi (X-bst.dvi).
+
+
+		    regenerating DVI documentation
+
+To regenerate the file X.dvi, run LaTeX on X.tex.  For packages X, the
+file X.sty must be in the LaTeX search path as well as X.cfg if it
+exists; for bibstyles Y-bst, the files Y.bst and Y-bst.ver must be in
+the LaTeX search path.
+
+Generating documentation requires the following Frankenstein packages:
+
+  abbrevs.sty, blkcntrl.sty, compsci.sty, lips.sty, moredefs.sty,
+  slemph.sty, titles.sty, and achicago.sty, 
+
+and the achicago.bst bibstyle.
+
+You also need all 3 non-Frankenstein packages (see the section
+NON-FRANKENSTEIN PACKAGES above).
+
+Documentation for dialogue furthermore requires the attrib package.
+Documentation for attrib   furthermore requires the dialogue package.
+Documentation for achicago-bst furthermore requires the longtable package,
+  which is in the "tools" bundle with "verbatim" (see the section
+  NON-FRANKENSTEIN PACKAGES above). 
+
+
+			 fileset dependencies
+
+If you install the macro files of one fileset, you should also install
+all the macro files of the filesets it depends on:
+
+  Fileset       Depends on (directly or indirectly)
+  ....................................................................
+  abbrevs       moredefs,relsize,slemph
+  achicago      blkcntrl,moredefs,relsize,slemph,titles
+  achicago-bst  achicago,blkcntrl,moredefs,relsize,slemph,titles
+  attrib        moredefs
+  blkcntrl      moredefs,relsize
+  compsci       abbrevs,alltt,lips,moredefs,relsize,slemph,
+                titles,url,verbatim
+  dialogue      blkcntrl,moredefs,relsize
+  lips          <NOTHING>
+  moredefs      <NOTHING>
+  slemph        <NOTHING>
+  titles        moredefs,slemph
+
+----------------------------------------------------------------------
+			    FILE LOCATIONS
+
+			    TDS locations
+
+Relevant non-Frankenstein files:
+
+  File                Location:  TDS:/texmf/...
+  ...........................................................
+  url.sty	      ...tex/latex/misc/url.sty
+  relsize.sty	      ...tex/latex/misc/relsize.sty
+  longtable.dtx	      ...source/latex/tools/longtable.dtx
+  verbatim.dtx	      ...source/latex/tools/verbatim.dtx
+
+  longtable.sty	      ...tex/latex/tools/longtable.sty
+  longtable.dvi	      ...doc/latex/tools/longtable.dvi
+  verbatim.sty	      ...tex/latex/tools/verbatim.sty
+  verbatim.dvi	      ...doc/latex/tools/verbatim.dvi
+
+Frankenstein files:
+
+  File                Location:  TDS:/texmf/...
+  ...........................................................
+  achicago.bst        .../bibtex/bst/achicago
+  achicago-bst.dvi    .../doc/bibtex
+  *.cfg *.sty         .../tex/latex/frankenstein
+  *.dvi               .../doc/latex/frankenstein
+  <all other files>   .../source/latex/frankenstein
+
+			    CTAN locations
+
+Frankenstein:
+
+  CTAN:/macros/latex/contrib/supported/frankenstein/*
+
+Relevant non-Frankenstein packages:
+
+  Package       Location:  CTAN:/macros/latex/...
+  ...........................................................
+  relsize       ...contrib/other/misc/relsize.sty
+  url           ...contrib/other/misc/url.sty
+  verbatim      ...packages/tools/*
+  longtable     ...packages/tools/*
+
+The LaTeX base distribution:
+
+  CTAN:/macros/latex/base/*
+
+----------------------------------------------------------------------
+		       MAKEFILE TECHNICAL NOTES
+
+I have tested the Make system with Debian GNU/Linux and Make v3.77.
+If certain commands or options need to be altered to work with your
+setup, check the top of Frankenfile where a lot of commands are
+abstracted in variables.  It's best to reset the variables at the top
+of Makefile, on the Make command line, or in your environment rather
+than changing Frankenfile.  Please write me describing any problems
+you encounter.  GNU Make is available at ftp://gnu.mit.edu/pub/gnu/.
+
+
+			    Frankenbundle
+
+The Frankenstein Makefiles also make a great way for you to maintain
+and distribute your own LaTeX packages and classes and BibTeX
+bibstyles.  I distribute them with some documentation and necessary
+additional files as the Frankenbundle suite on
+CTAN:/support/frankenbundle.
+
+----------------------------------------------------------------------
+			     TERMINOLOGY
+
+  fileset: A group of files related to a single LaTeX package, LaTeX
+           class, or BibTeX bibliography style and any accompanying
+           option or configuration files.  The files in a package or
+           class fileset have the same root name but different
+           filename extensions.  In bibstyle filesets, some root names
+           differ by a "-bst" suffix.
+
+     CTAN: Comprehensive TeX Archive Network: a system of TeX-related
+           file archives available via FTP (see
+           ftp://ctan.tug.org/tex-archive/CTAN.sites) and often
+           reproduced on CDROMs.
+
+      TDS: TeX Directory Structure: a recommended directory structure
+           for TeX installations.  See
+           ftp://ctan.tug.org/tex-archive/tds.
+
+----------------------------------------------------------------------
+				AUTHOR
+
+			      Matt Swift
+			 <swift@alum.mit.edu>

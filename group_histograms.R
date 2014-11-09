@@ -25,6 +25,12 @@ histogram( ~ Cumulative.GPA | factor(Allocated.Group, labels=labels_2013),
            data=autov.df, breaks=gpa_bins, ylab=ylabp,xlab=xlabp, ylim=ylimp,
            main="Automatic Allocation GPA Histogram for Groups using 2013 Data")
 
+# 2013 Group-Allocator GPA Only
+autov.df <- read.csv("2013_group_allocator_gpa_only_r.csv",header=TRUE)
+histogram( ~ Cumulative.GPA | factor(Allocated.Group, labels=labels_2013),
+           data=autov.df, breaks=gpa_bins, ylab=ylabp,xlab=xlabp, ylim=ylimp,
+           main="Automatic Allocation GPA Histogram for Groups using 2013 Data only optimising GPA")
+
 # 2013 Entire Class
 histogram( ~ Cumulative.GPA, data=manv.df, breaks=gpa_bins, ylab=ylabp,xlab=xlabp, ylim=ylimp, main="GPA Histogram for 2013 Class")
 

@@ -1,0 +1,67 @@
+% blkcntrl.tex -- documentation for the blkcntrl LaTeX package.
+%
+%   This program is part of the Frankenstein bundle for LaTeX2e.
+%
+%   Copyright (C) 1995-2001 Matt Swift <swift@alum.mit.edu>
+%
+%     This program is free software; you may redistribute it and/or
+%     modify it under the conditions of the LaTeX Project Public
+%     License, either version 1.2 or (at your option) any later
+%     version.  The latest version of this license is in
+%     http://www.latex-project.org/lppl.txt, and version 1.2 or later
+%     is part of all distributions of LaTeX version 1999/12/01 or
+%     later.
+%
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     LaTeX Project Public License for more details.
+%
+\documentclass{ltxdoc}
+\makeatletter
+\def\part {%
+  \clearpage
+  \@afterindentfalse
+  \secdef\@part\@spart
+}
+\def\StripV #1{\E@cdr #1\@nil}
+\makeatother
+\usepackage{attrib,compsci}
+\newbook\manual {Chicago\nocite{chicago:14} Manual of Style}[Chicago Manual]
+\newbook\MLAman {The\nocite{mlaman} MLA Style Manual and Guide to Scholarly Publishing}
+                [The MLA Style Manual]
+\newtheorem{lessoninternal}{Lesson}
+\newenvironment{lesson} {%
+  \let\AttribInit\sffamily
+  \let\PreTrib\textsection
+  \let\PostTrib\ShortEmpty
+  \lessoninternal
+  } {%
+  \endlessoninternal
+  }
+\newcommand\manualref [1] {\textsf{\S #1}}
+\ProcessDTXFile{blkcntrl.sty}
+\newlet\MaybeABib\relax
+\IfCitations {
+  \def\MaybeABib {%
+    \newpage
+    \bibliographystyle{achicago}%
+    \bibliography{frankenstein}%
+  }
+  \SaveDoXVarS
+  \usepackage{achicago}
+  \RestoreDoXVarS
+}
+\CodelineIndex
+\EnableCrossrefs
+\begin{document}
+\date{Version: \StripV\fileversion \qquad Date: \filedate\\
+      \relsize{-2}Documentation revision: \docdate}
+\author{Matt Swift \email{swift@alum.mit.edu}}
+\title{The \textsf{blkcntrl} LaTeX package \\\smaller \fileinfo}
+\maketitle
+\DocInput{blkcntrl.sty}
+\MaybeABib
+\newpage
+\PrintIndex
+\end{document}

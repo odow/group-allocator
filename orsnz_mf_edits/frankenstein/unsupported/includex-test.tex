@@ -1,0 +1,206 @@
+%* filecontents
+% $Id: includex-test.tex,v 1.2 1999/02/27 05:09:26 swift Exp $
+
+%** includex-test-aux.tex
+\begin{filecontents}{includex-test-aux.tex}
+This text is in a separate file that just contains text, and some \LaTeX\ code.
+For a change, let's quote \emph{Moby Dick}, chapter~94:
+\begin{quotation} % 
+  Squeeze!\ squeeze!\ squeeze!\ all the morning long; I squeezed that sperm
+  till I myself almost melted into it; I squeezed that sperm till a strange
+  sort of insanity came over me; and I found myself unwittingly squeezing my
+  co-laborers' hands in it, mistaking their hands for the gentle globules.
+  Such an abounding, affectionate, friendly, loving feeling did this avocation
+  beget; that at last I was continually squeezing their hands, and looking up
+  into their eyes sentimentally; as much as to say,---Oh!\ my dear fellow
+  beings, why should we longer cherish any social acerbities, or know the
+  slightest ill-humor or envy!  Come; let us squeeze hands all round; nay, let
+  us all squeeze ourselves into each other; let us squeeze ourselves
+  universally into the very milk and sperm of kindness.
+
+  Would that I could keep squeezing that sperm for ever! For now, since by many
+  prolonged, repeated experiences, I have perceived that in all cases man must
+  eventually lower, or at least shift, his conceit of attainable felicity; not
+  placing it anywhere in the intellect or the fancy; but in the wife, the
+  heart, the bed, the table, the saddle, the fire-side, the country; now that I
+  have perceived all this, I am ready to squeeze case eternally.  In thoughts
+  of the visions of the night, I saw long rows of angels in paradise, each with
+  his hands in a jar of spermaceti.
+\end{quotation}
+\end{filecontents}
+%**  includex-test-aux1.tex
+\begin{filecontents}{includex-test-aux1.tex}
+\documentclass{article}
+
+\usepackage{alltt}
+
+\newcommand\preamblecmd
+  {This line is due to the preamble of the included file.}
+
+\tdisable
+\tdisableone{flue}
+\tdisableopt[glue]{shoe}
+\tdisabletwo{blue}{grue}
+
+\begin{document}
+
+\tdisable
+\tdisableone{flue}
+\tdisableopt[glue]{shoe}
+\tdisabletwo{blue}{grue}
+
+\preamblecmd
+
+This file could be compiled on its own. 
+
+\begin{alltt}
+Here is yet another quotation from Beckett, this time from \emph{Watt}
+(45--46). 
+\end{alltt}
+
+\begin{quotation}
+  The crocuses and the larch turning green every year a week before the others
+  and the pastures red with uneaten sheep's placentas and the long summer days
+  and the new-mown hay and the wood-pigeon in the morning and the cuckoo in the
+  afternoon and the corncrake in the evening and the wasps in the jam and the
+  smell of the gorse and the look of the gorse and the apples falling and the
+  children walking in the dead leaves and the larch turning brown a week before
+  the others and the chestnuts falling and the howling winds and the sea
+  breaking over the pier and the first fires and the hooves on the road and the
+  consumptive postman whistling \emph{The Roses Are Blooming in Picardy} and
+  the standard oil-lamp and of course the snow and to be sure the sleet and
+  bless your heart the slush and every fourth year the February d\`eb\^acle and
+  the endless April showers and the crocuses and then the whole bloody business
+  starting all over again.  
+\end{quotation} 
+
+Notice, just as one single thing among dozens, that ``crocus''
+sounds like ``croak us.''  
+
+\end{document}Error 1 in radical shutdown!
+Error 2 in radical shutdown!
+
+None of this text should ever be set.
+
+\end{filecontents}
+%**  includex-test-aux.sty
+\begin{filecontents}{includex-test-aux.sty}
+\renewcommand\autotest {%
+  This text is coming from the definition of $\backslash$\texttt{autotest} that
+  is in the auxiliary file.
+}
+
+\typeout{Autoload file being loaded!}
+
+\newcommand\madbomber {%
+  \emph{I am the mad bomber!}%
+}
+
+\end{filecontents}
+
+%* main document
+
+\documentclass{article}
+\usepackage{includex,compsci}
+
+\begin{document}
+%* Intro
+\def\fileversion{v1}
+\def\filedate{1999/02/26}
+
+\makeatletter
+\def\StripV #1{\E@cdr #1\@nil}
+\makeatother
+
+\date{Version: \StripV\fileversion \qquad Date: \filedate}
+\author{Matt Swift \email{swift@alum.mit.edu}}
+\title{Testing the \package{includex} package}
+\maketitle
+
+\section{New ways to include}
+
+This will take several pages. 
+
+First, check that we can |\include| as usual, so the rest of this page should
+be blank, and the Melville quote should be alone on the next page.
+
+\include{includex-test-aux}
+
+This should be on a new page.  Now we include the same thing, but it should
+come immediately here because we use |\include*|:
+
+\include*{includex-test-aux}
+
+And this paragraph should immediately follow the Melville.  Now, we check
+|\includedoc| and |\includedoc*| in a similar manner.  The included file is
+going to use the |alltt| environment.  We have loaded the package in the parent
+file.  The |\usepackage| command in the included file should be disabled; if
+not, there will be an error when it tries to redefine the environment.  Also,
+we disable several commands that will produce an error if they are not. This
+should be the last text on this page.
+
+\newcommand\tdisable{\typeout{Error with \protect\tdisable.}}
+\newcommand\tdisableone[1]{\typeout{Error with \protect\tdisableone.}}
+\newcommand\tdisableopt[2][]{\typeout{Error with \protect\tdisableopt.}}
+\newcommand\tdisabletwo[2]{\typeout{Error with \protect\tdisabletwo.}}
+
+\disable{\let\tdisable\relax}
+\disable{\let\tdisableone\Gobble}
+\disable{\let\tdisableopt\GobbleOM}
+\disable{\let\tdisabletwo\GobbleMM}
+
+\makeatletter
+\newcommand\checkp {%
+  \@ifundefined{preamblecmd} {%
+      \DTypeout{Preamblecmd undefined.}%
+    }{% ELSE
+    \DTypeout{Preamblecmd is: (\preamblecmd).}%
+%    \let\preamblecmd\relax
+    }%
+}
+\makeatother
+\checkp
+
+\includedoc{includex-test-aux1}
+
+\checkp
+
+And this should be on a new page.  The first line should have said it
+comes from the preamble. 
+
+The |\includedoc| family of commands puts the included file into a group.  So
+|\preamblecmd| is not defined now.
+
+Now we do the same thing over, but the file should appear immediately.  
+
+\includedoc*{includex-test-aux1}
+
+\checkp
+
+And this paragraph should immediately follow the Beckett.  Finally, we have to
+check |\includedocskip| and |\includedocskip*|.  The difference will be that
+the first line will say it comes from the parent.  This should be the last text
+on the page.
+
+\newcommand\preamblecmd {%
+  This def of preamblecmd comes from the parent.
+}
+
+\includedocskip{includex-test-aux1}
+
+\checkp
+This should be on a new page.  And once again, the quote should follow
+immediately here:
+
+\includedocskip*{includex-test-aux1}
+
+\checkp
+
+And this text should immediately follow the quote. 
+
+%* end
+
+END OF TEST
+
+\end{document}
+

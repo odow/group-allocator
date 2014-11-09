@@ -1,0 +1,1532 @@
+## Frankenfile  -- common part of a Makefile for LaTeX and BibTeX bundles
+#
+# Author: Matt Swift <swift@alum.mit.edu>
+#
+# This file is given into the public domain.
+# Please acknowledge my work when appropriate.
+# Such reflected glory is all I get from releasing this work to you.
+#
+# Version: $Revision: 1.10 $ $Date: 2001/08/31 01:27:17 $
+# See the file ChangeLog-Frankenbundle for revision history.
+#
+# This file is distributed in two ways:
+#
+# 1) With LaTeX filesets.  In normal circumstances, you do not need 
+#    to read this file or alter it   See the README or INSTALL file that
+#    came with this file instead.
+#
+# 2) As part of the Frankenbundle suite, which helps developers make and
+#    distribute LaTeX and BibTeX filesets.  In normal circumstances, you
+#    should not need to alter this file.  Please see the README file
+#    in the suite for further documentation.
+
+#
+## Basic variable definitions
+#
+
+# NOTE: to override these definitions, use environment variables or the Make
+# command line.  The values here should be the most common ones in general, so
+# that the least number of users have to override them.  If you think I could
+# choose better values, please write me.
+
+# NOTE: I use the $(...) construct for command substitution, supported by
+# POSIX, ksh, bash.  I can rewrite with nested backquotes if someone insists.
+
+# NOTE: ?= is broken in Make 3.77, so we use the more verbose ifndef
+# construction.
+
+# NOTE: We don't bother to abstract the 'kpsewhich', 'echo', 'cd', 'pwd',
+# 'test', or '[' commands.  Any reason to?
+
+# Eliminating built-in implicit rules speeds up Make and makes debugging output
+# much briefer.  Recusive Making turns on -w which traces what directory we're
+# in, but we're always in this directory, so we turn off those messages.
+MAKEFLAGS += --no-builtin-rules --no-print-directory
+
+# We don't need all the old-fashioned suffix rules -- removing them makes
+# things more efficient.
+.SUFFIXES:
+
+# Make debugging option.  Uncomment to use.
+# MAKEFLAGS += --warn-undefined-variables
+
+# Hmm, this doesn't seem to work when defined in this way.  Seems to work only
+# on the command line.
+# MAKEFLAGS += --print-database
+
+# ifeq ($(OS),WIN32)
+# variant defs
+# endif
+
+# RM is defined by Make as 'rm -f'.  You could redefine it.
+# ls is often aliased, so use /bin/ls
+ifndef LS
+LS          = /bin/ls
+endif
+ifndef TAR
+TAR         = tar
+endif
+ifndef LN
+LN          = ln
+endif
+ifndef M4
+M4          = m4
+endif
+ifndef SYMLINK
+SYMLINK     = $(LN) -f -s
+endif
+ifndef SED
+SED         = sed
+endif
+ifndef AWK
+AWK         = awk
+endif
+ifndef FGREP
+FGREP       = fgrep
+endif
+ifndef TEE
+TEE         = tee
+endif
+ifndef XARGS
+XARGS       = xargs
+endif
+ifndef EXPR
+EXPR        = expr
+endif
+ifndef HEAD
+HEAD       = head
+endif
+ifndef TR
+TR         = tr
+endif
+ifndef GREP
+GREP       = grep
+endif
+ifndef CAT
+CAT         = cat
+endif
+ifndef TOUCH
+TOUCH       = touch
+endif
+ifndef REHASH
+REHASH      = texconfig rehash
+endif
+ifndef DIRNAME
+DIRNAME     = dirname
+endif
+ifndef BASENAME
+BASENAME    = basename
+endif
+ifndef INSTALL
+INSTALL     = install
+endif
+# -p = preserve timestamps
+ifndef INSTALLOPTS
+INSTALLOPTS = -p -m $(MKFILEMODE)
+endif
+ifndef CHMOD
+CHMOD       = chmod
+endif
+ifndef MKFILEMODE
+# mode rw-rw-r--, i.e. 664
+MKFILEMODE  = 664
+endif
+ifndef MKDIRP
+MKDIRP      = $(INSTALL) -d -m $(MKDIRMODE)
+endif
+ifndef MKDIRMODE
+MKDIRMODE   = 755
+endif
+ifndef LATEX
+LATEX       = latex
+endif
+ifndef TEX
+TEX         = tex
+endif
+ifndef BIBTEX
+BIBTEX      = bibtex
+endif
+ifndef BIBTOOL
+BIBTOOL     = bibtool
+endif
+ifndef MAKEINDEX
+MAKEINDEX   = makeindex $(MAKEINDEXOPTS)
+endif
+ifndef MAKEINDEXOPTS
+MAKEINDEXOPTS = -s gind.ist
+endif
+# Subdirectory of the main directory in which to build the distribution:
+# don't call it "distrib" or the name of any other target!
+ifndef distribution-dir
+distribution-dir = distribution
+endif
+
+#
+## internal variables naming files
+#
+
+# FIX: I suppose we could make this faster for the end user by figuring out
+# which of these many definitions are only used by the developer.
+
+dist-extra-files    = $(stable-extra-files)
+ifeq ($(USER),$(DEVELOPER))
+dist-extra-files   += $(beta-extra-files)
+else
+ifdef USE_UNSUP
+dist-extra-files   += $(beta-extra-files)
+endif
+endif
+
+# may not exist
+bundle-bib.bib = $(bundle-bib).bib
+
+packages.sty = $(addsuffix .sty, $(packages))
+packages.stq = $(addsuffix .stq, $(packages))
+packages.ins = $(addsuffix .ins, $(packages))
+packages.dvi = $(addsuffix .dvi, $(packages))
+packages.tex = $(addsuffix .tex, $(packages))
+stos.sto     = $(addsuffix .sto, $(stos))
+stos.sqo     = $(addsuffix .sqo, $(stos))
+
+classes.cls  = $(addsuffix .cls, $(classes))
+classes.clq  = $(addsuffix .clq, $(classes))
+classes.ins  = $(addsuffix .ins, $(classes))
+classes.dvi  = $(addsuffix .dvi, $(classes))
+classes.tex  = $(addsuffix .tex, $(classes))
+clos.clo     = $(addsuffix .clo, $(clos))
+clos.cqo     = $(addsuffix .cqo, $(clos))
+
+bibstyles-bst = $(addsuffix -bst, $(bibstyles))
+bibstyles.bst = $(addsuffix .bst, $(bibstyles))
+bibstyles.bsq = $(addsuffix .bsq, $(bibstyles))
+bibstyles.ins = $(addsuffix .ins, $(bibstyles-bst))
+bibstyles.dvi = $(addsuffix .dvi, $(bibstyles-bst))
+bibstyles.tex = $(addsuffix .tex, $(bibstyles-bst))
+bibstyles.ver = $(addsuffix .ver, $(bibstyles-bst))
+
+# everything depends on the makefiles
+# the "Frankenfile" in the next line is intended to refer to this file
+makefiles     = Frankenfile $(calling-makefile)
+stable-extra-files += $(makefiles) $(bundle-bib.bib)
+
+stable-packages.sty = $(addsuffix .sty, $(stable-packages))
+stable-packages.ins = $(addsuffix .ins, $(stable-packages))
+stable-packages.dvi = $(addsuffix .dvi, $(stable-packages))
+stable-packages.tex = $(addsuffix .tex, $(stable-packages))
+
+stable-classes.cls = $(addsuffix .cls, $(stable-classes))
+stable-classes.ins = $(addsuffix .ins, $(stable-classes))
+stable-classes.dvi = $(addsuffix .dvi, $(stable-classes))
+stable-classes.tex = $(addsuffix .tex, $(stable-classes))
+
+stable-bibstyles-bst = $(addsuffix -bst, $(stable-bibstyles))
+stable-bibstyles.bst = $(addsuffix .bst, $(stable-bibstyles))
+stable-bibstyles.ins = $(addsuffix .ins, $(stable-bibstyles-bst))
+stable-bibstyles.dvi = $(addsuffix .dvi, $(stable-bibstyles-bst))
+stable-bibstyles.tex = $(addsuffix .tex, $(dist-bibstyles-bst))
+stable-bibstyles.ver = $(addsuffix .ver, $(dist-bibstyles-bst))
+
+stable-configs.cfg = $(addsuffix .cfg, $(stable-configs))
+
+stable-filesets.ins  = $(addsuffix .ins, $(stable-filesets))
+stable-filesets.tex  = $(addsuffix .tex, $(stable-filesets))
+stable-filesets.dvi  = $(addsuffix .dvi, $(stable-filesets))
+
+beta-packages.sty = $(addsuffix .sty, $(beta-packages))
+beta-packages.dvi = $(addsuffix .dvi, $(beta-packages))
+
+beta-classes.cls = $(addsuffix .cls, $(beta-classes))
+beta-classes.dvi = $(addsuffix .dvi, $(beta-classes))
+
+beta-bibstyles-bst = $(addsuffix -bst, $(beta-bibstyles))
+beta-bibstyles.bst = $(addsuffix .bst, $(beta-bibstyles))
+beta-bibstyles.dvi = $(addsuffix .dvi, $(beta-bibstyles-bst))
+beta-bibstyles.ver = $(addsuffix .ver, $(beta-bibstyles-bst))
+
+beta-configs.cfg = $(addsuffix .cfg, $(beta-configs))
+
+beta-filesets.ins  = $(addsuffix .ins, $(beta-filesets))
+beta-filesets.tex  = $(addsuffix .tex, $(beta-filesets))
+beta-filesets.dvi  = $(addsuffix .dvi, $(beta-filesets))
+
+filesets.tex       = $(addsuffix .tex, $(filesets))
+filesets.dvi       = $(addsuffix .dvi, $(filesets))
+filesets.ins       = $(addsuffix .ins, $(filesets))
+filesets.aux       = $(addsuffix .aux, $(filesets))
+filesets.t1        = $(addsuffix .t1, $(filesets))
+filesets.t2        = $(addsuffix .t2, $(filesets))
+filesets.t3        = $(addsuffix .t3, $(filesets))
+
+dist-filesets.aux      = $(addsuffix .aux, $(dist-filesets))
+# cits for "have citations"
+dist-filesets-cits.aux = $(addsuffix .aux, $(dist-filesets-cits))
+
+stable-stos.sto    = $(addsuffix .sto, $(stable-stos))
+beta-stos.sto	   = $(addsuffix .sto, $(beta-stos))           
+
+# We treat "X.cfg" as if it was a root name.
+configs.cfg           = $(addsuffix .cfg, $(configs))
+configs.cfg.install   = $(addsuffix .cfg.install, $(configs))
+configs.cfq           = $(addsuffix .cfq, $(configs))
+configs.cfq.install   = $(addsuffix .cfq.install, $(configs))
+
+# These files are part of the building process.
+part-1     = $(make-dir)/part-1.dtx
+part-2     = $(make-dir)/part-2.dtx 
+part-3     = $(make-dir)/part-3.dtx 
+parts      = $(part-1) $(part-2) $(part-3)
+extractor  = $(make-dir)/extractor.ins
+driver     = $(make-dir)/driver.tex
+#
+## internal variables for phony targets
+#
+
+dist-bibstyles-bst  = $(addsuffix -bst, $(stable-bibstyles))
+dist-packages       = $(stable-packages)
+dist-classes        = $(stable-classes)
+dist-bibstyles      = $(stable-bibstyles)
+dist-filesets       = $(dist-packages) $(dist-classes) $(dist-bibstyles-bst)
+filesets            = $(packages) $(classes) $(bibstyles-bst)
+ifeq ($(USER),$(DEVELOPER))
+dist-bibstyles-bst += $(addsuffix -bst, $(beta-bibstyles))
+dist-packages      += $(beta-packages)
+dist-classes       += $(beta-classes)
+dist-bibstyles     += $(beta-bibstyles)
+# cits for "have citations"
+dist-filesets-cits  = $(basename $(shell $(GREP) -l '\initelyHavECitationS' \
+			$(addsuffix .dtx, $(dist-filesets))))
+else
+ifdef USE_UNSUP
+dist-bibstyles-bst += $(addsuffix -bst, $(beta-bibstyles))
+dist-packages      += $(beta-packages)
+dist-classes       += $(beta-classes)
+dist-bibstyles     += $(beta-bibstyles)
+endif
+endif
+
+
+# nondc = "non-dist-cits"
+nondc-filesets      = $(filter-out $(dist-filesets-cits), $(filesets))
+
+packages            = $(dist-packages) $(alpha-packages)
+packages.clean      = $(addsuffix .clean, $(packages))
+packages.dev.clean  = $(addsuffix .dev.clean, $(packages))
+packages.macros     = $(addsuffix .macros, $(packages))
+packages.macros.q   = $(addsuffix .macros.q, $(packages))
+packages.install    = $(addsuffix .install, $(packages))
+packages.install.q  = $(addsuffix .install.q, $(packages))
+packages.doc.install= $(addsuffix .doc.install, $(packages))
+packages.sty.install= $(addsuffix .sty.install, $(packages))
+packages.stq.install= $(addsuffix .stq.install, $(packages))
+packages.sto.install= $(addsuffix .sto.install, $(packages))
+packages.sqo.install= $(addsuffix .sqo.install, $(packages))
+packages.src.install= $(addsuffix .src.install, $(packages))
+stable-stos         = $(foreach f, $(stable-filesets), $($(f)-stos))
+beta-stos           = $(foreach f, $(beta-filesets), $($(f)-stos))
+alpha-stos          = $(foreach f, $(alpha-filesets), $($(f)-stos))
+stos                = $(stable-stos) $(beta-stos) $(alpha-stos)
+classes             = $(dist-classes) $(alpha-classes)
+classes.clean      = $(addsuffix .clean, $(classes))
+classes.dev.clean  = $(addsuffix .dev.clean, $(classes))
+classes.macros      = $(addsuffix .macros, $(classes))
+classes.macros.q    = $(addsuffix .macros.q, $(classes))
+classes.install     = $(addsuffix .install, $(classes))
+classes.install.q   = $(addsuffix .install.q, $(classes))
+classes.doc.install = $(addsuffix .doc.install, $(classes))
+classes.cls.install = $(addsuffix .cls.install, $(classes))
+classes.clq.install = $(addsuffix .clq.install, $(classes))
+classes.clo.install = $(addsuffix .clo.install, $(classes))
+classes.cqo.install = $(addsuffix .cqo.install, $(classes))
+classes.src.install = $(addsuffix .src.install, $(classes))
+stable-clos         = $(foreach f, $(stable-filesets), $($(f)-clos))
+beta-clos           = $(foreach f, $(beta-filesets), $($(f)-clos))
+alpha-clos          = $(foreach f, $(alpha-filesets), $($(f)-clos))
+clos                = $(stable-clos) $(beta-clos) $(alpha-clos)
+bibstyles           = $(dist-bibstyles) $(alpha-bibstyles)
+bibstyles.clean     = $(addsuffix .clean, $(bibstyles-bst))
+bibstyles.dev.clean = $(addsuffix .dev.clean, $(bibstyles-bst))
+bibstyles.macros    = $(addsuffix .macros, $(bibstyles-bst))
+bibstyles.macros.q  = $(addsuffix .macros.q, $(bibstyles-bst))
+bibstyles.install   = $(addsuffix .install, $(bibstyles-bst))
+bibstyles.bst.install= $(addsuffix .bst.install, $(bibstyles-bst))
+bibstyles.bsq.install= $(addsuffix .bsq.install, $(bibstyles-bst))
+bibstyles.install.q = $(addsuffix .install.q, $(bibstyles-bst))
+bibstyles.doc.install = $(addsuffix .doc.install, $(bibstyles-bst))
+bibstyles.src.install = $(addsuffix .src.install, $(bibstyles-bst))
+configs             = $(stable-configs) $(beta-configs) $(alpha-configs)
+
+# $(filesets-*) are NOT going to include $(bibstyles), but rather
+# $(bibstyles-bst).  This is what we want.
+filesets.macros      = $(addsuffix .macros, $(filesets))
+filesets.macros.q    = $(addsuffix .macros.q, $(filesets))
+filesets.q           = $(addsuffix .q, $(filesets))
+filesets.dep         = $(addsuffix .dep, $(filesets))
+filesets.dep.q       = $(addsuffix .dep.q, $(filesets))
+filesets.dep.macros  = $(addsuffix .dep.macros, $(filesets))
+filesets.dep.macros.q= $(addsuffix .dep.macros.q, $(filesets))
+filesets.dep.install = $(addsuffix .dep.install, $(filesets))
+filesets.dep.install.q= $(addsuffix .dep.install.q, $(filesets))
+filesets.cfg         = $(addsuffix .cfg, $(filesets))
+filesets.cfg.install = $(addsuffix .cfg.install, $(filesets))
+filesets.cfq         = $(addsuffix .cfq, $(filesets))
+filesets.cfq.install = $(addsuffix .cfq.install, $(filesets))
+filesets.install     = $(addsuffix .install, $(filesets))
+filesets.install.q   = $(addsuffix .install.q, $(filesets))
+filesets.doc         = $(addsuffix .doc, $(filesets))
+filesets.doc.install = $(addsuffix .doc.install, $(filesets))
+filesets.src.install = $(addsuffix .src.install, $(filesets))
+filesets.clean       = $(addsuffix .clean, $(filesets))
+filesets.dev.clean   = $(addsuffix .dev.clean, $(filesets))
+dist-filesets.clean  = $(addsuffix .clean, $(dist-filesets))
+dist-filesets.q      = $(addsuffix .q, $(dist-filesets))
+dist-filesets.macros = $(addsuffix .macros, $(dist-filesets))
+dist-filesets.macros.q=$(addsuffix .macros.q, $(dist-filesets))
+dist-filesets.install= $(addsuffix .install, $(dist-filesets))
+dist-filesets.install.q = $(addsuffix .install.q, $(dist-filesets))
+stable-filesets      = $(stable-packages) $(stable-classes) \
+		       $(stable-bibstyles-bst)
+beta-filesets        = $(beta-packages) $(beta-classes) $(beta-bibstyles-bst)
+alpha-filesets       = $(filter-out $(dist-filesets), $(filesets))
+
+#
+## perc variables
+#
+
+# NOTE: This is some pretty backhanded Makefile programming. Doing things this
+# way avoids recursive invocations of Make.  We still have to recurse to make
+# stos and clos because we cannot expand variable names with % in them in the
+# list of dependencies.  This is unlikely to change in GNU Make.
+
+# "Perc" stands for "percent", that is, "%".  The perc variables are used in
+# dependencies and expand to what they name with "%" for "perc"; or they expand
+# to nothing, a null dependency.  The % if it's there will then get substituted
+# in the pattern rule.  We handle NODEP and NODOC differently than the NOSRC
+# and NOMAC flags because they need to avoid building files as well as
+# installing them and.  We could actually treat NOMAC the same way, because
+# right now NOMAC doesn't avoid building the macros, it just avoids installing
+# them.  But the only circumstance where this would save time is when you just
+# want to install the sources and no macros and no dox. That seems like too
+# weird a case to bother to accommodate.
+
+# Notice we still have to use conditionals like "[ $(NODEP) ] ||" in rules
+# because NODEP might be set by a target-specific assignment, and therefore
+# these conditionals won't work.  In those cases, we can't avoid building
+# dependencies, but those cases are exactly the ones where all the dependencies
+# are built anyway (e.g., "all:").  For NODOC, NOSRC, and NOMAC, we can use
+# ifeq constructions, which are determined when the Makefile is read in.
+ifeq ($(NODEP),)
+  perc.dep               = %.dep
+  perc.dep.q             = %.dep.q
+  perc.dep.macros        = %.dep.macros
+  perc.dep.macros.q      = %.dep.macros.q
+  perc.dep.install       = %.dep.install
+  perc.dep.install.q     = %.dep.install.q
+else
+  perc.dep               = 
+  perc.dep.q             = 
+  perc.dep.macros        = 
+  perc.dep.macros.q      = 
+  perc.dep.install       = 
+  perc.dep.install.q     = 
+endif
+ifeq ($(NODOC),)
+  perc.doc               = %.doc
+  perc.doc.install       = %.doc.install
+else
+  perc.doc               =
+  perc.doc.install       =
+endif
+
+#
+## definitions
+#
+
+# ROOT-NAME is the stem of the macro package, e.g., "foo" from
+# foo.{sty,cls,bst}
+
+ifeq ($(USER),$(DEVELOPER))
+define transform-common
+	             -e 's/__ROOT-NAME__/$*/g' \
+                     -e 's/__BUNDLE__/$(bundle-title)/g' \
+                     -e 's/__BUNDLE-BIB__/$(bundle-bib)/g'
+endef
+define transform-cls
+	$(SED)          $(transform-common) \
+		     -e 's/__POSTAMBLE__//g' \
+		     -e 's/__NAME__/$*/g' \
+	             -e 's/__SUFFIX__/cls/g'  \
+	             -e 's/__VERSION-INFO-SUFFIX__/cls/g'  \
+		     -e 's/__QSUFFIX__/clq/g' \
+		     -e 's/__OSUFFIX__/clo/g' \
+		     -e 's/__TYPE__/LaTeX class/g'  \
+		     -e 's/__PROG__/LaTeX/g'  \
+                     -e 's/__PROVIDES__/Class/g'
+endef
+define transform-sty
+	$(SED)          $(transform-common) \
+		     -e 's/__POSTAMBLE__//g' \
+		     -e 's/__NAME__/$*/g' \
+	             -e 's/__SUFFIX__/sty/g'  \
+	             -e 's/__VERSION-INFO-SUFFIX__/sty/g'  \
+		     -e 's/__QSUFFIX__/stq/g' \
+		     -e 's/__OSUFFIX__/sto/g' \
+		     -e 's/__TYPE__/LaTeX package/g'  \
+		     -e 's/__PROG__/LaTeX/g'  \
+                     -e 's/__PROVIDES__/Package/g'
+endef
+define transform-bst
+	$(SED)          $(transform-common) \
+		     -e 's/__POSTAMBLE__/\\nopostamble/g' \
+		     -e 's/__NAME__/$*-bst/g' \
+	             -e 's/__SUFFIX__/bst/g'  \
+	             -e 's/__VERSION-INFO-SUFFIX__/ver/g'  \
+		     -e 's/__QSUFFIX__/bsq/g' \
+		     -e 's/__TYPE__/BibTeX style/g'  \
+		     -e 's/__PROG__/BibTeX/g'  \
+                     -e 's/__PROVIDES__/BibTeXstyle/g'
+endef
+endif # user ?= developer
+
+
+ifneq ($(HAVE_WEB2C),)
+
+# install-lsr   = ./install-lsr --add
+# install-plain = ./install-lsr
+
+install-lsr   = $(install-lsr-internal) --add
+install-plain = $(install-lsr-internal)
+
+# Usage: 
+# 
+# $progname [--add] <file> [<file>...] <dir> | <file> <file-full-pathname>
+# 
+# This emulates install(1) with two differences.
+# If --add is given, also add the files to web2c ls-R database.
+# If the source file has execute permission, the destination will be given
+# u+x. 
+
+define install-lsr-internal
+	function mbuna () { \
+	  if [ "$$1" = "--add" ]; then \
+	    addlsr=true; \
+	    shift; \
+	  else \
+	    unset addlsr; \
+	  fi; \
+	  if [ $$addlsr ]; then \
+	    : $${MT_TEXMFMAIN=$$(kpsewhich --expand-path='$$TEXMFMAIN')}; \
+	    : $${MT_MKTEX_OPT=$$(kpsewhich --format='web2c files' mktex.opt)};\
+	    test -n "$$MT_MKTEX_OPT" || \
+		MT_MKTEX_OPT="$$MT_TEXMFMAIN/web2c/mktex.opt"; \
+	    if [ ! -f "$$MT_MKTEX_OPT" ]; then \
+	      echo "Cannot find mktex.opt; check your installation."; \
+	      return 1; \
+	    fi; \
+	    mt_min_args=2; \
+	    mt_max_args=1000; \
+	    old=`pwd`; \
+	    source "$$MT_MKTEX_OPT"; \
+	    cd $$old; \
+	  fi; \
+	  lastarg=$$(eval echo '$$'{$$#}); \
+	  echo $(INSTALL) $(INSTALLOPTS) "$$@"; \
+	  if ! $(INSTALL) $(INSTALLOPTS) "$$@"; then \
+	    echo "Install failed."; \
+	    return 2; \
+	  fi; \
+	  if [ -d "$$lastarg" ]; then \
+	    until [ "$$1" = "$$lastarg" ]; do \
+	      if [ -x "$$1" ]; then \
+		echo -n adding user execute permission to $$lastarg/$$1...; \
+		$(CHMOD) u+x $$lastarg/$$1; \
+		echo .  Done.; \
+	      fi; \
+	      if [ $$addlsr ]; then \
+		echo -n adding $$lastarg/$$1 to the ls-R database...; \
+		if ! "$$MT_MKTEXUPD" "$$lastarg" "$$1"; then \
+		  echo "Problem updating the ls-R database."; \
+		  return 3; \
+		fi; \
+		echo .  Done.; \
+	      fi; \
+	      shift; \
+	    done; \
+	  else \
+	    if [ $$# -ne 2 ]; then \
+	      echo "Malformed arguments."; \
+	      return 4; \
+	    fi; \
+	    if [ -x "$$1" ]; then \
+	      echo -n adding user execute permission to $$2...; \
+	      $(CHMOD) u+x $$2; \
+	      echo .  Done.; \
+	    fi; \
+	    if [ $$addlsr ]; then \
+	      dir=`$(DIRNAME) $$lastarg`; \
+	      file=`$(BASENAME) $$lastarg`; \
+	      echo -n adding $$dir/$$file to the ls-R database...; \
+	      if ! "$$MT_MKTEXUPD" $$dir $$file; then \
+		echo "Problem updating  the ls-R database."; \
+		return 5; \
+	      fi; \
+	      echo .  Done.; \
+	    fi; \
+	  fi; \
+	}; mbuna
+endef
+else
+
+# NOTE: this is going to fail if the dest is a directory that doesn't exist (it
+# will consider it a filename).  So, install-plain and install-lsr must never
+# be called with a dest directory that doesn't exist.
+
+# We define these as functions and echo a message to the user, because in
+# the web2c case we have to use a big function that we definitely want to
+# suppress with @.
+
+define install-lsr
+	function wicker () { \
+	  echo $(INSTALL) $(INSTALL-OPTS) "$$@"; \
+	  $(INSTALL) $(INSTALL-OPTS) "$$@"; \
+	}; wicker
+endef
+install-plain = $(install-lsr)
+endif
+
+# We check whether the file ACTUALLY has citations, and warn the developer if
+# he has failed to include an appropriate \def\initelyHavECitationS in the .dtx
+# file.
+#
+# There may be other or better ways to do the echoing and checking on the
+# bibtex process.  You want bibtex's output to go out with all the usual Make
+# output, but you also want to pipe it to fgrep.  Can use gawk and a rule of 
+# {print; print > "/dev/stderr"}.   I just don't think you can redirect stderr
+# to a pipe with sh like you can with csh.
+#
+# BibTeX doesn't put anything on stderr.
+#
+# args: <root-name> [<addindex-flag>]
+#
+# If <addindex-flag> is nonempty, then force inclusion of an index.
+#
+ifeq ($(USER),$(DEVELOPER))
+define checkdtx
+	if ! $(FGREP) -q '\def\initelyHavECitationS' $$root.dtx; then \
+	  echo $(DEVELOPER), PUT \\def\\initelyHavECitationS \{\} IN $$root.dtx\!;\
+	  $(RM) $$root.dvi; \
+	  return 1; \
+	fi
+endef
+else
+define checkdtx
+	:
+endef
+endif
+
+define latex-libll
+	function bozo () { \
+	  echo "Processing $$1 with LaTeX, BibTeX, & Makeindex as necessary.";\
+	  root=$$($(EXPR) $$1 : '\([^\.]*\)\(\.[A-z]\+\)\?'); \
+	  if [ $$2 ]; then \
+	    echo "Forcing an index."; \
+	    arg='\AtBeginDocument{\CodelineIndex\EnableCrossrefs} \
+		 \AtEndDocument{\clearpage\PrintIndex}\input{'$$1'}'; \
+	  else \
+	    arg="$$1"; \
+	  fi; \
+	  $(TOUCH) $$root.aux $$root.ind; \
+	  $(LATEX) $$arg; \
+	  if $(FGREP) -q '\citation{' $$root.aux; then \
+	    $(checkdtx); \
+	    if $(BIBTEX) $$root | $(TEE) /dev/stderr | $(FGREP) -q \
+		'Warning--I didn'\''t find a database entry for'; then \
+	      echo BIBTEX FAILED; \
+	      $(RM) $$root.dvi; \
+	      return 2; \
+	    fi; \
+	    $(LATEX) $$arg; \
+	  fi; \
+	  $(MAKEINDEX) $$root.idx; \
+	  $(LATEX) $$arg; \
+	}; bozo
+endef
+
+define make-this-if-nonempty
+	function bobo () { \
+	  unset turtle; \
+	  turtle="$$@"; \
+	  if [ "$$turtle" ]; then \
+	    echo "Starting recursive make on targets: $$turtle"; \
+	    $(MAKE) $$turtle; \
+	  else \
+	    true; \
+	  fi; \
+	}; bobo
+endef
+
+# args: <localfile> <remote-dir> <remote-file-basename>
+#
+# example:
+#   X.clq $(MACRODIR) X.cls
+# means "if the remote-file $(MACRODIR)/X.cls is NOT a quickmacro, then
+#        install X.clq as the remote-file."
+#
+# example:
+#   X.sty $(MACRODIR) X.sty
+# means "if the remote-file IS a quickmacro, then install X.sty as the
+# remote-file." 
+#
+# If arguments $1 and $3 are different, we are installing a quickmacro,
+# otherwise we are installing a regular macro.  To get the name of the
+# quickmacro version when we are installing a regular version, we change the
+# last letter of the 3-letter extension to q.
+#
+# The file is ALWAYS installed if the remote-file is older than the local
+# file. 
+#
+define maybe-install-macro
+	function pliers () { \
+	  installp=true; \
+	  if [ "$$1" = "$$3" ]; then \
+	    quickp=; \
+	  else \
+	    quickp=true; \
+	  fi; \
+	  if [ -e $$2/$$3 ]; then \
+	    if [ $$1 -nt $$2/$$3 ]; then \
+	      echo "File $$1 is newer than $$2/$$3; installing $$1.";\
+	    elif [ $$quickp ]; then \
+	      if ! $(HEAD) -2 $$2/$$3 \
+		  | $(GREP) -q '^%% This is file '\`$$1\'',$$'; then \
+		echo "File $$2/$$3 is not a quickmacro; installing $$1."; \
+	      else \
+		echo "Quickfile $$2/$$3 is up to date; not installing $$1.";\
+		installp=; \
+	      fi; \
+	    else \
+	      if $(HEAD) -2 $$2/$$3 | $(GREP) -q \
+		  '^%% This is file '\`"$$($(EXPR) $$1 : '\(.\+\.[A-z][A-z]\)[A-z]')q"\'',$$'; then\
+	        echo "File $$2/$$3 is a quickmacro; installing $$1."; \
+	      else \
+		echo "File $$2/$$3 is up to date; not installing $$1.";\
+		installp=; \
+	      fi; \
+	    fi; \
+	  else \
+	    echo "File $$2/$$3 does not exist; installing $$1."; \
+	  fi; \
+	  if [ $$installp ]; then \
+	    test -d $$2 || $(MKDIRP) $$2; \
+	    $(install-lsr) $$1 $$2/$$3; \
+	  fi; \
+	}; pliers
+endef
+
+#
+## help target (the default)
+#
+
+.PHONY: default help
+default help:
+	@echo ;\
+	echo -----------------------;\
+	echo The $(bundle-title) bundle;\
+	echo -----------------------;\
+	echo ;\
+	echo A \"fileset\" is a LaTeX package, LaTeX class, or BibTeX;\
+	echo bibliography style together with its supporting files.;\
+	echo ;\
+	echo The $(bundle-title) bundle contains the following stable, supported filesets:;\
+	echo ;\
+	echo "  $(sort $(stable-filesets))";\
+	echo
+ifneq ($(beta-filesets),)
+	@echo and the following beta, unsupported filesets:;\
+	echo ;\
+	echo "  $(sort $(beta-filesets))";\
+	echo ;\
+	echo The unsupported filesets are in the \"unsupported\" subdirectory.;\
+	echo You must copy them to the main directory and set a variable in; \
+	echo $(calling-makefile) before make can operate properly on them.; \
+	echo
+endif
+	@echo Destinations for installed files may be set in the file \"$(calling-makefile)\".;\
+	echo They are currently:;\
+	echo ;\
+	echo "  LaTeX macros go into       $(MACRODIR)";\
+	echo "  LaTeX config files go into $(CONFIGDIR)";\
+	echo "  BibTeX macros go into      $(BIBDIR)";\
+	echo "  LaTeX DVI dox go into      $(MDVIDIR)";\
+	echo "  BibTeX DVI dox go into     $(BDVIDIR)";\
+	echo "  Sources go into            $(SRCDIR)";\
+	echo
+ifdef HAVE_WEB2C
+	@echo I think your TeX installation is based on web2c.;\
+	echo If this is wrong, change the setting in the file \"$(calling-makefile)\".
+else
+	@echo I think your TeX installation is NOT based on web2c.;\
+	echo If this is wrong, change the setting in the file \"$(calling-makefile)\".;\
+	echo Installation will be easier if you make this change.
+endif
+	@echo ;\
+	echo ------------------------;\
+	echo Targets for the end user;\
+	echo ------------------------;\
+	echo ;\
+	echo For each fileset X, there are the following targets:;\
+	echo ;\
+	echo "  X           means make X's documentation and macros";\
+	echo "  X.q         means make X's documentation and quick macros";\
+	echo "  X.install   means install X's documentation, sources, and macros";\
+	echo "  X.install.q means install X's documentation and sources and create";\
+	echo "                    and install X's quick macros.";\
+	echo "  X.clean     means delete X's non-distributed files";\
+	echo ;\
+	echo There are also the following general targets:;\
+	echo ;\
+	echo "  all         means do X for all X's.";\
+	echo "  all.q       means do X.q for all X's.";\
+	echo "  install     means do X.install for all X's.";\
+	echo "  install.q   means do X.install.q for all X's.";\
+	echo "  clean       means do X.clean for all X's";\
+	echo ;\
+	echo "  help        means display this help.";\
+	echo ;\
+	echo All individual files \(e.g., X.dvi, X.ins, X.clq\) are also valid targets.;\
+	echo ;\
+	echo To avoid installing certain components, set the following variables;\
+	echo in the environment or on the Make command line to something nonempty:;\
+	echo ;\
+	echo "  \$$NOMAC nonempty means do not install macro files";\
+	echo "  \$$NOSRC nonempty means do not install source files";\
+	echo "  \$$NODOC nonempty means do not build or install documentation files";\
+	echo "  \$$NODEP nonempty means do not consider fileset-fileset-dependencies";\
+	echo ;\
+	echo \$$NODEP is automatically set for the general targets.;\
+	echo ;\
+	echo Quick \(\"q\"\) macros are functionally identical to normal macros;\
+	echo but are stripped of comments and are therefore processed faster.;\
+	echo ;\
+	echo Invoking Make with the \"-s\" option will give you briefer output.;\
+	echo ;\
+	echo Example:  % make -s NODOC=t install.q;\
+	echo
+ifeq ($(USER),$(DEVELOPER))
+	@echo ------------------------------------------; \
+	echo Targets for the you, the developer \($(DEVELOPER)\); \
+	echo ------------------------------------------; \
+	echo
+ifneq ($(alpha-filesets),)
+	@echo Collective targets build both undistributed and distributed filesets.;\
+	echo Undistributed filesets are:;\
+	echo ;\
+	echo "  $(sort $(alpha-filesets))";\
+	echo
+endif
+	@echo Developer targets include the end user targets above plus, for each fileset X:;\
+	echo ;\
+	echo "  X.dev.clean      means delete X"\'"s non-regeneratable files";\
+	echo ;\
+	echo There are also the following general targets:;\
+	echo ;\
+	echo "  dev.clean        means do X.dev.clean for all X's";\
+	echo ;\
+	echo "  distrib" ;\
+	echo "  ctan             means make an archive of the distribution files";\
+	echo "  ctan.clean       means delete the archive and its auxiliary tree";\
+	echo "  install.clean    means delete all files that could have been installed.";\
+	echo ;\
+	echo "  all.clean        means do dev.clean ctan.clean install.clean";\
+	echo "  fresh            means do dev.clean all.q ctan";\
+	echo
+endif
+
+#
+## select from multiple bundle licenses
+#
+
+# $(bundle-license) is e.g. GPL or LPPL
+
+# Use the convention that if foo.ext is license-dependent, assemble it by
+# inserting file foo-$(bundle-license).txt into foo.txt where the directive
+# __INCLUDE_LICENSE__ appears.  Other licenses and files may require a
+# different scheme.
+
+license-dependent-files = $(part-1) $(extractor) $(driver)
+
+# NOTE: these files are assumed to be generated and will be deleted by dev.clean
+.PHONY: license-dependent-files.clean
+license-dependent-files.clean:
+	$(RM) $(license-dependent-files)
+
+# The following rule should work, but does not because $(basename ...) is not
+# doing anything to its argument.  But in make 3.79 reported to Debian 01-08-30.
+#
+# NOTE: this should work with the files having an initial directory part since
+#       m4 should work from the pwd but this aspect might need tweaking.
+#$(license-dependent-files): %: $(basename %).txt $(basename %)-$(bundle-license).txt
+#	$(M4) --define=__INCLUDE_LICENSE__="include($(word 2, $^))m4exit(0)" $< > $@
+
+# Workaround:  be explicit:
+
+$(license-dependent-files):  $(makefiles)
+
+# Things in the source file (especially $(part-1)) are going to look like quotes
+# to m4 and confuse it, so we disable the quoting mechanism and rely on the
+# uniqueness of our string.
+# Make sure you put "-" for stdin as the first input file.
+M4-nq = echo 'changequote(,)dnl' | $(M4)
+$(make-dir)/part-1.dtx:  $(make-dir)/part-1.txt $(make-dir)/part-1-$(bundle-license).txt
+	$(M4-nq) --define=__INCLUDE_LICENSE__="include($(make-dir)/part-1-$(bundle-license).txt)dnl" - $< > $@
+
+$(make-dir)/extractor.ins:  $(make-dir)/extractor.txt $(make-dir)/extractor-$(bundle-license).txt
+	$(M4-nq) --define=__INCLUDE_LICENSE__="include($(make-dir)/extractor-$(bundle-license).txt)dnl" - $< > $@
+
+$(make-dir)/driver.tex:  $(make-dir)/driver.txt $(make-dir)/driver-$(bundle-license).txt
+	$(M4-nq) --define=__INCLUDE_LICENSE__="include($(make-dir)/driver-$(bundle-license).txt)dnl" - $< > $@
+
+#
+## user/developer file targets
+#
+
+$(packages.stq): %.stq: %.ins %.sty
+	@echo "Building $@."
+	$(TEX) $<
+
+# FIX: sqo not implemented yet; same as sto for now.
+$(stos.sqo): %.sqo: %.sto
+	@echo "Building $@."
+	$(TOUCH) $@
+
+$(classes.clq): %.clq: %.ins %.cls
+	@echo "Building $@."
+	$(TEX) $<
+
+# FIX: cqo not implemented yet; same as clo for now.
+$(clos.cqo): %.cqo: %.clo
+	@echo "Building $@."
+	$(TOUCH) $@
+
+# FIX: cfq not implemented yet; same as cfg for now.
+$(configs.cfq): %.cfq: %.cfg
+	@echo "Building $@."
+	$(TOUCH) $@
+# $(configs.cfq): %.cfq: %.ins %.cfg
+# 	$(TEX) $<
+
+$(bibstyles.bsq): %.bsq: %-bst.ins %.bst
+	@echo "Building $@."
+	$(TEX) $<
+
+# dependencies common to all filesets.dvi
+$(filesets.dvi): $(dox-requirements) $(bundle-bib.bib)
+
+# NOTE: The targets listed here are X.dvi for each X which has an X.cfg.  The
+# DVI dox need to be remade when X.cfg changes, so we add a extra-dependency
+# rule here for that.
+$(addsuffix .dvi, $(configs)): %.dvi: %.cfg
+
+$(packages.dvi): %.dvi: %.tex %.sty
+	@echo "Building $@."
+	@$(latex-libll) $*
+
+$(classes.dvi): %.dvi: %.tex %.cls
+	@echo "Building $@."
+	@$(latex-libll) $*
+
+$(bibstyles.dvi): %-bst.dvi: %-bst.tex %.bst %-bst.ver
+	@echo "Building $@."
+	@$(latex-libll) $*-bst
+
+#
+## user/developer phony declarations, target-specific vars, etc.
+#
+
+.PHONY: install install.q \
+	all all.q \
+	clean dev.clean install.clean fresh \
+	$(filesets) $(filesets.q) \
+	$(filesets.macros) $(filesets.macros.q) \
+	$(filesets.dep) $(filesets.dep.q) \
+	$(filesets.dep.macros) $(filesets.dep.macros.q) \
+	$(filesets.doc) \
+	$(filesets.clean) $(filesets.dev.clean)
+
+
+# We get to exercise a lot of the features of Make in this file!  Below are
+# some target-specific variable values.  When we're building these targets,
+# there is no need to consider fileset-fileset-dependencies, since all filesets
+# are being built.  By not considering them, we make things much more
+# efficient.
+#
+# NOTE: target-specific variables are locally set for the COMMANDS of the
+# target and the COMMANDS of all its dependencies, and NOT in the dependency
+# lists of any of those targets.
+all all.q install install.q: NODEP = true
+
+# Targets declared intermediate will not be remade simply because they do not
+# exist and are an intermediate stage on the way to the requested file.  If
+# intermediate targets existed before the make, they will be kept around, and
+# will be removed if not.  This way we can have a "clean:" development
+# directory without making Make any less efficient.  Secondary files are like
+# intermediate files, but are not deleted even when they didn't exist before
+# the make.  We want the intermediate files that are going to go into the
+# distribution to be declared secondary so they remain around even when they
+# aren't needed by the target called at the time.
+.INTERMEDIATE:  $(filesets.t1) $(filesets.t2) $(filesets.t3) \
+		$(filter-out $(dist-filesets-cits.aux), $(filesets.aux))
+.SECONDARY:     $(filesets.tex) $(filesets.ins) \
+		$(packages.sty) $(classes.cls) \
+		$(bibstyles.bst) $(bibstyles.ver) \
+		$(dist-filesets-cits.aux)
+
+# If Make encounters an error while building a file, the file is probably
+# corrupt, but in many cases it is up to date, so we must delete it to ensure
+# that Make doesn't think it is OK.
+.DELETE_ON_ERROR:
+
+#
+## user/developer phony targets
+#
+
+# don't assume that building dox automatically builds macros
+
+$(filesets): %: %.macros $(perc.doc) $(perc.dep)
+$(filesets.q): %.q: %.macros.q $(perc.doc) $(perc.dep.q)
+
+# These are extra dependencies.
+$(filesets.macros): %.macros: $(perc.dep.macros)
+$(filesets.macros.q): %.macros.q: $(perc.dep.macros.q)
+
+$(packages.macros): %.macros: %.sty $(perc.dep.macros)
+$(packages.macros.q): %.macros.q: %.stq $(perc.dep.macros.q)
+	@$(make-this-if-nonempty) $(addsuffix .sqo, $($*-stos))
+
+$(classes.macros): %.macros: %.cls $(perc.dep.macros)
+$(classes.macros.q): %.macros.q: %.clq $(perc.dep.macros.q)
+	@$(make-this-if-nonempty) $(addsuffix .cqo, $($*-clos))
+
+$(bibstyles.macros): %-bst.macros: %.bst $(perc.dep.macros)
+$(bibstyles.macros.q): %-bst.macros.q: %.bsq $(perc.dep.macros.q)
+
+$(filesets.dep): %.dep:
+	@[ $(NODEP) ] || \
+		{ $(make-this-if-nonempty) $($*-deps); }
+$(filesets.dep.q): %.dep.q:
+	@[ $(NODEP) ] || \
+		{ $(make-this-if-nonempty) $(addsuffix .q, $($*-deps)); }
+$(filesets.dep.macros): %.dep.macros:
+	@[ $(NODEP) ] || \
+		{ $(make-this-if-nonempty) $(addsuffix .macros, $($*-deps)); }
+$(filesets.dep.macros.q): %.dep.macros.q:
+	@[ $(NODEP) ] || \
+	       { $(make-this-if-nonempty) $(addsuffix .macros.q, $($*-deps)); }
+
+# This would be changed if there were additional forms of documentation.
+# filesets are only called by user with .install or .install.q.
+# For developer, only filesets.macros and filesets.macros.q call %.doc.
+# So until there are other forms of dox, we just need to build %.dvi.
+$(filesets.doc): %.doc: %.dvi
+
+# $(findstring) isn't good enough here, it doesn't look for word boundaries, so
+# you have a problem when any fileset name is a subset of another one.
+
+# GNU expr 1.16 seems broken in that it can't deal with [ $] or [ ^] I can't
+# figure what's up.  So we insert an extra space at beginning and end in case
+# our string is at the beginning or end of nondc-filesets.
+$(packages.clean):  %.clean:
+	$(RM)  $*.{log,ilg,idx,ind,toc,vrb,stq,cfq,bbl,blg,t1,t2,t3} \
+	       $(addsuffix .sqo, $($*-stos))
+	@auxp=`$(EXPR) " $(nondc-filesets) " : '.* \($*\) '`; \
+	if [ $$auxp ]; then \
+		echo rm -f $$auxp.aux; \
+		$(RM) $$auxp.aux; \
+	fi
+$(classes.clean): %.clean:
+	$(RM)  $*.{log,ilg,idx,ind,toc,vrb,cfq,,clq,bbl,blg,t1,t2,t3} \
+	       $(addsuffix .cqo, $($*-clos))
+	@auxp=`$(EXPR) " $(nondc-filesets) " : '.* \($*\) '`; \
+	if [ $$auxp ]; then \
+		echo rm -f $$auxp.aux; \
+		$(RM) $$auxp.aux; \
+	fi
+$(bibstyles.clean): %-bst.clean:
+	$(RM)  $*-bst.{log,ilg,idx,ind,toc,vrb,bbl,blg,t1,t2,t3} $*.bsq
+	@auxp=`$(EXPR) " $(nondc-filesets) " : '.* \($*-bst\) '`; \
+	if [ $$auxp ]; then \
+		echo rm -f $$auxp.aux; \
+		$(RM) $$auxp.aux; \
+	fi
+
+#
+## user/developer *.install* targets (both phony and file)
+#
+###   phony declarations and install targets
+
+.PHONY: $(filesets.install) \
+	$(filesets.install.q) \
+	$(filesets.dep.install) \
+	$(filesets.dep.install.q) \
+	$(filesets.cfg.install) \
+	$(filesets.cfq.install) \
+	$(filesets.doc.install) \
+	$(filesets.src.install) \
+	$(packages.sty.install) \
+	$(packages.stq.install) \
+	$(packages.sto.install) \
+	$(packages.sqo.install) \
+	$(classes.cls.install) \
+	$(classes.clq.install) \
+	$(classes.clo.install) \
+	$(classes.cqo.install) \
+	$(bibstyles.bst.install) \
+	$(bibstyles.bsq.install)
+
+# setting NOMAC will prevent macros from being installed
+# setting NOSRC will prevent sources from being installed
+# setting NODOC will prevent documentation from being built and installed
+# setting NODEP will inhibit consideration of fileset-fileset-dependencies
+###   X.install
+
+$(packages.install): %.install: %.sty.install %.sto.install %.cfg.install \
+				%.src.install $(perc.doc.install) \
+				$(perc.dep.install)
+
+$(classes.install): %.install: %.cls.install %.clo.install %.cfg.install \
+			       %.src.install $(perc.doc.install) \
+			       $(perc.dep.install)
+$(bibstyles.install): %.install: %.bst.install %.src.install \
+				 $(perc.doc.install) $(perc.dep.install)
+###   X.install.q
+
+$(packages.install.q): %.install.q: %.stq.install %.sqo.install \
+				    %.cfq.install %.src.install \
+				    $(perc.doc.install) $(perc.dep.install.q)
+
+$(classes.install.q): %.install.q: %.clq.install %.cqo.install \
+				   %.cfq.install %.src.install \
+				   $(perc.doc.install) $(perc.dep.install.q)
+$(bibstyles.install.q): %.install.q: %.bsq.install %.src.install \
+				     $(perc.doc.install) $(perc.dep.install.q)
+###   macros
+
+$(packages.sty.install) \
+$(classes.cls.install): %.install: %
+ifeq ($(NOMAC),)
+	@$(maybe-install-macro) $< $(MACRODIR) $<
+endif
+$(bibstyles.bst.install): %-bst.bst.install: %.bst
+ifeq ($(NOMAC),)
+	@$(maybe-install-macro) $< $(BIBDIR) $<
+endif
+###   quickmacros
+
+$(packages.stq.install): %.stq.install: %.stq
+ifeq ($(NOMAC),)
+	@$(maybe-install-macro) $< $(MACRODIR) $*.sty
+endif
+$(classes.clq.install): %.clq.install: %.clq
+ifeq ($(NOMAC),)
+	@$(maybe-install-macro) $< $(MACRODIR) $*.cls
+endif
+$(bibstyles.bsq.install): %-bst.bsq.install: %.bsq
+ifeq ($(NOMAC),)
+	@$(maybe-install-macro) $< $(BIBDIR) $*.bst
+endif
+###   deps
+
+$(filesets.dep.install): %.dep.install:
+	@[ $(NODEP) ] || \
+	  { $(make-this-if-nonempty) $(addsuffix .install, $($*-deps)); }
+$(filesets.dep.install.q): %.dep.install.q: 
+	@[ $(NODEP) ] || \
+	  { $(make-this-if-nonempty) $(addsuffix .install.q, $($*-deps)); }
+###   option files
+
+# Should technically depend on $(%-stos) but that is not a legal idea.
+$(packages.sto.install): %.sto.install:
+ifeq ($(NOMAC),)
+	@$(foreach x, $($*-stos), \
+		$(maybe-install-macro) $(x).sto $(MACRODIR) $(x).sto;)
+endif
+
+# FIX: sqo not implemented yet, same as sto
+$(packages.sqo.install): %.sqo.install: %.sto.install
+
+# Should technically depend on $(%-clos) but that is not a legal idea.
+$(classes.clo.install): %.clo.install:
+ifeq ($(NOMAC),)
+	@$(foreach x, $($*-clos), \
+		$(maybe-install-macro) $(x).clo $(MACRODIR) $(x).clo;)
+endif
+# FIX: cqo not implemented yet, same as clo
+$(classes.cqo.install): %.cqo.install: %.clo.install
+###   dox
+
+# NOTE: If there were ever additional (i.e. non-DVI) formats, this would be a
+# rule that depended on %.doc.dvi.install $.doc.foo.install, etc.
+$(packages.doc.install) \
+$(classes.doc.install): %.doc.install: $(MDVIDIR)/%.dvi
+$(addprefix $(MDVIDIR)/, $(packages.dvi) $(classes.dvi)): $(MDVIDIR)/%: %
+ifeq ($(NODOC),)
+	test -d $(MDVIDIR) || $(MKDIRP) $(MDVIDIR)
+	@$(install-lsr) $< $(MDVIDIR)
+endif
+
+$(bibstyles.doc.install): %.doc.install: $(BDVIDIR)/%.dvi
+$(addprefix $(BDVIDIR)/, $(bibstyles.dvi)): $(BDVIDIR)/%: %
+ifeq ($(NODOC),)
+	test -d $(BDVIDIR) || $(MKDIRP) $(BDVIDIR)
+	@$(install-lsr) $< $(BDVIDIR)
+endif
+###   sources
+
+$(addprefix $(SRCDIR)/, $(filesets.ins) $(filesets.tex) \
+		$(bibstyles.ver) $(dist-extra-files)): $(SRCDIR)/%: %
+ifeq ($(NOSRC),)
+	test -d $(SRCDIR) || $(MKDIRP) $(SRCDIR)
+	@$(install-lsr) $< $(SRCDIR)
+endif
+
+$(packages.src.install) \
+$(classes.src.install): %.src.install: \
+	$(addprefix $(SRCDIR)/, %.ins %.tex $(dist-extra-files))
+
+$(bibstyles.src.install): %.src.install: \
+	$(addprefix $(SRCDIR)/, %.ins %.tex %.ver $(dist-extra-files))
+###   configs
+
+$(configs.cfg.install): %.install: $(CONFIGDIR)/%
+
+$(addprefix $(CONFIGDIR)/, $(configs.cfg)): $(CONFIGDIR)/%: %
+ifeq ($(NOMAC),)
+	test -d $(CONFIGDIR) || $(MKDIRP) $(CONFIGDIR)
+	@$(install-lsr) $< $(CONFIGDIR)
+endif
+
+# NOTE: X.cfg.install and X.cfq.install when there is no X.cfg is an empty
+# rule.  We do this so we can simply list those things as dependencies without
+# having to know whether an X.cfg exists for that X.
+$(filter-out $(configs.cfg.install), $(filesets.cfg.install)) \
+$(filter-out $(configs.cfq.install), $(filesets.cfq.install)):
+
+# FIX: cfq not implemented, is same as cfg
+$(configs.cfq.install): %.cfq.install: %.cfg.install
+
+#
+## user phony declarations and targets
+#
+
+ifneq ($(USER),$(DEVELOPER))
+
+# For the end user, 'install' and 'install.q' targets are limited to
+# distributed filesets.
+all: $(dist-filesets)
+all.q: $(dist-filesets.q)
+install: $(dist-filesets.install)
+install.q: $(dist-filesets.install.q)
+
+# *.clean leaves only what is distributed
+clean: $(dist-filesets.clean)
+
+#
+## developer phony declarations and targets
+#
+else  
+
+all: $(filesets)
+all.q: $(filesets.q)
+install: $(filesets.install)
+install.q: $(filesets.install.q)
+
+# *.clean leaves only what is distributed
+clean: $(filesets.clean)
+
+# *.dev.clean leaves only what cannot be regenerated
+dev.clean: $(filesets.dev.clean) license-dependent-files.clean bundle-bib.clean
+
+# Not all .aux files are removed by X.clean.
+$(packages.dev.clean) \
+$(classes.dev.clean): %.dev.clean: %.clean
+	$(RM) $*.{dvi,tex,ins,sty,cls,aux}
+$(bibstyles.dev.clean): %-bst.dev.clean: %-bst.clean
+	$(RM) $*-bst.{ver,dvi,tex,ins,aux} $*.bst
+
+# NOTE Hmm, doesn't work as intended, because once dev.clean is made, it
+# assumes it doesn't have to remake clean (if you put clean before/after
+# ctan).... I don't think this should be true for PHONY targets.  Anyway, may
+# want to do "make clean" after "make fresh".
+
+# hmm, all.q is not made by all?  ctan is not made by either?
+
+fresh: dev.clean all.q ctan
+
+# FIX: also should remove the directories and their parents too, but only if
+# they're empty.
+install.clean:
+	$(RM) -r $(addprefix $(BIBDIR)/, $(bibstyles.bst)) \
+		 $(addprefix $(MACRODIR)/, \
+			$(packages.sty) $(classes.cls) \
+		        $(configs.cfg) \
+			$(stos.sto) $(clos.clo)) \
+		 $(addprefix $(SRCDIR)/, \
+			$(dist-extra-files) \
+                        $(filesets.tex) $(filesets.ins) \
+			$(bibstyles.ver)) \
+		 $(addprefix $(MDVIDIR)/, $(filesets.dvi)) \
+		 $(addprefix $(BDVIDIR)/, $(bibstyles.dvi))
+
+#
+## developer file targets
+#
+
+# this handles adding this dependency for all the rules in this section:
+$(parts) $(driver) $(extractor) \
+$(filesets.t1) $(filesets.t2) $(filesets.t3):  $(makefiles)
+
+$(packages.sty): %.sty: %.t1 %.t2 %.t3 $(parts)
+	@echo "Building $@."
+	$(CAT) $(part-1) $*.t1 $(part-2) $*.t2 $(part-3) $*.t3 \
+		| $(transform-sty) > $@
+
+$(classes.cls): %.cls: %.t1 %.t2 %.t3 $(parts)
+	@echo "Building $@."
+	$(CAT) $(part-1) $*.t1 $(part-2) $*.t2 $(part-3) $*.t3 \
+		| $(transform-cls) > $@
+
+# We want to get version control information and a command into the -bst.ver
+# file.  We read the .ver file specially when we build the -bst.dvi file.
+#
+# We quote curly braces in the awk regexps in case we are using gawk and
+# $POSIXLY_CORRECT is set in the environment so that we can't really do
+# anything about it.  It is this way when running subshells from Emacs
+# sometimes, in my experience.
+#
+# FIX: not sure we need transform-bst here.
+$(bibstyles.ver):  %-bst.ver: %.bst %-bst.t1 %-bst.t2 %-bst.t3 $(parts)
+	@echo "Building $@."
+	$(CAT) $(part-1) $*-bst.t1 $(part-2) $*-bst.t2 $(part-3) $*-bst.t3 \
+	  | $(transform-bst) \
+	  | $(AWK) '/^ %% \\def\\fileinfo/,/^ %% \\def\\docdate/ \
+			{ $$1 = ""; print } \
+			{ next }' \
+	  > $@
+	$(CAT) $(part-3) \
+	  | $(AWK) '/^\\makeatletter% A special comment to help create bst files/, \
+		    /^\}% A special comment to help create bst files/ \
+			{ print } \
+			{ next }' \
+		>> $@
+
+$(bibstyles.bst):  %.bst: %-bst.t1 %-bst.t2 %-bst.t3 $(parts)
+	@echo "Building $@."
+	$(CAT) $(part-1) $*-bst.t1 $(part-2) $*-bst.t2 $(part-3) $*-bst.t3 \
+	  | $(transform-bst) \
+          | $(AWK) '/^%  \\begin\{macro\}\{\\fileinfo\}/, \
+		    /^%    \\end\{macrocode\}\^\^A special comment to help create bst files/ \
+			{ next } \
+			{ print }' \
+	  > $@
+
+# bundle-bib may be undefined.  If bundle-bib is defined, master-bib.bib must
+# be defined and the file it names must exist.
+ifneq ($(bundle-bib),)
+$(bundle-bib.bib): $(master-bib.bib) $(makefiles)
+	$(SYMLINK) $(master-bib.bib) $@
+endif
+
+# t is for temporary
+
+# We quote curly braces in the awk regexps in case we are using gawk and
+# $POSIXLY_CORRECT is set in the environment so that we can't really do
+# anything about it.  It is this way when running subshells from Emacs
+# sometimes, in my experience.
+$(filesets.t1): %.t1: %.dtx
+	@echo "Building $@."
+	$(AWK) '/^% \\CheckSum\{[0-9]+\}/,/^% \\part\{Implementation\}/' $*.dtx > $@
+
+$(filesets.t2): %.t2: %.dtx
+	@echo "Building $@."
+	$(SED) -n '/^\\def\\fileinfo{.*}/,/^\\def\\docdate{.*}/p' $*.dtx > $@
+
+$(filesets.t3): %.t3: %.dtx
+	@echo "Building $@."
+	$(AWK) '/^% \\part\{Implementation\}/,/^% \\Finale/ \
+                    {if ($$0 !~ /^% \\part\{Implementation\}/) print}' $*.dtx \
+		| $(SED) '/^\\def\\fileinfo{.*}/,/^\\def\\docdate{.*}/d' > $@
+
+# transform-* defs require $* to be the root name
+$(packages.tex): %.tex: $(driver)
+	@echo "Building $@."
+	$(transform-sty) $(driver) > $@
+
+$(classes.tex): %.tex: $(driver)
+	@echo "Building $@."
+	$(transform-cls) $(driver) > $@
+
+$(bibstyles.tex): %-bst.tex: $(driver)
+	@echo "Building $@."
+	$(transform-bst) $(driver) > $@
+
+$(packages.ins): %.ins: $(extractor)
+	@echo "Building $@."
+	$(transform-sty) $(extractor) > $@
+
+$(classes.ins): %.ins: $(extractor)
+	@echo "Building $@."
+	$(transform-cls) $(extractor) > $@
+
+$(bibstyles.ins): %-bst.ins: $(extractor)
+	@echo "Building $@."
+	$(transform-bst) $(extractor) > $@
+
+Frankenfile: $(make-dir)/Frankenfile
+	$(SYMLINK) $< $@
+
+#
+## distribution archive: variables, definitions, phony and file targets
+#
+
+# NOTE this is all still within the developer-only conditional.
+
+stable-files =      $(stable-filesets.dvi) \
+		    $(stable-filesets.ins) \
+		    $(stable-filesets.tex) \
+		    $(stable-packages.sty) \
+		    $(stable-stos.sto) \
+		    $(stable-classes.cls) \
+		    $(stable-clos.clo) \
+		    $(stable-bibstyles.bst) \
+		    $(stable-bibstyles.ver) \
+	            $(stable-configs.cfg) \
+		    $(stable-extra-files)
+beta-files =        $(beta-filesets.dvi) \
+	            $(beta-filesets.ins) \
+	            $(beta-filesets.tex) \
+		    $(beta-packages.sty) \
+		    $(beta-stos.sto) \
+		    $(beta-classes.cls) \
+		    $(beta-clos.clo) \
+		    $(beta-bibstyles.bst) \
+		    $(beta-bibstyles.ver) \
+	            $(beta-configs.cfg) \
+                    $(beta-extra-files)
+
+# where we copy distributed files in order to archive them
+stable-archive-dir = $(distribution-dir)/$(stable-dir)
+beta-archive-dir   = $(distribution-dir)/$(beta-dir)
+
+stable-archive-files = $(addprefix $(stable-archive-dir)/, $(stable-files))
+beta-archive-files   = $(addprefix $(beta-archive-dir)/, $(beta-files))
+dist-archive-files   = $(stable-archive-files) $(beta-archive-files)
+
+.PHONY: ctan ctan.clean \
+	distrib distrib.clean \
+	all.clean
+
+ctan.clean distrib.clean:
+	$(RM) -r $(distribution-dir)
+
+all.clean: dev.clean distrib.clean install.clean
+
+# clean before building
+ctan distrib: distrib.clean $(stable-archive-dir) \
+	      $(beta-archive-dir) $(dist-archive-files)
+	$(TAR) -C $(distribution-dir) -c -z \
+		-f $(distribution-dir)/$(bundle-filename).tgz \
+		$(filter-out $(bundle-filename).tgz, \
+			     $(shell $(LS) $(distribution-dir)))
+
+$(stable-archive-dir) $(beta-archive-dir): $(makefiles)
+	$(MKDIRP) $@
+
+# target is all stable-archive-files except for the bundle-bib.bib if it exists
+$(filter-out $(stable-archive-dir)/$(bundle-bib.bib), \
+	$(stable-archive-files)): $(stable-archive-dir)/%: \
+		% $(stable-archive-dir)
+		@$(install-plain) $< $(stable-archive-dir)
+
+# rule for the bundle-bib.bib if it exists.
+ifneq ($(bundle-bib),)
+$(dist-filesets.aux): %.aux: %.dvi
+
+# bibtool -v verbose; -q suppress warnings (huge number of them); 
+#         -d don't include double entries
+#         -s sort (needed to identify double entries)
+#
+# We want to keep the modification time the same as the master-bib so that the
+# end user's Make process won't think it needs to remake all the dvi files.
+#
+# FIX: bibtool is having a problem getting the right crossreffed entries in
+# when dealing with the master-bib.  It did OK on a very short test bib I made.
+#
+# So we do a very patchy workaround:
+#   - first make the target normally; it will lack crossreffed entries.
+#   - combine the relevant .aux files into frankentemp.aux and change the
+#     \bibdata command to use the bundle-bib.dist database.
+#   - frankentemp.aux is nonempty or we wouldn't be doing this rule.
+#   - we process frankentemp.aux with bibtex and look at the output.
+#   - extract lines that say we've got a missing crossref.
+#   - remove the difficult apostrophe's from those lines, and save in
+#     frankentemp.1. 
+#   - frankentemp.1 will be empty if we have no missing crossrefs.  if it's
+#     empty, we're OK, so stop.
+#   - take the error lines about missing crossrefs and extract just the key.
+#   - frob each key K into the string "-X \'^K$\'" (without the enclosing
+#     double quotes).
+#   - combine all lines into one line.  now we have a series of one or more
+#     strings just described all concatenated on one line.  save this into
+#     frankentemp.2.  While combining them, the backslashes before the single
+#     quotes got used up.
+#   - feed this fabricated string to bibtool.  bibtool will extract each key's
+#     entry from bundle-bib.bib along with relevant string definitions, and put
+#     it on stdout.
+#   - append the output to bundle-bib.dist, making it complete.
+#   - clean up temp files.
+
+# FIX: we've got potential problems if any keys have regexp chars in them.
+
+.PHONY: bundle-bib.clean
+bundle-bib.clean:
+	$(RM) $(bundle-bib.bib) $(bundle-bib.bib).dist
+
+$(bundle-bib.bib).dist: $(bundle-bib.bib) $(dist-filesets-cits.aux)
+	$(BIBTOOL) -q -d -s $(addprefix -x , $(dist-filesets-cits.aux)) -o $@
+	$(CAT) $(dist-filesets-cits.aux) \
+	  | $(SED) 's/^\\bibdata{$(bundle-bib)}/\\bibdata{$(bundle-bib)\.bib\.dist}/' \
+	  > $(TMPDIR)/frankentemp.aux
+	$(BIBTEX) $(TMPDIR)/frankentemp \
+	  | $(GREP) '^refers to entry ".*", which doesn'\''t exist$$' \
+	  | $(SED) -e s/\'//g \
+	  > $(TMPDIR)/frankentemp.1; \
+	if [ -s $(TMPDIR)/frankentemp.1 ]; then \
+	  $(CAT) $(TMPDIR)/frankentemp.1 \
+	    | $(XARGS) -i $(EXPR) {} : 'refers to entry \(.*\), which doesn' \
+	    | $(XARGS) -i echo -X \\\'^'{}'\$$\\\' \
+	    | $(XARGS) \
+	    > $(TMPDIR)/frankentemp.2; \
+	  eval $$(echo $(BIBTOOL) -q $$($(CAT) $(TMPDIR)/frankentemp.2) \
+		  $<) \
+	    >> $@; \
+	fi; \
+	$(RM) $(TMPDIR)/frankentemp.{aux,1,2,bbl,blg}
+	$(TOUCH) -r $(master-bib.bib) $@
+
+$(stable-archive-dir)/$(bundle-bib.bib): $(bundle-bib.bib).dist \
+					 $(stable-archive-dir)
+	@$(install-plain) $< $(stable-archive-dir)/$(bundle-bib.bib)
+endif
+
+$(beta-archive-files): $(beta-archive-dir)/%: % $(beta-archive-dir)
+	@$(install-plain) $< $(beta-archive-dir)
+
+endif # developer-only
+
+#
+## Emacs file variables
+#
+# Local Variables:
+# mode: makefile
+# eval: (outline-minor-mode 1)
+# outline-regexp: "##+"
+# End:
