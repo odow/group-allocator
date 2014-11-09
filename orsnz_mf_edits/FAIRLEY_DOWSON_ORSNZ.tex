@@ -20,7 +20,7 @@
 \maketitle
 \pagestyle{empty} \thispagestyle{empty}
 \begin{abstract}
-Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course called `Managing a Business’. As part of this course, students are partitioned into groups of around twenty-five students and given a single week to solve a large engineering or business related problem. In order to make this partitioning equitable, the students should be partitioned in a way that makes the groups as similar as possible across several factors. These include the gender and ethnic make-up of each group, as well as the number of students from each engineering discipline and the academic performance of the students in each group. A mixed integer programme was formulated to solve this problem and implemented using Excel, SolverStudio and PuLP. The model was validated against data from the 2013 cohort, and shown to improve all metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 class into twenty-three groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
+Students in their final year of a Bachelor of Engineering at the University of Auckland are required to complete a course called \emph{Managing a Business}. As part of this course, students are partitioned into groups of around twenty-five students and given a single week to solve a large engineering or business related problem. In order to make this partitioning equitable, the students should be partitioned in a way that makes the groups as similar as possible across several factors. These include the gender and ethnic make-up of each group, as well as the number of students from each engineering discipline and the academic performance of the students in each group. A mixed integer programme was formulated to solve this problem and implemented using Excel, SolverStudio and PuLP. The model was validated against data from the 2013 cohort, and shown to improve all metrics. The Excel spreadsheet was given to the course organiser who used the model to partition the 571 students of the 2014 class into twenty-three groups. We believe this paper provides a good case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of practical optimisation solutions.
 
 \textbf{Key words:} Excel, PuLP, SolverStudio, partitioning students, equitable groups
 \end{abstract}
@@ -113,10 +113,10 @@ The objective function is to minimise a convex combination of the spread between
 \end{equation}
 
 \begin{equation} \label{minv}
-\frac{1}{M_g}\sum_{s \in S} x_{sg} [\gamma_s^2  - \hat{\mu}^2] \geq \sigma^2_{min} \qquad\mbox{$\forall g \in G$}
+\frac{1}{M_g}\sum_{s \in S} x_{sg} (\gamma_s  - \hat{\mu})^2 \geq \sigma^2_{min} \qquad\mbox{$\forall g \in G$}
 \end{equation}
 \begin{equation} \label{maxv}
-\frac{1}{M_g}\sum_{s \in S} x_{sg}[\gamma_s^2 - \hat{\mu}^2] \leq \sigma^2_{max} \qquad\mbox{$\forall g \in G$}
+\frac{1}{M_g}\sum_{s \in S} x_{sg}(\gamma_s - \hat{\mu})^2 \leq \sigma^2_{max} \qquad\mbox{$\forall g \in G$}
 \end{equation}
 
 
@@ -253,7 +253,7 @@ Similarly, Group-Allocator created groups with a larger minimum GPA variance (2.
 This improvement can also be seen visually in boxplots of the mean and variance of the GPAs of each group (Figure \ref{FIG:boxplots}). In both cases Group-Allocator has a smaller spread than the manual solution, resulting in more similar groups.
 
 \subsection{Discipline}
-When compared to the manual partitioning, the SGroup-Allocator partition performed better in six metrics and poorer in two metrics. The manual partitioning had a smaller maximum number of software students (12\% compared to 12.5\%) and a smaller maximum number of Mechatronics students (12.5\% compared to 16\%). 
+When compared to the manual partitioning, the Group-Allocator partition performed better in six metrics and poorer in two metrics. The manual partitioning had a smaller maximum number of software students (12\% compared to 12.5\%) and a smaller maximum number of Mechatronics students (12.5\% compared to 16\%). 
 
 In addition, there was one group in the manual partitioning with zero Engineering Science students. In the Group-Allocator solution there were at minimum 4\% Engineering Science students.
 
@@ -267,9 +267,9 @@ Group-Allocator generally produced both a higher minimum number of students and 
 \section{Discussion}
 The results indicate that both the manual method and Group-Allocator produced balanced groups, but Group-Allocator clearly performed better with regards to mean GPA and GPA variance. The results also indicate the difficulty in comparing two solutions, as there are many different factors to consider and a single number cannot encapsulate a meaningful measure of solution quality. It could be said that a solution just needs to be ``good enough'', and that it is possible to judge this by checking for any outliers in the factors considered. For example, a group with all one ethnicity would clearly not be part of a good solution. The manual method and Group-Allocator both produced good solutions, but Group-Allocator provides an important advantage, in that it is fully automatic and takes 120 seconds to find a solution compared to two days with the manual method.
 
-Group-Allocator improved almost all metrics than when compared to the manual solution, but it resulted in a poorer partitioning with respect to gender. The likely reason for this is that the course organiser placed more emphasis on balancing gender than other demographic factors. This could be overcome in future by changing the $\beta^K$ value. This small decrease in gender equity between groups is offset by the more even distributions of students by discipline and ethnicity.
+Group-Allocator improved almost all metrics than when compared to the manual solution, but it resulted in a poorer partitioning with respect to gender. The likely reason for this is that the course organiser placed more emphasis on balancing gender than other demographic factors. However, this could be overcome in future by changing the $\beta^K$ value. This small decrease in gender equity between groups is offset by the more even distributions of students by discipline and ethnicity.
 
-The model takes a long time to solve to optimality, and hence why a time limit is specified by the user. This is due to a variety of factors, but chiefly the large number of binary variables (number of students $\times$ number of groups). Although the CBC solver quickly (less than one minute) finds a good integer solution, it is unable to find an optimal solution. Other approaches, such as a set partitioning formulation, may improve the solution time and quality. However, given that students are unaware of the GPAs of other students in their groups, they are unlikely to perceive a small improvement in solution quality. It was for this reason, and the tight development timeframe, that other approaches were not investigated.
+The model takes a long time to solve to optimality, and hence why a time limit is specified by the user. This is due to a variety of factors, but chiefly the large number of binary variables (number of students $\times$ number of groups). Although the CBC solver quickly (less than one minute) finds a good integer solution, it is unable to find the optimal solution. Other approaches, such as a set partitioning formulation, may improve the solution time and quality. However, given that students are unaware of the GPAs of other students in their groups, they are unlikely to perceive a small improvement in solution quality. It was for this reason, and the tight development timeframe, that other approaches were not investigated.
 
 \section{Conclusion}
 This paper provides a case study on how the combination of Excel, SolverStudio and PuLP enables the rapid development of non-trivial optimisation solutions. The total development timeframe, from conception to delivery of a finished product, took two weeks of part time work. The majority of this was spent creating the reporting and visualisation tools. Using this model as a guide for future problems will reduce this time even further.
