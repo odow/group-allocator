@@ -1,4 +1,4 @@
-~$Group Allocator.xlsx
+~$*.xlsx
 .Rproj.user
 .Rhistory
 Groups_Instructor*
@@ -9,6 +9,5 @@ Groups_Student*
 *.blg
 *.log
 *.gz
-403_data_gitignored
 Groups_InstructorView*
 Groups_StudentView*
