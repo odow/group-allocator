@@ -16,4 +16,7 @@ Group-Allocator uses a mixed integer program to minimize the difference between 
 ## Files
 + **Group_Allocator.xlsx** - the main spreadsheet that contains everything necessary to run Group-Allocator with SolverStudio installed
 + **solve_script.py** - a copy of the source code contained within Group_Allocator.xlsx for easy editing in a text editor and commit history in Git
-+ **data_gen.xlsx** - a spreadsheet with formulae to demonstrate how test data can be generated
++ **data_analysis/data_gen.xlsx** - a spreadsheet with formulae to demonstrate how test data can be generated
++ **data_analysis/box_plots.R** - R script for generating box plots for each factor to check quality of result
++ **data_analysis/group_histograms.R** - R script for generating GPA histograms for each group
++ **orsnz_paper/** - contains a paper submitted to the 2014 Joint Conference of the NZ Statistical Association and Operations Research Society of NZ regarding the development, validation and application of Group-Allocator
