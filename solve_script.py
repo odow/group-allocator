@@ -40,12 +40,12 @@ print('Creating model...')
 # Pre-computed variables and constants
 
 # Weightings
-gpa_mean_weight = 1
-gpa_variance_weight = 1
-specialisation_weight = 1
-gender_weight = 1
-ethnicity_weight = 1
-outstanding_gpa_weight = 1
+gpa_mean_weight = factor_gpamean
+gpa_variance_weight = factor_gpavar
+specialisation_weight = factor_spec
+gender_weight = factor_gender
+ethnicity_weight = factor_eth
+outstanding_gpa_weight = factor_out
 
 # beta is the number to adjust the upper bound on number of
 # type of people in a group
@@ -762,138 +762,138 @@ save_path_student = '%s\\%s' % (path, student_workbook_name)
 
 # Instructor View
 # Create new workbook
-Application.Workbooks.Add()
-Application.ActiveWorkbook.SaveAs(Filename=save_path_instructor)
-wb = Application.Workbooks(instructor_workbook_name)
+# Application.Workbooks.Add()
+# Application.ActiveWorkbook.SaveAs(Filename=save_path_instructor)
+# wb = Application.Workbooks(instructor_workbook_name)
 
-# All groups
-wb.Sheets.Add()
-wb.ActiveSheet.Name = 'All_Groups'
-ws = wb.Worksheets('All_Groups')
+# # All groups
+# wb.Sheets.Add()
+# wb.ActiveSheet.Name = 'All_Groups'
+# ws = wb.Worksheets('All_Groups')
 
-# Headers
-ws.Cells(1, 1).Value = 'Group'
-ws.Cells(1, 1).Font.Bold = True
+# # Headers
+# ws.Cells(1, 1).Value = 'Group'
+# ws.Cells(1, 1).Font.Bold = True
 
-ws.Cells(1, 2).Value = 'Name'
-ws.Cells(1, 2).Font.Bold = True
+# ws.Cells(1, 2).Value = 'Name'
+# ws.Cells(1, 2).Font.Bold = True
 
-ws.Cells(1, 3).Value = 'Gender'
-ws.Cells(1, 3).Font.Bold = True
+# ws.Cells(1, 3).Value = 'Gender'
+# ws.Cells(1, 3).Font.Bold = True
 
-ws.Cells(1, 4).Value = 'UPI'
-ws.Cells(1, 4).Font.Bold = True
+# ws.Cells(1, 4).Value = 'UPI'
+# ws.Cells(1, 4).Font.Bold = True
 
-ws.Cells(1, 5).Value = 'Discipline'
-ws.Cells(1, 5).Font.Bold = True
+# ws.Cells(1, 5).Value = 'Discipline'
+# ws.Cells(1, 5).Font.Bold = True
 
-ws.Cells(1, 6).Value = 'UoA Email'
-ws.Cells(1, 6).Font.Bold = True
+# ws.Cells(1, 6).Value = 'UoA Email'
+# ws.Cells(1, 6).Font.Bold = True
 
-ws.Cells(1, 7).Value = 'GPA'
-ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
-ws.Cells(1, 7).Font.Bold = True
+# ws.Cells(1, 7).Value = 'GPA'
+# ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
+# ws.Cells(1, 7).Font.Bold = True
 
-ws.Cells(1, 8).Value = 'Ethnic Group'
-ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
-ws.Cells(1, 8).Font.Bold = True
+# ws.Cells(1, 8).Value = 'Ethnic Group'
+# ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
+# ws.Cells(1, 8).Font.Bold = True
 
-# Data
-row_index = 1
-for g in GROUPS:
-    for s in students_in_group[g]:
-        row_index += 1
-        ws.Cells(row_index, 1).Value = g
-        ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = gender[s]
-        ws.Cells(row_index, 4).Value = UPI[s]
-        ws.Cells(row_index, 5).Value = specialisation[s]
-        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
-        ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 7),
-                 ws.Cells(row_index, 7)).NumberFormat = '0.00'
-        ws.Cells(row_index, 8).Value = ethnicity[s]
-        # Space between each group
-    row_index += 1
+# # Data
+# row_index = 1
+# for g in GROUPS:
+#     for s in students_in_group[g]:
+#         row_index += 1
+#         ws.Cells(row_index, 1).Value = g
+#         ws.Cells(row_index, 2).Value = NAMES[s]
+#         ws.Cells(row_index, 3).Value = gender[s]
+#         ws.Cells(row_index, 4).Value = UPI[s]
+#         ws.Cells(row_index, 5).Value = specialisation[s]
+#         ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+#         ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
+#         ws.Range(ws.Cells(row_index, 7),
+#                  ws.Cells(row_index, 7)).NumberFormat = '0.00'
+#         ws.Cells(row_index, 8).Value = ethnicity[s]
+#         # Space between each group
+#     row_index += 1
 
-ws.Activate()
-ws.Cells.Select()
-Application.Selection.Columns.AutoFit()
-ws.Cells(1, 1).Select()
+# ws.Activate()
+# ws.Cells.Select()
+# Application.Selection.Columns.AutoFit()
+# ws.Cells(1, 1).Select()
 
-for sheet in wb.Worksheets:
-    if sheet.Name != 'All_Groups':
-        Application.DisplayAlerts = False
-        sheet.Delete()
-        Application.DisplayAlerts = True
+# for sheet in wb.Worksheets:
+#     if sheet.Name != 'All_Groups':
+#         Application.DisplayAlerts = False
+#         sheet.Delete()
+#         Application.DisplayAlerts = True
 
 
-# Make a sheet for each group
-for g in GROUPS:
-    count = Application.Worksheets.Count
-    wb.Sheets.Add(After=wb.Sheets(count))
-    wb_name = 'Group_%s' % g
-    wb.ActiveSheet.Name = wb_name
-    ws = wb.Worksheets(wb_name)
+# # Make a sheet for each group
+# for g in GROUPS:
+#     count = Application.Worksheets.Count
+#     wb.Sheets.Add(After=wb.Sheets(count))
+#     wb_name = 'Group_%s' % g
+#     wb.ActiveSheet.Name = wb_name
+#     ws = wb.Worksheets(wb_name)
 
-    # Headers
-    ws.Cells(1, 1).Value = 'Group'
-    ws.Cells(1, 1).Font.Bold = True
+#     # Headers
+#     ws.Cells(1, 1).Value = 'Group'
+#     ws.Cells(1, 1).Font.Bold = True
 
-    ws.Cells(1, 2).Value = 'Name'
-    ws.Cells(1, 2).Font.Bold = True
+#     ws.Cells(1, 2).Value = 'Name'
+#     ws.Cells(1, 2).Font.Bold = True
 
-    ws.Cells(1, 3).Value = 'Gender'
-    ws.Cells(1, 3).Font.Bold = True
+#     ws.Cells(1, 3).Value = 'Gender'
+#     ws.Cells(1, 3).Font.Bold = True
 
-    ws.Cells(1, 4).Value = 'UPI'
-    ws.Cells(1, 4).Font.Bold = True
+#     ws.Cells(1, 4).Value = 'UPI'
+#     ws.Cells(1, 4).Font.Bold = True
 
-    ws.Cells(1, 5).Value = 'Discipline'
-    ws.Cells(1, 5).Font.Bold = True
+#     ws.Cells(1, 5).Value = 'Discipline'
+#     ws.Cells(1, 5).Font.Bold = True
 
-    ws.Cells(1, 6).Value = 'UoA Email'
-    ws.Cells(1, 6).Font.Bold = True
+#     ws.Cells(1, 6).Value = 'UoA Email'
+#     ws.Cells(1, 6).Font.Bold = True
 
-    ws.Cells(1, 7).Value = 'GPA'
-    ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
-    ws.Cells(1, 7).Font.Bold = True
+#     ws.Cells(1, 7).Value = 'GPA'
+#     ws.Range(ws.Cells(1, 7), ws.Cells(1, 7)).Style = 'Bad'
+#     ws.Cells(1, 7).Font.Bold = True
 
-    ws.Cells(1, 8).Value = 'Ethnic Group'
-    ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
-    ws.Cells(1, 8).Font.Bold = True
+#     ws.Cells(1, 8).Value = 'Ethnic Group'
+#     ws.Range(ws.Cells(1, 8), ws.Cells(1, 8)).Style = 'Bad'
+#     ws.Cells(1, 8).Font.Bold = True
 
-    # Data
-    row_index = 1
-    for s in students_in_group[g]:
-        row_index += 1
-        ws.Cells(row_index, 1).Value = g
-        ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = gender[s]
-        ws.Cells(row_index, 4).Value = UPI[s]
-        ws.Cells(row_index, 5).Value = specialisation[s]
-        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
-        ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
-        ws.Range(ws.Cells(row_index, 7),
-                 ws.Cells(row_index, 7)).NumberFormat = '0.00'
-        ws.Cells(row_index, 8).Value = ethnicity[s]
+#     # Data
+#     row_index = 1
+#     for s in students_in_group[g]:
+#         row_index += 1
+#         ws.Cells(row_index, 1).Value = g
+#         ws.Cells(row_index, 2).Value = NAMES[s]
+#         ws.Cells(row_index, 3).Value = gender[s]
+#         ws.Cells(row_index, 4).Value = UPI[s]
+#         ws.Cells(row_index, 5).Value = specialisation[s]
+#         ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+#         ws.Cells(row_index, 7).Value = '%.2f' % gpa[s]
+#         ws.Range(ws.Cells(row_index, 7),
+#                  ws.Cells(row_index, 7)).NumberFormat = '0.00'
+#         ws.Cells(row_index, 8).Value = ethnicity[s]
 
-    # Mean GPA
-    row_index += 2
-    ws.Cells(row_index, 6).Value = 'Mean GPA'
-    ws.Cells(row_index, 6).Font.Bold = True
-    ws.Cells(row_index, 7).Value = '%.2f' % gpa_mean_group[g]
-    ws.Range(ws.Cells(row_index, 7),
-             ws.Cells(row_index, 7)).NumberFormat = '0.00'
+#     # Mean GPA
+#     row_index += 2
+#     ws.Cells(row_index, 6).Value = 'Mean GPA'
+#     ws.Cells(row_index, 6).Font.Bold = True
+#     ws.Cells(row_index, 7).Value = '%.2f' % gpa_mean_group[g]
+#     ws.Range(ws.Cells(row_index, 7),
+#              ws.Cells(row_index, 7)).NumberFormat = '0.00'
 
-    # Activate and autofit
-    ws.Activate()
-    ws.Cells.Select()
-    Application.Selection.Columns.AutoFit()
-    ws.Cells(1, 1).Select()
+#     # Activate and autofit
+#     ws.Activate()
+#     ws.Cells.Select()
+#     Application.Selection.Columns.AutoFit()
+#     ws.Cells(1, 1).Select()
 
-wb.Worksheets('All_Groups').Activate()
-wb.Save()
+# wb.Worksheets('All_Groups').Activate()
+# wb.Save()
 
 # Student View
 # Create new workbook
@@ -913,17 +913,17 @@ ws.Cells(1, 1).Font.Bold = True
 ws.Cells(1, 2).Value = 'Name'
 ws.Cells(1, 2).Font.Bold = True
 
-ws.Cells(1, 3).Value = 'Gender'
+# ws.Cells(1, 3).Value = 'Gender'
+# ws.Cells(1, 3).Font.Bold = True
+
+# ws.Cells(1, 3).Value = 'UPI'
+# ws.Cells(1, 3).Font.Bold = True
+
+ws.Cells(1, 3).Value = 'Discipline'
 ws.Cells(1, 3).Font.Bold = True
 
-ws.Cells(1, 4).Value = 'UPI'
+ws.Cells(1, 4).Value = 'Email'
 ws.Cells(1, 4).Font.Bold = True
-
-ws.Cells(1, 5).Value = 'Discipline'
-ws.Cells(1, 5).Font.Bold = True
-
-ws.Cells(1, 6).Value = 'UoA Email'
-ws.Cells(1, 6).Font.Bold = True
 
 # Data
 row_index = 1
@@ -932,12 +932,12 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = gender[s]
-        ws.Cells(row_index, 4).Value = UPI[s]
-        ws.Cells(row_index, 5).Value = specialisation[s]
-        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        # ws.Cells(row_index, 3).Value = gender[s]
+        # ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 3).Value = specialisation[s]
+        ws.Cells(row_index, 4).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         # Space between each group
-    row_index += 1
+    #row_index += 1
 
 ws.Activate()
 ws.Cells.Select()
@@ -952,48 +952,48 @@ for sheet in wb.Worksheets:
 
 
 # Make a sheet for each group
-for g in GROUPS:
-    count = Application.Worksheets.Count
-    wb.Sheets.Add(After=wb.Sheets(count))
-    wb_name = 'Group_%s' % g
-    wb.ActiveSheet.Name = wb_name
-    ws = wb.Worksheets(wb_name)
+# for g in GROUPS:
+#     count = Application.Worksheets.Count
+#     wb.Sheets.Add(After=wb.Sheets(count))
+#     wb_name = 'Group_%s' % g
+#     wb.ActiveSheet.Name = wb_name
+#     ws = wb.Worksheets(wb_name)
 
-    # Headers
-    ws.Cells(1, 1).Value = 'Group'
-    ws.Cells(1, 1).Font.Bold = True
+#     # Headers
+#     ws.Cells(1, 1).Value = 'Group'
+#     ws.Cells(1, 1).Font.Bold = True
 
-    ws.Cells(1, 2).Value = 'Name'
-    ws.Cells(1, 2).Font.Bold = True
+#     ws.Cells(1, 2).Value = 'Name'
+#     ws.Cells(1, 2).Font.Bold = True
 
-    ws.Cells(1, 3).Value = 'Gender'
-    ws.Cells(1, 3).Font.Bold = True
+#     ws.Cells(1, 3).Value = 'Gender'
+#     ws.Cells(1, 3).Font.Bold = True
 
-    ws.Cells(1, 4).Value = 'UPI'
-    ws.Cells(1, 4).Font.Bold = True
+#     ws.Cells(1, 4).Value = 'UPI'
+#     ws.Cells(1, 4).Font.Bold = True
 
-    ws.Cells(1, 5).Value = 'Discipline'
-    ws.Cells(1, 5).Font.Bold = True
+#     ws.Cells(1, 5).Value = 'Discipline'
+#     ws.Cells(1, 5).Font.Bold = True
 
-    ws.Cells(1, 6).Value = 'UoA Email'
-    ws.Cells(1, 6).Font.Bold = True
+#     ws.Cells(1, 6).Value = 'UoA Email'
+#     ws.Cells(1, 6).Font.Bold = True
 
-    # Data
-    row_index = 1
-    for s in students_in_group[g]:
-        row_index += 1
-        ws.Cells(row_index, 1).Value = g
-        ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = gender[s]
-        ws.Cells(row_index, 4).Value = UPI[s]
-        ws.Cells(row_index, 5).Value = specialisation[s]
-        ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+#     # Data
+#     row_index = 1
+#     for s in students_in_group[g]:
+#         row_index += 1
+#         ws.Cells(row_index, 1).Value = g
+#         ws.Cells(row_index, 2).Value = NAMES[s]
+#         ws.Cells(row_index, 3).Value = gender[s]
+#         ws.Cells(row_index, 4).Value = UPI[s]
+#         ws.Cells(row_index, 5).Value = specialisation[s]
+#         ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
 
-    # Activate
-    ws.Activate()
-    ws.Cells.Select()
-    Application.Selection.Columns.AutoFit()
-    ws.Cells(1, 1).Select()
+#     # Activate
+#     ws.Activate()
+#     ws.Cells.Select()
+#     Application.Selection.Columns.AutoFit()
+#     ws.Cells(1, 1).Select()
 
 wb.Worksheets('All_Groups').Activate()
 wb.Save()
