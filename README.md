@@ -7,7 +7,7 @@ The solution is implemented in a Microsoft Excel interface so it makes it easy f
 
 ## Compatible Versions of Microsoft Excel and SolverStudio
 
-Group-Allocator has been tested on Microsoft Excel 2010 and 2013, and SolverStudio 0.6.0 and 0.5.4.
+Group-Allocator has been tested on Microsoft Excel 2010 and 2013, and SolverStudio 0.08.01, 0.6.0 and 0.5.4.
 
 ## Technical Details
 
