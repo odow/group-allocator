@@ -187,7 +187,7 @@ if chart_only != "Yes":
         + 1e4 * (specialisation_weight * \
                  lpSum([(specialisation_artificial_min[i] + specialisation_artificial_max[i]) \
                         for i in SPECIALISATION_ARTIFICIAL]) \
-                 + gender_weight * lpSum([female_artificial[i] \
+                 + gender_weight * lpSum([female_artificial[i] + male_artificial[i]\
                                          for i in GROUPS]) \
                  + ethnicity_weight * \
                  lpSum([(ethnicity_artificial_min[i] + ethnicity_artificial_max[i]) \
@@ -281,13 +281,13 @@ if chart_only != "Yes":
         for e in ETHNICITIES:
             problem += lpSum([x[(s, g)] for s in STUDENTS
                              if ethnicity[s].lower() == e.lower()]) \
-                + ethnicity_artificial_max[(e, g)] >= ethnicity_max[e], \
+                + ethnicity_artificial_max[(e, g)] <= ethnicity_max[e], \
                 'max_eth%s_g%d' % (e, g)
 
         # Number of oustanding students must be at least min (relaxed)
         problem += lpSum([x[(s, g)] for s in STUDENTS
                          if gpa[s] >= outstanding_gpa]) \
-            + oustanding_gpa_artificial[g] >= oustanding_count, \
+            + oustanding_gpa_artificial[g] >= oustanding_gpa_min, \
             'out_gpa%s_g%d' % (e, g)
 
     # ============================================================================
@@ -328,7 +328,9 @@ if chart_only != "Yes":
     print('Specialisations Max: %.0f' %
           sum([specialisation_artificial_max[i].value()
               for i in SPECIALISATION_ARTIFICIAL]))
-    print('Females: %.0f' % sum([female_artificial[i].value()
+    print('Females Min: %.0f' % sum([female_artificial[i].value()
+          for i in GROUPS]))
+    print('Males Min: %.0f' % sum([male_artificial[i].value()
           for i in GROUPS]))
     print('Ethnicities Min: %.0f' %
           sum([ethnicity_artificial_min[i].value() for i in ETHNICITY_ARTIFICIAL]))
