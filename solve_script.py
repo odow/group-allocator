@@ -267,7 +267,7 @@ if chart_only != "Yes":
         for k in SPECIALISATIONS:
             problem += lpSum([x[(s, g)] for s in STUDENTS
                              if specialisation[s].lower() == k.lower()]) \
-                + specialisation_artificial_max[(k, g)] <= specialisation_max[k], \
+                - specialisation_artificial_max[(k, g)] <= specialisation_max[k], \
                 'max_spec%s_g%d' % (k, g)
 
         # Number from each ethnicity must be at least min (relaxed)
@@ -281,7 +281,7 @@ if chart_only != "Yes":
         for e in ETHNICITIES:
             problem += lpSum([x[(s, g)] for s in STUDENTS
                              if ethnicity[s].lower() == e.lower()]) \
-                + ethnicity_artificial_max[(e, g)] <= ethnicity_max[e], \
+                - ethnicity_artificial_max[(e, g)] <= ethnicity_max[e], \
                 'max_eth%s_g%d' % (e, g)
 
         # Number of oustanding students must be at least min (relaxed)
