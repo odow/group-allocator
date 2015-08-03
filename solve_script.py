@@ -49,7 +49,7 @@ outstanding_gpa_weight = factor_out
 
 # beta is the number to adjust the upper bound on number of
 # type of people in a group
-beta = 1
+beta = 0
 
 # The GPA of an 'oustanding' student
 outstanding_gpa = 8.00
@@ -953,49 +953,41 @@ for sheet in wb.Worksheets:
         Application.DisplayAlerts = True
 
 
-# Make a sheet for each group
-# for g in GROUPS:
-#     count = Application.Worksheets.Count
-#     wb.Sheets.Add(After=wb.Sheets(count))
-#     wb_name = 'Group_%s' % g
-#     wb.ActiveSheet.Name = wb_name
-#     ws = wb.Worksheets(wb_name)
+#Make a sheet for each group
+for g in GROUPS:
+    count = Application.Worksheets.Count
+    wb.Sheets.Add(After=wb.Sheets(count))
+    wb_name = 'Group_%s' % g
+    wb.ActiveSheet.Name = wb_name
+    ws = wb.Worksheets(wb_name)
 
-#     # Headers
-#     ws.Cells(1, 1).Value = 'Group'
-#     ws.Cells(1, 1).Font.Bold = True
+    # Headers
+    ws.Cells(1, 1).Value = 'Group'
+    ws.Cells(1, 1).Font.Bold = True
 
-#     ws.Cells(1, 2).Value = 'Name'
-#     ws.Cells(1, 2).Font.Bold = True
+    ws.Cells(1, 2).Value = 'Name'
+    ws.Cells(1, 2).Font.Bold = True
 
-#     ws.Cells(1, 3).Value = 'Gender'
-#     ws.Cells(1, 3).Font.Bold = True
+    ws.Cells(1, 3).Value = 'Discipline'
+    ws.Cells(1, 3).Font.Bold = True
 
-#     ws.Cells(1, 4).Value = 'UPI'
-#     ws.Cells(1, 4).Font.Bold = True
+    ws.Cells(1, 4).Value = 'UoA Email'
+    ws.Cells(1, 4).Font.Bold = True
 
-#     ws.Cells(1, 5).Value = 'Discipline'
-#     ws.Cells(1, 5).Font.Bold = True
+    # Data
+    row_index = 1
+    for s in students_in_group[g]:
+        row_index += 1
+        ws.Cells(row_index, 1).Value = g
+        ws.Cells(row_index, 2).Value = NAMES[s]
+        ws.Cells(row_index, 3).Value = specialisation[s]
+        ws.Cells(row_index, 4).Value = '%s@aucklanduni.ac.nz' % UPI[s]
 
-#     ws.Cells(1, 6).Value = 'UoA Email'
-#     ws.Cells(1, 6).Font.Bold = True
-
-#     # Data
-#     row_index = 1
-#     for s in students_in_group[g]:
-#         row_index += 1
-#         ws.Cells(row_index, 1).Value = g
-#         ws.Cells(row_index, 2).Value = NAMES[s]
-#         ws.Cells(row_index, 3).Value = gender[s]
-#         ws.Cells(row_index, 4).Value = UPI[s]
-#         ws.Cells(row_index, 5).Value = specialisation[s]
-#         ws.Cells(row_index, 6).Value = '%s@aucklanduni.ac.nz' % UPI[s]
-
-#     # Activate
-#     ws.Activate()
-#     ws.Cells.Select()
-#     Application.Selection.Columns.AutoFit()
-#     ws.Cells(1, 1).Select()
+    # Activate
+    ws.Activate()
+    ws.Cells.Select()
+    Application.Selection.Columns.AutoFit()
+    ws.Cells(1, 1).Select()
 
 wb.Worksheets('All_Groups').Activate()
 wb.Save()
