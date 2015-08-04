@@ -918,14 +918,14 @@ ws.Cells(1, 2).Font.Bold = True
 # ws.Cells(1, 3).Value = 'Gender'
 # ws.Cells(1, 3).Font.Bold = True
 
-# ws.Cells(1, 3).Value = 'UPI'
-# ws.Cells(1, 3).Font.Bold = True
-
-ws.Cells(1, 3).Value = 'Discipline'
+ws.Cells(1, 3).Value = 'UPI'
 ws.Cells(1, 3).Font.Bold = True
 
-ws.Cells(1, 4).Value = 'Email'
+ws.Cells(1, 4).Value = 'Discipline'
 ws.Cells(1, 4).Font.Bold = True
+
+ws.Cells(1, 5).Value = 'UoA Email'
+ws.Cells(1, 5).Font.Bold = True
 
 # Data
 row_index = 1
@@ -935,9 +935,9 @@ for g in GROUPS:
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
         # ws.Cells(row_index, 3).Value = gender[s]
-        # ws.Cells(row_index, 3).Value = UPI[s]
-        ws.Cells(row_index, 3).Value = specialisation[s]
-        ws.Cells(row_index, 4).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
         # Space between each group
     #row_index += 1
 
@@ -968,11 +968,14 @@ for g in GROUPS:
     ws.Cells(1, 2).Value = 'Name'
     ws.Cells(1, 2).Font.Bold = True
 
-    ws.Cells(1, 3).Value = 'Discipline'
+    ws.Cells(1, 3).Value = 'UPI'
     ws.Cells(1, 3).Font.Bold = True
 
-    ws.Cells(1, 4).Value = 'UoA Email'
+    ws.Cells(1, 4).Value = 'Discipline'
     ws.Cells(1, 4).Font.Bold = True
+
+    ws.Cells(1, 5).Value = 'UoA Email'
+    ws.Cells(1, 5).Font.Bold = True
 
     # Data
     row_index = 1
@@ -980,8 +983,9 @@ for g in GROUPS:
         row_index += 1
         ws.Cells(row_index, 1).Value = g
         ws.Cells(row_index, 2).Value = NAMES[s]
-        ws.Cells(row_index, 3).Value = specialisation[s]
-        ws.Cells(row_index, 4).Value = '%s@aucklanduni.ac.nz' % UPI[s]
+        ws.Cells(row_index, 3).Value = UPI[s]
+        ws.Cells(row_index, 4).Value = specialisation[s]
+        ws.Cells(row_index, 5).Value = '%s@aucklanduni.ac.nz' % UPI[s]
 
     # Activate
     ws.Activate()
