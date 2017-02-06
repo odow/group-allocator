@@ -23,3 +23,7 @@ Group-Allocator uses a mixed integer program to minimize the difference between 
 + **data_analysis/group_histograms.R** - R script for generating GPA histograms for each group
 + **orsnz_paper/** - contains a paper submitted to the 2014 Joint Conference of the NZ Statistical Association and Operations Research Society of NZ regarding the development, validation and application of Group-Allocator
 + **orsnz_presentation/** - contains slides for presentation at 2014 Joint Conference of the NZ Statistical Association and Operations Research Society of NZ
+
+## Simplified GroupAllocator
+
+A simplified version of the spreadsheet is contained in the file **Simplified GroupAllocator.xlsx**. It doesn't contain the reporting features of the full version. 
